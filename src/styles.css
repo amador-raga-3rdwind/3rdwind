@@ -1,1 +1,48 @@
 /* You can add global styles to this file, and also import other style files */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+.apiGrid{
+    @apply container w-full grid;
+}
+
+api-value {
+        @apply min-w-[300px] apiGrid w-fit text-stone-700 font-extralight;
+    }
+
+api-key {
+        @apply w-fit  container grid font-bold;
+    }
+
+api-cell {
+    @apply apiGrid  grid-cols-2;
+}
+
+api-node {
+    @apply flex odd:bg-green-100 even:bg-rose-100;
+}
+
+api-row {
+    @apply apiGrid;
+}
+
+
+.btn {
+    @apply font-bold py-2 px-4 mx-1 rounded;
+}
+btn-blue {
+    @apply bg-blue-500 text-white text-2xl;
+}
+.btn:hover {
+    @apply bg-orange-700;
+}
+.nodeButton{
+    @apply btn bg-amber-500 text-white text-2xl;  
+}
+
+.urlMedia{
+    @apply  hover:animate-bounce hover:text-green-500 duration-300
+            text-3xl text-amber-600 cursor-pointer hover:scale-150 hover:rotate-12; 
+}
