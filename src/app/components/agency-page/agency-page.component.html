@@ -1,0 +1,23 @@
+<ng-container *ngIf="isReady">
+
+          <div class="flex" id="frontPage-{{agencyName}}" >
+                    <label class="swap swap-flip text-lg w-10" >
+                              <input type="checkbox" (click)="toggleFront()" />
+                              <div class="swap-on">△</div>
+                              <div class="swap-off">▽</div>
+                    </label>
+                    <h2 [hidden]="isOff">THIS IS THE FRONT PAGE OF <b class="text-red-400 text-4xl drop-shadow-xl font-extrabold" >{{agencyName}}</b></h2>
+          </div>
+
+          <agency-section [agencyName]="agencyName"></agency-section> 
+
+</ng-container>
+
+<!-- 
+✅ ☑️  🔼 🔽 ▶ 
+
+
+-->
+
+
+

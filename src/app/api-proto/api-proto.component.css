@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+th, tr{
+    @apply px-2 text-4xl drop-shadow-sm shadow-green-300 align-top;
+}
+
+/* CLASSES */
+
+.btn {
+    @apply cursor-pointer font-bold py-2 px-4 m-1 rounded-t-lg hover:brightness-110 hover:scale-110;
+}
+
+.panel-left{
+    @apply bg-red-200;
+}
+
+.panel-center{
+    @apply bg-green-200;
+}
+
+.panel-right{
+    @apply bg-blue-200;
+}
+
+
+
+/* CUSTOM TAGS */
+menu-level1{
+    @apply bg-blue-200  border-b-8 border-stone-500 drop-shadow-md shadow-stone-500 justify-start ;
+}
+
+menu-tab1{
+    @apply btn text-blue-100 text-xl bg-slate-500 mx-1;
+}
+menu-tab2{
+    @apply btn text-yellow-100 text-lg bg-slate-500 mx-1;
+}
+menu-tab3{
+    @apply btn  text-green-100 bg-slate-500 ;
+}
+menu-tab4{
+    @apply btn bg-slate-300 ;
+}
+
+
+/* 
+.panel1 {
+    @apply panel-api;
+} */

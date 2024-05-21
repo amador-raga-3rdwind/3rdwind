@@ -1,27 +1,20 @@
-<h1 class="text-indigo-600 text-7xl shadow-2xl drop-shadow-2xl">OPEN API</h1>
-<span  *ngFor="let i of ['NASA', 'DHA', 'DVA', 'Treasury', 'DHS']">
-    <button (click)="triggerAgency(i)" class="btn btn-blue">{{i}}</button>
-</span>
-<hr>
-<!-- <span  *ngFor="let i of [1,2,3]">
-    <button (click)="trigger(i)" class="btn btn-blue">{{i}}</button>
-</span> -->
 
-<form>
-    <input type="text" name="agencyName"    class="hidden" value="{{agencyName}}">
-    <input type="text" name="paramObject"   class="hidden" value="{{paramObject}}">
-    <input type="text" name="apiArea"       class="hidden" value="{{apiArea}}">
-    
-    <button class="btn bg-rose-300 text-2xl m-2 p-3 outline-double" id="triggerFinger"
-        (mousedown)="isLoading=true;"
-        hx-post="http://localhost:3000/htmx-fetch-data"
-        hx-swap="innerHTML"
-        hx-target="#dataTable" >Fetch Data {{URL}}
-    </button>
-    <div id="urlValue"></div>
-</form>
-<div *ngIf="isLoading"  class="text-9xl text-emerald-800">LOADING.....</div>
-<div class="m-8 p-4 drop-shadow-lg border-2 bg-slate-100" id="dataTable">
-<h1 class="text-4xl text-center">This is for PUBLIC consumption</h1> 
+
+<h4 class="text-stone-600 bg-amber-100">{{svc.openSections.toString()}}</h4>
+<ng-container *ngFor="let item of ['NASA', 'DHA', 'DVA', 'Treasury', 'DHS']">
+    <button-nav (click)="activatePage(item)"  id="{{item}}" class="agency-button">{{item}}</button-nav>
+</ng-container>
+
+<ng-container *ngFor="let item of ['NASA', 'DHA', 'DVA', 'Treasury', 'DHS']">
+    <div [hidden]="item!=selectedAgency"><hr><agency-page id="{{item}}-page" [agencyName]="item"></agency-page></div> 
+</ng-container>
+
+<div class="toast toast-top toast-end">
+     <span id="toastNotify" class="w-fit h-fit text-white btn-secondary items-center drop-shadow-2xl btn">{{svc.toastMessage()}}</span>
 </div>
 
+
+
+<div class="toast toast-top toast-center">
+    <span id="toastNotify2" class="w-fit h-fit text-white btn-warning items-center drop-shadow-2xl btn">{{svc.toastMessage2()}}</span>
+</div>

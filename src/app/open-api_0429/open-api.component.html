@@ -1,0 +1,22 @@
+
+
+    <button-nav
+    *ngFor="let item of ['NASA', 'DHA', 'DVA', 'Treasury', 'DHS']"
+    (click)="activatePage(item)"  id="{{item}}" class="agency-button">{{item}}
+    </button-nav>
+    
+    <div class='page-tab' id="nasaTab">
+        <nasa-page></nasa-page>
+    </div>
+    <div class='page-tab' id="dhsTab">
+        <dhs-page></dhs-page>
+    </div>
+    <div class='page-tab' id="dvaTab">
+        <dva-page></dva-page>
+    </div>
+    <div class='page-tab' id="treasuryTab">
+        <treasury-page></treasury-page>
+    </div>
+    <div class='page-tab' id="dhaTab">
+        <dha-page></dha-page>
+    </div>

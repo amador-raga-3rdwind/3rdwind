@@ -1,0 +1,55 @@
+
+
+
+<ng-container *ngIf="isReady">
+          <div class="w-fit" >
+                    <button-nav  *ngFor="let section of SectionsList" (click)="selectNext(section)"
+                    id="section_{{svc.idFormat(section)}}" class="section-tab-{{agencyName}}">
+                              {{section.split(svc.delimiter)[0]}}
+                    </button-nav>
+          </div>
+          <hr *ngIf="id.length>0">
+          <div *ngIf="id.length===0" class="text-3xl text-indigo-600">Please select from these available Open API category shared by {{agencyName}}</div>
+          <ng-container   *ngFor="let section of SectionsList" >
+                    <div class="flex mt-1 panelGroup" id="panel{{svc.idFormat(section)}}">
+                              <div  class="h-fit dummy min-w-fit" 
+                              id="output{{svc.idFormat(section)}}1"></div>
+                              <div  class="h-fit dummy max-h-[800px] overflow-scroll" 
+                              id="output{{svc.idFormat(section)}}2"></div>
+                              <div  class="h-fit dummy max-h-[800px] overflow-scroll" 
+                              id="output{{svc.idFormat(section)}}3"></div>
+                              <div  class="h-fit dummy" 
+                              id="output{{svc.idFormat(section)}}4"></div>
+                    </div>
+          </ng-container>
+
+
+          <form class="hidden">
+                    <input type="text" class="w-[500px] dummy" name="isSpecial"         id="isSpecial"   >
+                    <input type="text" class="w-[500px] dummy" name="agencyFields"      id="agencyFields"   >
+                    <input type="text" class="w-[500px] dummy" name="agency"            id="agency"  >
+                    <input type="text" class="w-[500px] dummy" name="sectionID"         id="sectionID"  >
+                    <input type="text" class="w-[500px] dummy" name="areaAPI"           id="areaAPI"   >
+                    <input type="text" class="w-[500px] dummy" name="paramObject"       id="paramObject"  >
+                    <input type="text" class="w-[500px] dummy" name="endPoint"          id="endPoint"   >
+                    <div id="urlValue"></div>
+
+                    <button class="navButton dummy" id="triggerCategory" name="triggerCategory" 
+                    hx-post="http://localhost:3000/htmx-fetch-fields"
+                    hx-swap="innerHTML"
+                    hx-target="#output1">1</button>
+          
+                    <button class="navButton dummy" id="triggerData" name="triggerData" 
+                    hx-post="http://localhost:3000/htmx-fetch-data"
+                    hx-swap="innerHTML"
+                    hx-target="#output2" >2</button>
+          
+                    <button class="navButton dummy" id="triggerProto" name="triggerProto" 
+                    hx-post="http://localhost:3000/htmx-fetch-proto"
+                    hx-swap="innerHTML"
+                    hx-target="#output3">3</button>
+
+          </form>
+
+
+</ng-container>

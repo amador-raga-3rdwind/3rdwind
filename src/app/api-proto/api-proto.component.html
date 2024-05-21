@@ -1,0 +1,77 @@
+<h1 class="text-xl5 text-green-500">PROTOTYPE FOR THE FEDERAL GOVERNMENT API</h1>
+<table class="w-full">
+    <caption>
+        <p class="bg-red-400 p-2 h-10 mb-0">
+            <menu-tab1 *ngFor="let agency of Agencies" 
+                (click)="agencyName=agency;Divisions = selectMenuLevel(menuItems, agency)">{{agency}}</menu-tab1>
+        </p>
+        <p class="bg-red-300 p-2 h-10 mb-0" [hidden]="Divisions===undefined">
+            <menu-tab2 (click)="Sections = selectMenuLevel(Agencies, division)" 
+            *ngFor="let division of Divisions">{{division.split(delimiter)[0]}}</menu-tab2>
+        </p>
+        <!-- <p class="bg-red-200 p-2 h-10 mb-0" [hidden]="Sections.length==0">
+            <menu-tab3 (click)="Areas = selectMenuLevel(Divisions, section, section[1])" 
+            title="{{section[1]}}" *ngFor="let section of Sections">
+                {{section[0]  }}</menu-tab3>
+        </p> -->
+    </caption>
+    <thead>
+        <tr>      
+        </tr>    <!-- <th class="panel-left">L E F T</th><th class="panel-center">C E N T E R</th><th class="panel-right">R I G H T</th> -->
+    </thead>
+    <tbody>
+        <tr *ngFor="let agency of Agencies" id="api{{agency}}" class="agencyPanel">
+            <td class="panel-left"      id="panelLeft{{agency}}">{{agency}}</td>
+            <td class="panel-center"    id="panelCenter{{agency}}">{{agency}}</td>
+            <td class="panel-right"     id="panelRight{{agency}}">{{agency}}</td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="flex max-h-[80%] ">
+    <div  class="htmxOutput h-fit" id="outputPanel1"></div>
+    <div  class="htmxOutput h-fit" id="outputPanel2"></div>
+    <div  class="htmxOutput h-fit" id="outputPanel3"></div>
+    <div  class="htmxOutput h-fit" id="outputPanel4"></div>
+</div>
+
+
+<!-- 
+########  #######  ########  ##     ## 
+##       ##     ## ##     ## ###   ### 
+##       ##     ## ##     ## #### #### 
+######   ##     ## ########  ## ### ## 
+##       ##     ## ##   ##   ##     ## 
+##       ##     ## ##    ##  ##     ## 
+##        #######  ##     ## ##     ##  -->
+
+<form>
+
+    <input type="text" class="w-[500px]" name="isSpecial"         id="isSpecial"   >
+    <input type="text" class="w-[500px]" name="agencyFields"   id="agencyFields"   >
+    <input type="text" class="w-[500px]" 
+    name="agency"        id="agency"  >
+    <input type="text" class="w-[500px]" name="areaAPI"           id="areaAPI"   >
+    <input type="text" class="w-[500px]" name="paramObject"       id="paramObject"  >
+    <input type="text" class="w-[500px]" name="endPoint"          id="endPoint"   >
+    <div id="urlValue"></div>
+
+
+    <button class="navButton" id="htmxTrigger" name="htmxTrigger" 
+    hx-post="http://localhost:3000/htmx-fetch-fields"
+    hx-swap="innerHTML"
+    hx-target="#outputPanel1">HTMX TRIGGER</button>
+
+    <button class="navButton" name="triggerFinger" id="triggerData"
+    hx-post="http://localhost:3000/htmx-fetch-data"
+    hx-swap="innerHTML"
+    hx-target="#outputPanel2" >Fetch Data</button>
+
+    <button class="navButton" id="triggerProto" name="triggerProto" 
+    hx-post="http://localhost:3000/htmx-fetch-proto"
+    hx-swap="innerHTML"
+    hx-target="#outputPanel3">PROTO CLICKER</button>
+    
+   
+
+</form>

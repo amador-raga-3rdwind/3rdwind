@@ -2,8 +2,37 @@
   // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "configurations": [
+    
     {
-      "name": "Attach by Process ID",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "name": "nodemon",
+      "program": "${workspaceFolder}/src/api.js",
+      "request": "launch",
+      "restart": true,
+      "runtimeExecutable": "startnodemon",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node"
+    },
+    {
+      "name": "Attach to Chrome",
+      "port": 9222,
+      "request": "attach",
+      "type": "chrome",
+      "webRoot": "${workspaceFolder}"
+    },
+    {
+      "name": "Attach to Edge",
+      "port": 9222,
+      "request": "attach",
+      "type": "msedge",
+      "webRoot": "${workspaceFolder}"
+    },
+    
+    {
+      "name": "Attach to Back-End",
       "processId": "${command:PickProcess}",
       "request": "attach",
       "skipFiles": [
@@ -12,11 +41,11 @@
       "type": "node"
     },
     {
-      "name": "ng serve",
+      "name": "Launch App",
       "type": "chrome",
       "request": "launch",
       "preLaunchTask": "npm: start",
-      "url": "http://localhost:4200/"
+      "url": "http://localhost:4200/open-api"
     },
     {
       "name": "ng test",

@@ -1,42 +1,29 @@
 import { CommonModule } from '@angular/common';
-import { Component, SimpleChanges } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, Component, SimpleChanges, signal } from '@angular/core';
+import { AgencyPageComponent } from '../components/agency-page/agency-page.component';
+import { OpenAPIService } from '../services/open-api.service';
 
 @Component({
-  selector: 'app-open-api',
-  standalone: true,
-  imports: [ CommonModule],
-  templateUrl: './open-api.component.html',
-  styleUrl: './open-api.component.css'
+    selector: 'app-open-api',
+    schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    standalone: true,
+    templateUrl: './open-api.component.html',
+    styleUrl: './open-api.component.css',
+    imports: [CommonModule, AgencyPageComponent]
 })
 export class OpenApiComponent {
-constructor(){
-
-}
-  isLoading:boolean = false;
-
-  API_arguments: Array<Object>=[];
-  URL: string="1";
-  agencyName = "NASA";
-  paramObject = "startDate=2017-01-03&endDate=2017-01-03";
-  apiArea = "DONKI/CME/";
-
-
-  triggerAgency(agencyName:string){
-    this.agencyName = agencyName;
-    document.getElementById("triggerFinger")?.click();
-  }
-
-  nodeExpand(id: string){
-    document.getElementById(id)?.classList.remove("hidden");
-  }
-
-  nodeCollapse(id: string){
-    document.getElementById(id)?.classList.add("hidden");
-  }
-
+constructor(  public svc: OpenAPIService){}
+  selectedAgency:string = "";
+  agencyPages: any;
 
   ngOnInit(): void {
-}
-
-
+    this.svc.toastNotify("");
+    this.svc.toastNotify2("Welcome!!!");
+  }
+  
+  activatePage(agencyName: string){
+    this.svc.toastMessage.set("You are now on " + agencyName + " Open API.");
+    this.selectedAgency = agencyName;
+    this.svc.allButOne("agency-button", agencyName, "selectedItem");
+    }
 }
