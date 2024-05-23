@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ApiProtoComponent } from './api-proto.component';
+import { DvaInfoComponent } from './dva-info.component';
 
-describe('ApiProtoComponent', () => {
-  let component: ApiProtoComponent;
-  let fixture: ComponentFixture<ApiProtoComponent>;
+describe('DvaInfoComponent', () => {
+  let component: DvaInfoComponent;
+  let fixture: ComponentFixture<DvaInfoComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ApiProtoComponent]
+      imports: [DvaInfoComponent]
     })
     .compileComponents();
     
-    fixture = TestBed.createComponent(ApiProtoComponent);
+    fixture = TestBed.createComponent(DvaInfoComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -2,6 +2,7 @@
   // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "configurations": [
+
     
     {
       "console": "integratedTerminal",
@@ -18,18 +19,18 @@
     },
     {
       "name": "Attach to Chrome",
-      "port": 9222,
+      "port": 4200,
       "request": "attach",
       "type": "chrome",
       "webRoot": "${workspaceFolder}"
     },
-    {
-      "name": "Attach to Edge",
-      "port": 9222,
-      "request": "attach",
-      "type": "msedge",
-      "webRoot": "${workspaceFolder}"
-    },
+    // {
+    //   "name": "Attach to Edge",
+    //   "port": 9222,
+    //   "request": "attach",
+    //   "type": "msedge",
+    //   "webRoot": "${workspaceFolder}"
+    // },
     
     {
       "name": "Attach to Back-End",

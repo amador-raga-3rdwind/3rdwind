@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { OpenApiComponent } from './open-api.component';
+import { NasaInfoComponent } from './nasa-info.component';
 
-describe('OpenApiComponent', () => {
-  let component: OpenApiComponent;
-  let fixture: ComponentFixture<OpenApiComponent>;
+describe('NasaInfoComponent', () => {
+  let component: NasaInfoComponent;
+  let fixture: ComponentFixture<NasaInfoComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [OpenApiComponent]
+      imports: [NasaInfoComponent]
     })
     .compileComponents();
     
-    fixture = TestBed.createComponent(OpenApiComponent);
+    fixture = TestBed.createComponent(NasaInfoComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -1,20 +1,47 @@
+<h1>{{svc.chatMessage()}}</h1>
 
-
-<h4 class="text-stone-600 bg-amber-100">{{svc.openSections.toString()}}</h4>
-<ng-container *ngFor="let item of ['NASA', 'DHA', 'DVA', 'Treasury', 'DHS']">
-    <button-nav (click)="activatePage(item)"  id="{{item}}" class="agency-button">{{item}}</button-nav>
-</ng-container>
-
-<ng-container *ngFor="let item of ['NASA', 'DHA', 'DVA', 'Treasury', 'DHS']">
-    <div [hidden]="item!=selectedAgency"><hr><agency-page id="{{item}}-page" [agencyName]="item"></agency-page></div> 
-</ng-container>
-
-<div class="toast toast-top toast-end">
-     <span id="toastNotify" class="w-fit h-fit text-white btn-secondary items-center drop-shadow-2xl btn">{{svc.toastMessage()}}</span>
+<div   class="chat chat-start container {{svc.chatMessage()===''?'hidden':''}}"  
+style="z-index:10; vertical-align:middle; text-align: left; position:absolute; top:{{svc.cursorY()}};  left:300px !important;">
+    <div class="chat-bubble chat-bubble-primary w-fit max-w-[350px] h-fit" >
+        <span class="text-2xl p-0 w-full" id="chatterMessage" [innerHTML]="svc.chatMessage()"></span>
+        <hr class="mt-1 py-0">
+        <div class="w-full addendum()==''?'hidden':''" [innerHTML]="svc.addendum()"></div>
+        <code>You may adjust the <u>date-range</u>,<br>then click on <u>Submit</u> below</code>
+    </div>
 </div>
 
 
 
-<div class="toast toast-top toast-center">
-    <span id="toastNotify2" class="w-fit h-fit text-white btn-warning items-center drop-shadow-2xl btn">{{svc.toastMessage2()}}</span>
-</div>
+<button-nav  *ngFor="let item of AGENCIES" (click)="activatePage(item)"  id="{{item}}agency" class="agencyGroup">{{item}}</button-nav>
+
+<ng-container *ngIf="selectedAgency!=''">
+    <div class="h-1 w-full border-t-1 mt-[6px]  bg-teal-600 rounded-tl-3xl border-teal-600"></div>
+    <div class="flex" id="frontPage-{{selectedAgency}}" >
+        <label class="swap swap-flip text-lg w-10" >
+                <input type="checkbox" (click)="toggleFront()" />
+                <div class="swap-on">△</div>
+                <div class="swap-off">▽</div>
+        </label>
+        <h2 [hidden]="isOff">THIS IS THE FRONT PAGE OF <b class="text-red-400 text-4xl drop-shadow-xl font-extrabold" >{{selectedAgency}}</b>
+        </h2>
+    </div>
+
+    <div *ngFor="let section of AGENCIES">
+       <agency-section id="{{section}}section" class="sectionGroup" [sectionName]="section"  [hidden]="section!==selectedAgency" >
+        </agency-section>
+    </div>
+</ng-container>
+
+
+<section id="utils">
+        <div class="toast toast-top toast-end">
+            <span id="toastNotify" class="w-fit h-fit text-white btn-secondary items-center drop-shadow-2xl btn">{{svc.toastMessage()}}</span>
+        </div>
+        <div class="toast toast-top toast-center">
+        <span id="toastNotify2" class="w-fit h-fit text-white btn-warning items-center drop-shadow-2xl btn"  ></span>
+        </div>
+        <p class="hidden" id="playGround"></p>
+        <p class="hidden" id="scratchPad"></p>
+
+</section>
+

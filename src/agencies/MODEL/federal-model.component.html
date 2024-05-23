@@ -1,0 +1,41 @@
+
+<table class="w-full mx-0 p-0 my-2 select-none text-stone-800 bg-transparent font-thin !important overflow-hidden" *ngIf="isSystemReady && SpecimenSheet.length > 0"  >
+          <tr>
+                    <td  class="drop-shadow-md py-10 align-top z-30 w-96 min-w-40 {{isLocked?'scale-75 -translate-x-10':''}}">
+                              <div class="align-top api-div bg-transparent font-thin text-md text-stone-600 font-mono orbit-launcher z-30  {{currentIndex==i && isLocked 
+                                        ? 'selected-orbit !important':''}}
+                                        {{ isLocked  ? 'opacity-75 pointer-events-none!important rotate-6 -translate-y-24': 'item-selector cursor-pointer !important' }} "
+                              *ngFor="let code of SpaceShipsCode; let i=index;"
+                              [innerHTML]="code" 
+                              (click)="isLocked?'':voyagePrepare(i)"
+                              (mouseenter)="orbitFreely(i)" >
+                              </div>
+                    </td>
+                    <td class="align-top">
+                              <div class="launcher align-top grid w-full m-0 p-0 scale-90  {{isLocked?'scale-100 -translate-x-64':'-translate-x-10'}} ">
+                                        <div  id="capsule-0" class="w-full z-20 align-top top-0 left-0 space-capsule mt-2 m-0 p-0 h-fit rounded-t-3xl text-white bg-indigo-700 !important">
+                                                  <div class="  w-20 h-20 m-0 p-0 items-center float-left text-7xl {{isLocked?'text-amber-200 scale-50 animate-ping hover:animate-none hover:text-white font-extrabold cursor-pointer':'text-blue-400 animate-spin'}}" (click)="unlock()">
+                                                  {{ !isLocked? '🌒' : '🏛'}}</div>
+                                                  <div class="text-3xl font-bold brightness-110 h-8 mt-1 mb-0 pt-2 px-2 float-left " [innerHTML]="SpaceShips[currentIndex]"></div>
+                                                  <div class="text-sm px-6 p-0 my-0 mb-2"  [innerHTML]="SpecimenSheet[currentIndex][1]"></div>
+                                        </div>
+                                        <div [hidden]="!SpecimenSheet[currentIndex][2]" class="max-h-[800px] z-20 align-top outline outline-indigo-700/20 bg-stone-200 outline-1 mx-0 pb-4 px-0 h-fit overflow-x-hidden overflow-y-auto
+                                        {{isLocked?'  border-2 border-solid border-indigo-700':''}}"  >
+                                                  <label class="swap float-end" *ngIf="isLocked">
+                                                            <input type="checkbox" (click)="invertOrbit()" />
+                                                            <div class="swap-on">ON</div>
+                                                            <div class="swap-off">OFF</div>
+                                                  </label>
+                                        <p id="capsule-1"   [hidden]="!isLookUp" class="align-top top-0 space-capsule h-fit z-20 m-0 px-6 "  [innerHTML]="SpecimenSheet[currentIndex][2]"></p>
+                                        <p id="capsule-2"   [hidden]="isLookUp" class="align-top  top-0 space-capsule h-fit z-20 m-0 px-6 "></p> 
+                                        <div id="capsule-3" [hidden]="isLookUp" class="align-top bg-blue-50 top-0 space-capsule h-fit z-20 m-0 px-6 " ></div> 
+                                        </div>
+                              </div>
+                                  
+                    </td>
+          </tr>
+</table>
+
+
+
+<button class="hidden" id="proxy" (click)="spaceShake()"></button>

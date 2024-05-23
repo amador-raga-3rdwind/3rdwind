@@ -1,128 +1,191 @@
-<!doctype html>
+
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>3rdwind</title>
+  <title>3rdwind Tech</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
-  <script src="https://unpkg.com/htmx.org"></script>
-  <!-- <script src="./htmx-api.js" ></script> -->
-</head>
-<body>
-  <app-root></app-root>
-
-</body>
-</html>
-
-
-
 
 
 
 
 
 <script>
-  var expressServer="http://localhost:3000/";
-  var submitValue;
-  var submitLabel;
-  var loadingIcon =  `<span class="loading loading-ring loading-lg"></span>
-                      <span class="loading loading-ring loading-xl"></span>
-                      <span class="loading loading-ring loading-2xl"></span>
-                      <span class="loading loading-ring loading-3xl"></span>`;
-  var delimiter = "♽";
+
+  let delimiter= "♽";
+  let cursorX;
+  let cursorY;
+  const agency = "NASA";
   
-        function apiPop(element){
-            window.open(element, "_blank");
-        }
-
-        function apiSubmitRequest(agency){
-          const date1 = "startDate=" + document.getElementById("start_date").getAttribute("value");
-          const date2 = "endDate=" + document.getElementById("end_date").getAttribute("value");
-            let url = submitValue.split(delimiter)[0] +  "?" + date1 + "&" + date2 ;
-            if(submitValue.indexOf("IPS")>=0) {
-              const opt = document.querySelectorAll(".apiOption");
-              for (let x=0; x<opt.length; x++){
-                let val = opt[x].options[opt[x].selectedIndex].getAttribute("value");
-                if(val!=null)  url+= `&${opt[x].getAttribute("id")}=${val}`;
-              }
-            }
-            url =  url.replaceAll("///", "/").replaceAll("//", "/");
-            document.getElementById("endPoint").setAttribute("value", url)
-            HTMXScript(2);
-          }
-
-
-        function HTMXScript(panelNumber){
-            const triggers = ["", "Category", "Data", "Proto"];
-            const sectionID = document.getElementById("sectionID").value;
-            const panel = "#output" + sectionID + panelNumber;
-            const triggerName = `trigger${triggers[panelNumber]}`;
-            const trigger = document.querySelector("#" + triggerName);
-            trigger.setAttribute("hx-target", panel);
-            document.querySelector(panel).innerHTML = `<p class='text-2xl text-white bg-red-400'>${submitLabel}</p>${loadingIcon}`; 
-            trigger.click();
-        }
-
-
-        function setFilter(puzzle){
-          const id = puzzle.id;
-          const title = puzzle.title;
-          parms = title.split("|");
-          submitValue = parms[0];
-          submitLabel = parms[1];
-          document.getElementById("submitBtn").classList.remove("hidden");
-          let allItems = document.querySelectorAll(".categorySelect");
-          for(let x=0; x<allItems.length; x++ ) {
-            allItems[x].classList.remove("selectedCategory");
-          }
-          document.querySelector("#" + id).classList.add("selectedCategory");
-          if(submitValue.indexOf("IPS")>=0)
-          document.getElementById("extraFilter").style.display = "block"
-        }
-
-        function showOpr(parm){
-          alert(parm.id);
-          alert(parm.classList.toString())
-
-        }
-
-        function searchFilter(parm){
-          let filterString = "&filter="
-          const opr = "eq";
-          let filterCount=0;
-          alert(parm);
-          const rnd = "_" + parm.id.replace("field","");
-          const elements = document.querySelectorAll("." + parm.id);
-          for(let x=0; x<elements.length; x++){
-            const idField = elements[x].id.replace(rnd,"");
-            value= elements[x].value;
-            if(value!=undefined && value!="") {
-              filterString += (filterCount===0 ? "": ",") +  idField + ":" + opr + ":" + value ;
-              filterCount++
-            }
-          }
-          alert(filterString);
-        }
-
-        function showInfo(payLoad){
-          alert(payLoad)
-          document.querySelector("#dataTable").innerHTML = "NOW LOADING...>";
-          if(payLoad.indexOf("_EQUALS_")<0){
-            document.querySelector("#dataTable").innerHTML = `Click <a href='${payLoad}'>${payLoad}</a> to open`;
-          }
-          else {
-            document.getElementById("endPoint").setAttribute("value", payLoad);
-            document.getElementById("triggerProto").click();
-          }
-        }
-
-
-
-</script>
-
-<style>
-  .selectedItem {
-    @apply bg-red-800 drop-shadow-2xl;
+  document.onmousedown = function(e){
+      cursorX = e.pageX;
+      cursorY = e.pageY;
+      sessionStorage.setItem("cursorLocation", cursorX+"px|" + cursorY+"px");
   }
-</style>
+  
+  function selectIdFromClass(id, className="", classAction=''){
+    if(className==="") className = id.split("---")[0] + "Group";
+    const flip = true;
+    if(classAction===""){
+      classAction = "hidden";
+      flip = false;
+    };
+    const group = document.querySelectorAll("." + className);
+    for(let x=0; x<group.length; x++) {
+      group[x].classList[ flip ? "remove" : "add"](classAction);     
+    }
+    document.querySelector("#" + id).classList[ flip ? "add" : "remove"](classAction);
+  }
+  
+  function submitFilter(itself){
+    alert("TESTING")
+        const id=  itself.id.split("---")
+        const btn = document.querySelector("#submitNow" +  id[0] );
+        selectIdFromClass(itself.id, "",  "selectedCategory");
+        btn.role = id[1].split(delimiter)[0];
+        submitChatMessage(itself, "You chose<div class='my-0 p-0 font-bold brightness-[120]'>" + btn.role + " API</div>" + (btn.role!=="IPS"?"":"|You may opt to choose a certain <u class='text-lg text-stone-700'>Location/Catalog</u>." ));
+        if(btn.role.indexOf("IPS")>=0){
+          document.querySelector("#extraFilter").classList.remove("hidden");
+          return
+        }
+        try {
+            document.querySelector("#extraFilter").classList.add("hidden");
+          }
+        catch(err){};
+            btn.classList.remove("muted");
+            btn.classList.add("unmuted");    
+  }
+  
+  
+  function submitChatMessage(itself, chatMessage=""){
+    const parm = itself.id.split("---");
+    const xxx = `#${parm[0]}sectionTab`.replace("__", "_").replace("submitNow","");
+    sessionStorage.setItem("CHATTER", chatMessage)
+    const btn = document.querySelector(xxx).click();
+  }
+
+  function unlock(){
+    sessionStorage.setItem("OuterSpaceSession", "agency" +"|||"  + "proxy" + "|||" + "baggage" + "|||" + "classNameID[1]" );
+    const btn = document.querySelector('#dummyButton').click();
+  }
+
+  function isBoth(left, right){
+    let result = isOK(left) && isOK(right);
+    if(!result) { Qvalues[left] = ""; Qvalues[right]="" }
+    return result?"anything=anything":"";
+  
+  }
+
+  function isOK(number)  {  
+    return  _q[number]!=="";
+  }  
+
+  function Xor(left, right){
+    if(isOK(left)) {
+      Qvalues[right]="";
+      return left;
+    }
+    if(isOK(right)) {
+      Qvalues[left]="";
+      return right;
+    }
+    return "";
+  }
+  
+  function _q(number){
+    const q = Qvalues[number]
+    if(Qvalues[number]==="") return "";
+    return Qvalues[number].split("=")[1];
+  }
+
+  let Qvalues=[]
+
+  
+  function fetchData(itself, isPrep = 0){
+    if(isPrep==1){
+          document.querySelector(".filter-container").classList.remove("hidden");
+          const elements = document.querySelectorAll(".orbit-launcher")
+          elements.forEach(element=> { element.classList.remove("selected-orbit");})
+          document.querySelector("#"+ itself.id).classList.add("selected-orbit");
+          const title = "#" + itself.title.replace("fetch", "");
+          document.querySelector(title +  "Condition").innerHTML = itself.innerHTML;
+          const option =  title  + "Options";
+          if(itself.innerHTML.includes("IPS"))
+                  document.querySelector(option)?.classList.remove("hidden");
+                    else   
+                  document.querySelector(option)?.classList.add("hidden");
+          document.querySelector(title+ "-submit").dataset.url = itself.dataset.url;
+          return
+    }
+          const classNameID = itself.id.replace("fetch","").split("-");
+          const entries =document.querySelectorAll("." + classNameID[0]);
+          let queryString = ""
+                Qvalues =[] 
+                for(let x=0; x<entries.length; x++){
+                  let value = entries[x].value;
+                  if (value!=="demo_key")
+                  {
+                    if(entries[x].type ==="checkbox") value = entries[x].checked; 
+                    Qvalues.push( entries[x].title + "=" + value );
+                  } 
+                }
+                 Xor(Xor( isBoth(1, 2) ,0), 3)
+                // alert(Qvalues)
+                for(let x=0; x<Qvalues.length; x++ ){
+                  q = Qvalues[x].trim();
+                  if(q.split("=")[1]!="") queryString += "&" + q;
+                }
+          const action = "fireWhenReady";
+          let baggage = queryString.substring(1);
+
+          if(isPrep===2){
+              baggage = itself.dataset.url + "?" + baggage;
+              sessionStorage.setItem("OuterSpaceSession", agency +"|||"  + action + "|||" + baggage + "|||" + classNameID[1] );
+              document.querySelector('#proxy').click(); 
+          }
+      
+  }
+  
+
+  function submitNow(itself, chatMessage=""){
+    const parm = itself.id.split("---");
+    const xxx = `#${parm[0]}sectionTab`.replace("__", "_").replace("submitNow","");
+    sessionStorage.setItem("ATTACHMENT", itself.role)
+    alert(xxx)
+    const btn = document.querySelector(xxx).click();
+  }
+  
+  function searchFilter(itself){
+            let filterString = itself.title //"&filter="
+            // alert(filterString);
+            // const opr = "eq";
+            // let filterCount=0;
+            // const rnd = "_" + parm.id.replace("field","");
+            // const elements:  any = document.querySelectorAll("." + parm.id);
+            // for(let x=0; x<elements.length; x++){
+            //   const idField = elements[x].id.replace(rnd,"");
+            //   const value= elements[x]!.value;
+            //   if(value!=undefined && value!="") {
+            //     filterString += (filterCount===0 ? "": ",") +  idField + ":" + opr + ":" + value ;
+            //     filterCount++
+            //   }
+            // }
+            alert(filterString);
+          }
+  
+  
+  function showOpr(parm){
+    document.querySelector("#" + parm).classList.remove("disabled"); 
+    document.querySelector("#" + parm).classList.add("cursor-pointer");
+  }
+  
+  
+  </script>
+  <!-- <link rel="shortcut icon" href="#"> -->
+  <!-- <link rel="icon" type="image/x-icon" href="favicon.ico"> -->
+</head>
+<body>
+  <app-root></app-root>
+</body>
+</html>
+

@@ -2,51 +2,53 @@ import express, { urlencoded } from 'express';
 import pkg from 'body-parser';
 import cors from 'cors'; // Install cors middleware: npm install cors
 import fetch from 'node-fetch';
-import cheerio from "cheerio";
-import pretty from "pretty";
-// import fs from "fs";
+import compression from 'compression';
 import fsrw from "fs/promises";
 import { randomBytes, randomInt } from 'crypto';
 
 const { json } = pkg;
 const app = express();
-app.use(cors({ origin: 'http://localhost:4200', methods: ['GET', 'POST'] }));
+app.use( compression());
+app.use(cors({
+  origin: ['http://localhost:4200' ],
+  methods: ['GET', 'POST'], // Adjust as needed
+  headers: ['Content-Type', 'Authorization', 'X-Custom-Header', 'Accept', 'Accept-Encoding' ], // Adjust as needed
+  credentials: true
+}));
+
+
 app.use(json()); 
 app.use(urlencoded( {extended: true}));
-
+const PORT = 3000;
 let openInfo={};
 let delimiter = "♽";
-app.listen(3000, () => {
-  console.warn(`Server started on port 3000`);
-});
+
+
+
 
 let sectionID;
-//!FETCH-FIELDS
-app.post('/htmx-fetch-fields', async (req, res) => {
-  try {
-      let prefix ="";
-      let suffix ="";
-      let URL ="";
-      let agency    = req.body.agency;
-      let endPoint  = req.body.endPoint;
-      let agencyURL = req.body.agencyFields;
-      let info = extractAPI(agency);
-      let html ="";
-      prefix= info.ROOT
-      const isSpecialType = "NO"; // = req.body.specialTypeAgency;
-      sectionID = req.body.sectionID;
-      if(agency==="DVA"){
-            const bearerToken = "Bearer 0oau8p8n6nWLAEv9g2p7";
-            URL =   'https://sandbox-api.va.gov/services/fhir/v0/r4/Appointment/FOBJ7YQOH3RIQ5UZ6TRM32ZSQA000000';
-            const bearer ={ headers: { 'Authorization': bearerToken,     'accept': 'application/fhir+json' }};
-            // const response = await fetch(URL,  bearer );
-            // html = await response.json();
-            // html = toHTMLTable(html);
-      }
 
-      console.clear();
-      console.table(agencyURL);
-      const specialType = getSpecialTypeCase(agencyURL.toUpperCase()); 
+
+//!FETCH-FIELDS
+app.post('/htmx_fetch_fields', async (req, res) => {
+  try {
+          let prefix ="";
+          let suffix ="";
+          let URL ="";
+          let agency    = req.body.agency;
+          // let endPoint  = req.body.endPoint;
+          let agencyURL = req.body.agencyFields;
+          let info = extractAPI(agency);
+          let html ="";
+          prefix= info.ROOT
+          const isSpecialType = "NO"; // = req.body.specialTypeAgency;
+          sectionID = req.body.sectionID;
+              if(agency==="DVA"){
+                    const bearerToken = "Bearer 0oau8p8n6nWLAEv9g2p7";
+                    URL =   'https://sandbox-api.va.gov/services/fhir/v0/r4/';
+                    // URL =   'https://sandbox-api.va.gov/services/fhir/v0/r4/Appointment/FOBJ7YQOH3RIQ5UZ6TRM32ZSQA000000';
+                    const bearer ={ headers: { 'Authorization': bearerToken,     'accept': 'application/fhir+json' }};
+              }
     
                         function iterateObject(obj, agencyURL){
                             let result="";
@@ -79,8 +81,8 @@ app.post('/htmx-fetch-fields', async (req, res) => {
                             }
                             return result;    
                           }
-     
 
+          const specialType = getSpecialTypeCase(agencyURL.toUpperCase()); 
           if(specialType.length===0)
           {
             suffix="?page[number]=1&page[size]=1";
@@ -89,47 +91,9 @@ app.post('/htmx-fetch-fields', async (req, res) => {
           }
           else 
           {
-            for(let x=0; x<specialType.length; x++) {
-              console.table( typeof specialType[x] + "--------------------------------------------------------------------"  );
-              if(typeof specialType[x] ==="string")
-              {     
-                if( specialType[x].includes(">") ){
-                  const rnd = sectionID;
-                  const parm = specialType[x].split(">");
-                  let  extra=""
-                  if(parm.length==3) extra = classRange(parm[2]); 
-                  const id = parm[0].replaceAll(" ","")
-                  html+= `<div class='grid grid-cols-2 mx-2 text-start'>${parm[0].toUpperCase()}: <input id="${id}${sectionID}" ${extra}  ${classType(parm[1])}  /></div>`;
-                }
-                else{
-                  html+= iterateObject(specialType[x], agencyURL);
-                }
-              }
-              else
-              {
-                  html+= iterateObject(specialType[x], agencyURL);
-              }
-            } 
-
-            const today = new Date();
-            const defaultDate= "pattern='[0-9]{4}-[0-1][0-9]-[0-3][0-9]' value='" + today.toISOString().slice(0, 10) +"'";
-            const thirtyDaysAgo = new Date(today.setDate(new Date().getDate() -30));
-            const defaultDate30= "pattern='[0-9]{4}-[0-1][0-9]-[0-3][0-9]' value='" + thirtyDaysAgo.toISOString().slice(0, 10) +"'";
-            let baseFilter = "<div class='mb-4 grid grid-cols-2'><div>Start Date:</div><input type='date' "+ defaultDate30 
-              +" id='start_date'/><div>End Date:</div><input type='date' "+ defaultDate 
-              +" id='end_date'/></div>";
-            // } 
-            // const urlSubmit = `onclick="apiSubmitRequest('${info.ROOT}','${info.KEY}')"`;
-            const urlSubmit = `onclick="apiSubmitRequest('${agency}')"`;
-            baseFilter += ` <button-nav id='submitBtn' class='submitBtn hidden' ${urlSubmit} >Submit</button-nav>`;
-            html = `${_DIVISION(html)}<hr>
-                    <div id='result' class='my-2 text-center'>${baseFilter}</div>`;
-            suffix = "?page=1&_count-1"
+            html = specialType;
           }
-          
-          html=html.replaceAll('"',"");
-          res.status(200).send(_HTMX(html)); 
-            
+          res.status(200).send(html); 
   }
   catch (error) {
     console.error("Error fetching data:", error);
@@ -162,14 +126,25 @@ function classRange(type){
 }
 
 //! FETCH-DATA
-app.post('/htmx-fetch-data', async (req, res) => {
+app.post('/htmx_fetch_data', async (req, res) => {
   try {
-    const endPoint = req.body.endPoint; 
+    let endPoint = req.body.endPoint??""; 
+    if(req.body.agency==="DVA"){
+      const bearerToken = "Bearer 0oau8p8n6nWLAEv9g2p7";
+      endPoint =   'https://sandbox-api.va.gov/services/fhir/v0/r4/' + req.body.attachment;
+      const bearer ={ headers: { 'Authorization': bearerToken,     'accept': 'application/fhir+json' }};      
+}
+    //! If endPoint does not have http then use ...
+    // if( true ||  !(endPoint.includes("https://") || endPoint.includes("http://"))){
+      const info = extractAPI(req.body.agency);
+      // endPoint = info.ROOT + endPoint;
+      if(info.KEY!="") endPoint+= req.body.outerSpace.replaceAll("_METEORITES_", info.KEY) ;
+    // }
+
     let html = await fetchSpecialType(endPoint, "toHTMLTable" );
-    html=html.replaceAll('"',"");
     if( html.indexOf("-root></api-root")>=0 || html==="")  
     html="<h1 class='text-4xl bg-red-400 p-6 text-white'>NO RECORD FOUND.</h1>"
-    res.status(200).send(_HTMX(html)); 
+    res.status(200).send( html ); 
   }
   catch (error) {
     console.error("Error fetching data:", error);
@@ -178,7 +153,7 @@ app.post('/htmx-fetch-data', async (req, res) => {
 });
 
 //! FETCH-PROTO
-app.post('/htmx-fetch-proto', async (req, res) => {
+app.post('/htmx_fetch_proto', async (req, res) => {
   try {
     const baseURL = req.body.endPoint.replaceAll("|", "'").replaceAll("_EQUALS_", " eq ");
     const url = new URL(baseURL);
@@ -216,7 +191,7 @@ function getSpecialTypeCase(agencyURL){
     return ["Disability Rating", "Enrolled Benefits", "Flashes","Service History", "Status"];
    
     case "claims/v2/".toUpperCase(): 
-    return ["Veteran Identifier", "Claims", "5103 Waiver", "Intent To FIle", "Disability Compensation", "Power of Attorney"]
+    return ["Veteran Identifier", "Claims", "5103 Waiver", "Intent To File", "Disability Compensation", "Power of Attorney"]
 
     //! NASA
     case "PLANETARY/APOD/" :
@@ -287,6 +262,8 @@ function sanitizeString(item){
   return item;
 }
 
+let specialPrefix;
+
 function specialTypeParser( item, agencyURL, isSpecialType=false ){
   let kv = item.split(":");  
   let result;
@@ -299,13 +276,16 @@ function specialTypeParser( item, agencyURL, isSpecialType=false ){
       payLoad = kv[1]+":"+ kv[2];
     }    
     else {
-      payLoad =  specialTypeObject.replaceAll("_VERSION_", kv[1]).replaceAll("_ENTITY_", entity);
+      const temp =  specialTypeObject.replaceAll("_VERSION_", kv[1]).replaceAll("_ENTITY_", entity);
+      const PL = temp.split("filter=");
+      specialPrefix = PL[0]
+      payLoad=PL[1];
     }
-    result = `<button-nav onclick="showInfo('${payLoad}')">${kv[0]}</button-nav>`;
+    result = `<button-nav (click)="showInfo('${payLoad}')">${kv[0]}</button-nav>`;
   } else {
-    const params =  agencyURL + kv[1] + "|" + kv[0];
-    const id = "id='" + sanitizeString(params).replaceAll("|","").replaceAll(" ","") + "'";
-    result = "<button-nav class='categorySelect' " + id +  " title='" + params + "' onclick='setFilter(this)'>" + kv[0] + "</button-nav>";
+    const params =  (agencyURL + kv[1]??"" + "|" + kv[0]).replaceAll("undefined","");
+    const id = "id='" + sanitizeString(params + kv[0] ).replaceAll("|","").replaceAll(" ","") +  "'";
+    result = "<button-nav class='categorySelect' " + id +  " title='" + params + "' (click)='this.svc.setFilter(this)'>" + kv[0] + "</button-nav>";
   }
 
   if(kv[1]!== undefined){
@@ -356,29 +336,35 @@ async function readFileAndHandleErrors(jsonFile, URL, status) {
           //! so it will always cannot find the file.
           jsonFile = "asfdasfasferrorout";
           const data = await fsrw.readFile(jsonFile, 'utf8');
-          result = data; // result = existing data if file exists
+          result = data; 
         } catch (error) 
         {
               if (error.code === 'ENOENT') {
                 console.clear();
                 console.log(`File '${jsonFile}' does not exist.`);
                     const newURL = (URL.indexOf("https:")>=0 || URL.indexOf("http:")>=0) ? URL : _ROOT_KEY.ROOT + URL + _ROOT_KEY.KEY;
-                    
                     console.clear();
                     console.warn("newURL",newURL)
-                    
                     const response = await fetch(newURL);
                     const fetchedData = await response.json();
-                    let processedData;
-                          if (status === "getDataFields") {
-                            processedData = getDataFields(fetchedData);
-                          } else if (status === "toHTMLTable") {
-                            processedData = toHTMLTable(fetchedData);
-                          } else {
-                            throw new Error('Invalid status provided.'); // Handle invalid status
-                          }
-                          const fileContents = JSON.stringify(processedData);
-                          //! Ignre these for testing so it won't save 
+                    if(status=="toHTMLTable"){
+                      return toHTMLTable(fetchedData)
+                    }
+                    else
+                    return fetchedData;
+                    //! TODO: If I wanted to send raw data...
+                    //!! comment out the ff code block
+                    // let processedData = fetchedData;
+                          // if (status === "getDataFields") {
+                          //   processedData = getDataFields(fetchedData);
+                          // } else if (status === "toHTMLTable") {
+                          //   processedData = toHTMLTable(fetchedData);
+                          // } else {
+                          //   throw new Error('Invalid status provided.'); // Handle invalid status
+                          // }
+                      //  const fileContents = JSON.stringify(processedData);
+                      
+                      //! Ignore these for testing so it won't save 
                           //return await fsrw.writeFile(jsonFile, fileContents, 'utf8').then( (err)=> {
                           //     if(err) result = "ERR:" + err.code;
                           //     console.log('Data written to ' + jsonFile);
@@ -414,24 +400,24 @@ function getDataFields(JSON, specialType){
           let fieldName = key;
           let caption =  meta.labels[fieldName];
           let dataType = meta.dataTypes[fieldName];
-          const component = `<api-caption>${caption}</api-caption><api-ctrl id='${fieldName}' class='${dataType}'></api-ctrl>`; 
+          let pattern = meta.dataFormats[fieldName];
+          const component = `<api-caption>${caption}</api-caption><api-ctrl id='${fieldName}' title='${pattern}' class='${dataType}'></api-ctrl>`; 
           newJSON.push(component);
         }
-
-        console.table(newJSON);
 
         return newJSON.map(field => 
           {
             const apiCaption = field.match(/<api-caption>(.*?)<\/api-caption>/)[1];
             const apiCtrlId = field.match(/id='(.*?)'/)[1];
+            const apiTitle = field.match(/title='(.*?)'/)[1];
             const apiCtrlClass = field.match(/class='(.*?)'/)[1];
-            return  `<div class='fieldComponent grid grid-cols-2'>
-                    <div class='flex min-w-60 text-xs'><input type='checkbox' class='checkbox mr-4 cb_${apiCtrlId}' id='cb_${apiCtrlId}_${rnd}' checked='checked'/>${apiCaption}:</div>
-                    <div>       <div class='max-w-20 opr_${apiCtrlId}' id='opr_${apiCtrlId}_${rnd}'></div>
-                    <input class='${apiCtrlClass} field${rnd}' onchange='showOpr(this)' ${classType(apiCtrlClass)} id='${apiCtrlId}_${rnd}' ></div>
+            return  `<div class='fieldComponent text-center mx-5 hover:font-bold grid grid-cols-2'>
+                    <div class='flex min-w-[300px]  max-w-[400px] text-xs'><input type='checkbox' class='checkbox mr-4 cb_${apiCtrlId} ' id='cb_${apiCtrlId}_${rnd}' checked='checked'/>${apiCaption}:</div>
+                    <div class='flex ml-2'>  <div class='w-24 opr_${apiCtrlId}' id='opr_${apiCtrlId}_${rnd}'></div>
+                    <input class='${apiCtrlClass} field${rnd} max-w-fit' title='${apiTitle}' onchange='showOpr(this)' ${classType(apiCtrlClass)} id='${apiCtrlId}_${rnd}' ></div>
                     </div>`
           }).join('').replaceAll("\n","") 
-                    +  `<div class='my-2 text-center'><hr><button-nav class='disabled submitBtn' id='field${rnd}' onclick='searchFilter(this)'>Search</button-nav></div>`; 
+                    +  `<div class='mt-2 text-center'><hr><button-nav class='mt-5 submitBtn' id='field${rnd}' (click)='searchFilter(this)'>Search</button-nav></div>`; 
   }
 
 
@@ -439,11 +425,10 @@ let _ROOT_KEY;
 
 function extractAPI(agencyName){
   let API_OBJECT = [];
-  API_OBJECT.push( {"agencyName": "NASA",  "ROOT": "https://api.nasa.gov/", "KEY" : "&api_key=vbLbGfNJGHnixVbFnZ4qthBgHYQfzO2bmaXk9PFR" } );
-  API_OBJECT.push( {"agencyName": "DVA",   "ROOT": "https://sandbox-api.va.gov/services/", "KEY" : "" } );
-  API_OBJECT.push( {"agencyName": "DHS",   "ROOT": "https://api.dhsprogram.com/rest/dhs/", "KEY" : "" } );
-  API_OBJECT.push( {"agencyName": "Treasury",   "ROOT": "https://api.fiscaldata.treasury.gov/services/api/fiscal_service/", "KEY" : "" } );
-  
+  API_OBJECT.push( {"agencyName": "NASA",       "ROOT": "https://api.nasa.gov/", "KEY" : "&api_key=vbLbGfNJGHnixVbFnZ4qthBgHYQfzO2bmaXk9PFR" } );
+  API_OBJECT.push( {"agencyName": "DVA",        "ROOT": "https://sandbox-api.va.gov/services/", "KEY" : "" } );
+  API_OBJECT.push( {"agencyName": "DHS",        "ROOT": "https://api.dhsprogram.com/rest/dhs/", "KEY" : "" } );
+  API_OBJECT.push( {"agencyName": "TREASURY",   "ROOT": "https://api.fiscaldata.treasury.gov/services/api/fiscal_service/", "KEY" : "" } );
   const index =  API_OBJECT.find( (element) =>  element.agencyName==agencyName ) ;
   _ROOT_KEY = index;
   return index;
@@ -471,7 +456,7 @@ https://sandbox-api.va.gov/services/veteran-confirmation/v1/status
     }
     
     function _HTMX(item){
-      return "<HTMX>"+ item +"</HTMX>";
+      return "<htmx>"+ item +"</htmx>";
     }
 
     function _SECTION(item){
@@ -523,10 +508,6 @@ https://sandbox-api.va.gov/services/veteran-confirmation/v1/status
       const id = "btn" + new Date().getTime();
       const nodeBtnExpand =   `<button class='nodeButton hidden' (click)="nodeCollapse('`+ id  + `')"  title='Collapse'> + </button>`;
       const nodeBtnCollapse = `<button class='nodeButton' (click)="nodeExpand('`+ id  +`')" title='Expand'> - </button>`;
-      // return _NODE(  (level>=3) ? 
-      //       ( nodeBtnExpand + "<span id='"+ id + "'> " + nodeBtnCollapse + item +  "</span>" )
-      //               : item );
-
       return  (level>=9) ? "..." : item ;
     }
 //!==================================================
@@ -588,3 +569,7 @@ function toHTMLTable(JSON, level=0){
 
 
 
+
+app.listen(PORT, () => {
+  console.warn(`[2] Server started and listening on port ${PORT}`);
+});

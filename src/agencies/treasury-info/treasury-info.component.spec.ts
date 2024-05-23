@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { OpenApiComponent } from './open-api.component';
+import { TreasuryInfoComponent } from './treasury-info.component';
 
-describe('OpenApiComponent', () => {
-  let component: OpenApiComponent;
-  let fixture: ComponentFixture<OpenApiComponent>;
+describe('TreasuryInfoComponent', () => {
+  let component: TreasuryInfoComponent;
+  let fixture: ComponentFixture<TreasuryInfoComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [OpenApiComponent]
+      imports: [TreasuryInfoComponent]
     })
     .compileComponents();
     
-    fixture = TestBed.createComponent(OpenApiComponent);
+    fixture = TestBed.createComponent(TreasuryInfoComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

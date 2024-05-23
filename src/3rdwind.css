@@ -1,0 +1,212 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+a {
+    @apply text-stone-500 py-2 bg-transparent hover:bg-amber-200  font-thin !important;
+ }
+
+h1,h2,h3,h4,p  {
+    @apply mt-1 mb-0 !important;
+}
+
+.GRID{
+    @apply container w-full justify-start !important;;
+}
+.CRISS{
+    @apply GRID !important;;
+}
+.CROSS{
+    @apply flex w-full !important;;
+}
+
+
+.page-tab {
+    @apply drop-shadow-lg;
+}
+
+button {
+    @apply btn-success btn;
+}
+
+
+button-nav {
+    @apply btn text-sm  mr-2 h-8 bg-teal-400 
+    hover:bg-teal-600 hover:text-stone-100 min-w-24 w-fit !important;
+}
+
+api-value {
+        @apply  w-full  text-stone-700 font-extralight !important; ;
+    }
+
+api-key {
+        @apply  min-w-[250px] text-sm font-bold !important;;
+    }
+
+
+api-object {
+    @apply CROSS !important;;
+     /* pb-1 outline-offset-1 outline-blue-400 drop-shadow-sm odd:shadow-red-300  even:shadow-indigo-300; */
+}
+
+api-node {
+    @apply GRID rounded-sm drop-shadow-md  border-red-400 !important;;
+}
+
+.submitBtn{
+    @apply btn btn-disabled cursor-none btn-sm py-0 w-fit bg-orange-300 font-bold m-1 !important;
+}
+
+.htmxOutput{
+    @apply container grid p-2 border-indigo-300 m-2 drop-shadow-lg border-2 bg-stone-100 !important;;
+}
+
+htmx {
+    @apply htmxOutput p-4 max-w-fit !important;
+}
+
+api-array {
+    @apply CRISS ;
+}
+
+api-root {
+    @apply GRID !important;
+}
+
+.dollar {
+    @apply before:content-["＄"] !important;
+}
+
+.time {
+    @apply before:content-["㊉"] !important ;
+}
+
+.date {
+    @apply before:content-["YYYY-MM-DD"] !important;
+}
+
+.checkbox, .toggle {
+    @apply text-white h-12 bg-green-500 text-xs cursor-pointer border-red-500  border-2 font-extrabold  !important;
+}
+
+.api-div, api-div{
+    @apply grid justify-start container drop-shadow-md w-full bg-stone-200  px-2 mb-2 !important;
+}
+
+.api-section, api-section{
+    @apply  grid container drop-shadow-sm w-full bg-stone-100 mb-2 hover:brightness-110  !important;
+}
+
+
+api-header{
+    @apply text-lg rounded-t-md  bg-slate-500 w-full text-rose-100 !important;
+}
+
+.dataFields{
+    @apply cursor-progress mx-2 mt-1 max-w-full w-fit hover:text-red-800  !important;
+}
+
+
+input {
+    @apply max-w-28 max-h-7 py-2 mb-2 rounded-t-md cursor-text bg-indigo-100  hover:bg-amber-100 !important;
+}
+
+.agency-selector{
+    @apply  bg-amber-200 rounded-t-md hover:bg-amber-100;
+}
+
+table {
+    @apply drop-shadow-xl bg-stone-200 rounded-md p-2 !important;
+}
+
+thead{
+    @apply bg-indigo-500 text-white;
+}
+
+td{
+    @apply px-2 text-left;
+}
+
+.muted{
+    @apply  brightness-50  !important;
+}
+
+.deactivated {
+    @apply pointer-events-none disabled;
+}
+
+.activated {
+    @apply pointer-events-auto;
+}
+
+button-submit{
+    @apply btn text-sm bg-teal-200 hover:bg-amber-300 min-w-24 !important;
+}
+
+hr {
+    @apply border-success bg-success h-[2px] m-0 mt-2; 
+}
+.agency-button{
+    @apply bg-teal-400 hover:bg-amber-200;
+}
+
+.selectedItem {
+    @apply  btn rounded-tr-3xl  btn-success translate-y-3 text-lg  text-white  font-extrabold  before:content-["☑️"]  !important  ;
+}
+
+.orbit {
+    @apply pl-2   !important;
+}
+
+.selectedSection {
+    @apply  
+    btn rounded-l-3xl m-2  bg-indigo-700 text-lg  text-white  font-extrabold deactivated  before:content-["▶"]  !important  ;
+}
+
+.selectedCategory {
+    @apply  btn rounded-tr-3xl  translate-x-4 text-white before:content-["▶"]  drop-shadow-lg !important  ;
+}
+.categorySelect {
+    @apply  justify-start !important ;
+}
+
+.navButton {
+    @apply btn text-sm bg-teal-200 hover:bg-amber-300 min-w-24 ;
+}
+
+nav-link {
+    @apply text-sm m-2 py-2 cursor-pointer text-stone-700 font-extralight hover:bg-amber-300 min-w-24 !important ;
+}
+
+#extraFilter{
+    @apply bg-stone-100 w-full pb-2;
+}
+
+.nodeButton{
+    @apply btn bg-amber-500 text-white text-2xl;  
+}
+
+
+.urlMedia{
+    @apply  hover:animate-bounce hover:text-green-500 duration-300
+            text-3xl text-amber-600 cursor-pointer hover:scale-150 hover:rotate-12; 
+}
+
+.item-selector{
+    @apply  hover:bg-amber-300 cursor-pointer !important; 
+}
+
+.orbit-launcher{
+    @apply text-lg bg-stone-200 min-h-full pl-6  my-2 !important;
+}
+
+
+.selected-orbit {
+    @apply  rounded-l-2xl  font-bold text-indigo-800 text-right bg-gradient-to-tr brightness-110 from-indigo-50 to-indigo-700 deactivated  !important  ;
+}
+
+
+p{
+    @apply py-0 !important;
+}

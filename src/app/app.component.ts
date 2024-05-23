@@ -6,7 +6,7 @@ import { RouterOutlet } from '@angular/router';
   standalone: true,
   imports: [RouterOutlet],
   templateUrl: './app.component.html',
-  styleUrl: '../styles.css'
+  styleUrl: '../3rdwind.css'
 })
 export class AppComponent {
   title = '3rdwind';

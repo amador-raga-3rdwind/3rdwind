@@ -1,0 +1,21 @@
+          <div class="w-fit" >
+                   
+                    <div *ngIf="sectionName!='NASA'; else standAlone" class="drop-shadow-md">
+                              <button-nav  *ngFor="let section of SectionsList" (click)="selectNextLevel(section)" 
+                              id="{{svc.idFormat(section)}}sectionTab" class="sectionTabGroup{{svc.idFormat(section)}}  {{section===selectedSection?'selectedSection':''}}">
+                                        {{section.split(svc.delimiter)[0]}}
+                              </button-nav>
+                    </div>
+                    <!-- <button class="hidden" id="dummyButton" (click)="spaceShake(sectionName)">DUMMY</button> -->
+                    <ng-template #standAlone  >
+                             <federal-model></federal-model>              
+                    </ng-template>
+                    <div class="flex mt-4">
+                              <div  *ngFor="let i of [0,1,2]" class="mr-6" id="{{sectionName+id+svc.panelType[i]}}"></div>
+                    </div>
+
+          </div>
+
+
+
+          

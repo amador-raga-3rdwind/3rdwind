@@ -1,0 +1,25 @@
+
+<button>ADOR RAGA</button>
+          <div [hidden]="GroupedInfo.length===0">
+                    <section class==`align-top w-full grid grid-cols-2 bg-transparent `>
+                    <div class='max-w-[350px]' *ngFor='let item of GroupedInfo; let i = index;'  >
+                              <div (click)="eagleReady(i)" id="agencyInfo-{{i}}"    
+                                        class="api-div m-0 px-8 dataFields z-0 cursor-pointer w-full text-lg font-thin 
+                                        {{currentIndex==i && isLocked 
+                                                  ? 'selectedSection !important':'cursor-pointer'}}
+                                        {{ isLocked  ? 'opacity-90 translate-y-6 -rotate-6': '' }} "
+                                        (mouseenter)="peepInfo(i)"     
+                                        [innerHTML]="item[0]">
+                              </div>
+                    </div>
+                    <div class="launcher" class="ml-4 rounded-3xl max-h-[600px] min-w-full w-full overflow-auto">
+                              <div id="launcher1" class="w-full rounded-t-5xl text-5xl h-fit p-2  text-white bg-indigo-700 !important"></div>
+                              <div id="launcher2" class="w-full"></div>
+                              <div id="launcher3" class="w-full"></div>     
+                    </div>
+                    </section>
+          </div>
+          <!-- <button (click)="performThis()">TEST</button>
+
+
+<h1 class="text-red-700 bg-green-300"> {{svc.chatMessage()}}</h1> -->
