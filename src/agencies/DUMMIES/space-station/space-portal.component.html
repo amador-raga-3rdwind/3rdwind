@@ -1,0 +1,31 @@
+
+<ng-template #portalNotReady>
+  <h1>LOADING PROVISIONS....</h1>
+</ng-template>
+
+<table class="federal-container min-h-[800px]">
+          <tr *ngIf="portalMessage()!=''; else portalNotReady" class="group">
+                    <td  class="launcher"  >
+                              <div class="blaster"
+                              *ngFor="let portal of portalPackArray; let i=index;"
+                              [innerHTML]="(portal.caption.length<50) ? portal.caption : portal.caption.substr(0,50)"
+                              (click)="selectItem(portal.key)"> </div>
+
+                    </td>
+                    <td class="p-6 align-top bg-transparent orbiter hover:-translate-x-[300px] w-full" *ngIf="currentMode!==''">
+                      <div >
+                        <div class='w-full h-full p-0 align-top drop-shadow-lg upper-container bg-zinc-100'>
+                          <div class="pl-12" [innerHTML]="headerCaption"></div>
+                          <div class="fixed z-1 top-64 -left-[92px] text-stone-100">
+                            <button class='-translate-x-8 cursor-pointer btn btn-warning' (click)="bigBang()" [innerHTML]="previousMode"></button>
+                            <button class='text-4xl -rotate-90 drop-shadow-xl -translate-x-28 bg-slate-100'>{{currentMode}}</button>
+                          </div>
+
+                        </div>
+                        <div class='max-h-[90vh] z-10 p-6 mb-4 bg-slate-100 static top-[60px] overflow-y-scroll ' [innerHTML]="sanitizer.bypassSecurityTrustHtml(nowShowingContainer1())"></div>
+                      </div>
+
+                    </td>
+          </tr>
+</table>
+

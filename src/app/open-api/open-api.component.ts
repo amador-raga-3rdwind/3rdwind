@@ -1,39 +1,37 @@
 import { CommonModule } from '@angular/common';
-import { CUSTOM_ELEMENTS_SCHEMA, Component, SimpleChanges, ViewChild, signal } from '@angular/core';
-import { OpenAPIService } from '../services/open-api.service';
-import { AgencySectionsComponent } from './agency-sections.component';
+import { CUSTOM_ELEMENTS_SCHEMA, Component, SimpleChanges, signal } from '@angular/core';
+import { createCssSelectorFromNode } from '@angular/compiler';
+import { UtilsService } from '../services/UtilsService';
+import { NASAComponent } from '../../agencies/NASA/NASA.component';
+import { DVAComponent } from '../../agencies/DVA/DVA.component';
+import { TREASURYComponent } from '../../agencies/TREASURY/TREASURY.component';
+import { OPMComponent } from '../../agencies/OPM/OPM.component';
+import { UNComponent } from '../../agencies/UN DATA/UN.component';
+
 
 @Component({
     selector: 'app-open-api',
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     standalone: true,
     templateUrl: './open-api.component.html',
-    imports: [CommonModule, AgencySectionsComponent]
+    imports: [CommonModule, NASAComponent, DVAComponent, TREASURYComponent, OPMComponent, UNComponent]
 })
 export class OpenApiComponent {
-constructor(  public svc: OpenAPIService){}
+constructor(  public utils: UtilsService){}
 
   selectedAgency:string = "";
   isOff: boolean = false;
-  AGENCIES : Array<string> = ["NASA", "DVA" , "TREASURY", "DHS", "DHA"];; 
+  AGENCIES : Array<string> = ["NASA", "DVA" , "TREASURY", "OPM", "UN"];;
 
-
-
-  @ViewChild(AgencySectionsComponent, {static: false}) child!: AgencySectionsComponent;
 
   activatePage(agencyName: string){
     this.selectedAgency = agencyName;
-    this.svc.allButOne("agencyGroup",    agencyName +"agency", "selectedItem");
-    this.svc.toastNotify2("You are now on " + agencyName + " Open API.");
-    this.svc.chatMessage.set("");
-    
-
+    this.utils.allButOne("agencyGroup",    agencyName +"agency", "selectedItem");
   }
 
-  
+
   toggleFront(){
     this.isOff = !this.isOff;
-    this.svc.toastMessage.set("Front page of " + this.selectedAgency + " is now turned " + (this.isOff ? "OFF": "ON") );
   }
 
 

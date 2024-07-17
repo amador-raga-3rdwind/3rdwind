@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+        <title>Experiment</title>
+`	<meta charset="UTF-8">
+                <link rel='stylesheet' href='./ma.css' media='all' />
+                <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+               <script src="https://cdn.tailwindcss.com"></script>
+        <style>
+                #myVideo {
+                        /*position: absolute;*/
+                        left: 0;
+                        min-width: 800px;
+                        max-height:90%;
+                        background: rgba(0, 0, 0, 0.1);
+                        }
+                
+                /* HTML: <div class="ribbon">Your text content</div> */
+                .ribbon {
+                        font-size: 32px;
+                        font-weight: bold;
+                        color: #fff;
+                        }
+                .ribbon {
+                        --c: #c8cf02;
+                        
+                        padding-inline: 1lh;
+                        border-block: .5lh solid #0000;
+                        line-height: 2.5;
+                        background:
+                                        linear-gradient(var(--c) 80%,#0000 0) 0 .1lh/100% 1lh padding-box,
+                                        linear-gradient(#0000 50%,color-mix(in srgb,var(--c),#000 35%) 0) 0    0/.8lh 2lh repeat-y border-box,
+                                        linear-gradient(color-mix(in srgb,var(--c),#000 35%) 50%,#0000 0) 100% 0/.8lh 2lh repeat-y border-box;
+                        -webkit-mask:
+                                        linear-gradient(#000 1lh,#0000 0) 0 -.5lh,
+                                        conic-gradient(from 225deg at .9lh,#0000 25%,#000 0)
+                                        0    1lh/51% 2lh repeat-y padding-box,
+                                        conic-gradient(from 45deg at calc(100% - .9lh),#0000 25%,#000 0)
+                                        100% 0  /51% 2lh repeat-y padding-box;
+                        clip-path: polygon(0 0,calc(100% - .8lh) 0,calc(100% - .4lh) .3lh,100% 0,100% 100%,calc(100% - .4lh) calc(100% - .3lh), calc(100% - .8lh) 100%,.8lh 100%,.4lh calc(100% - .3lh),0 100%);
+                        width: fit-content;
+                        }
+                
+                /* HTML: <div class="loader"></div> */
+                .loader {
+                        --s: 25px;
+                        --g :5px;
+                        
+                        width: calc(3*(1.353*var(--s) + var(--g)));
+                        aspect-ratio: 3;
+                        background:
+                                        linear-gradient(#ff1818 0 0) left/33% 100% no-repeat,
+                                        conic-gradient(from -90deg at var(--s) calc(0.353*var(--s)),
+                                        #fff 135deg,#666 0 270deg,#aaa 0);
+                        background-blend-mode: multiply;
+                        --_m:
+                                        linear-gradient(to bottom right,
+                                        #0000 calc(0.25*var(--s)),#000 0 calc(100% - calc(0.25*var(--s)) - 1.414*var(--g)),#0000 0),
+                                        conic-gradient(from -90deg at right var(--g) bottom var(--g),#000 90deg,#0000 0);
+                        -webkit-mask: var(--_m);
+                        mask: var(--_m);
+                        background-size:   calc(100%/3) 100%;
+                        -webkit-mask-size: calc(100%/3) 100%;
+                        mask-size: calc(100%/3) 100%;
+                        -webkit-mask-composite: source-in;
+                        mask-composite: intersect;
+                        animation: l7 steps(3) 1.5s infinite;
+                        }
+                @keyframes l7 {
+                        to {background-position: 150% 0%}
+                        }
+                
+
+        </style>
+
+
+</head>
+<body class="items-center flex  object-fit  justify-center  bg-transparent " >
+
+<video class="opacity-[70%] object-fit " autoplay muted loop id="myVideo">
+        <source src="../assets/videos/FlyingThroughClouds.m4v" type="video/mp4">
+</video>
+
+<div  onmousemove="dimBack()" class="z-2 absolute top-0 justify-center  text-center items-center p-4 mt-24 " >
+        <div class="text-5xl font-extrabold
+                bg-clip-text text-transparent bg-gradient-to-t from-orange-500 bg-transparent to-red-200
+                text-shadow:_8px_8px_8px_rgb(122_212_30_/_40%)
+                drop-shadow-[0_4px_2px_rgba(0,0,0,0.8)]
+                ">
+        </div>
+        <div class="text-5xl font-extrabold
+                bg-clip-text text-transparent bg-gradient-to-t from-orange-500 bg-transparent to-red-200
+                text-shadow:_8px_8px_8px_rgb(2_2_0_/_80%)
+                drop-shadow-[0_4px_2px_rgba(0,0,0,0.8)]
+                ">DO YOU (STILL) BELIEVE IN
+        </div>
+        
+        <div class="text-7xl  font-extrabold
+                bg-clip-text text-transparent bg-gradient-to-t from-orange-100 to-red-900
+                drop-shadow-[2px_8px_4px_rgba(150,0,0,0.8)]
+                ">BEST PRACTICES?
+        </div>
+        
+        
+        <div class="text-3xl text-rose-100
+                text-shadow:_2px_2px_2px_rgb(200_200_230_/_.8)
+                drop-shadow-[1px_1px_1px_rgba(10,10,10,0.9)]    ">
+                If you do, that could be a problem.
+                
+                <center  class="mt-10 font-extrabold">
+                        <div id="TF" class="ribbon  rotate-[15deg]">Trust and Faith</div>
+                </center>
+        </div>
+        <div class="mx-30 scale-[120%]  my-28 "  >
+                <center class=" scale-[160%] rotate-[280deg] blur-[90%]" id="triTower"  >
+                <div class="loader brightness-50"></div>
+                </center>
+                <b
+                                class="text-9xl scale-[175%]  drop-shadow-[10px_10px_10px_rgba(240,0,242,.5)] drop-shadow-[2px_2px_2px_rgba(0,0,0,.9)]
+                        bg-clip-text  text-transparent bg-gradient-to-t  from-stone-900 to-indigo-700 brightness-200 ">&nbsp;&nbsp;3rd&nbsp;Wind</b>
+        </div>
+       
+</div>
+
+
+
+
+
+
+<script src="./jq-mig.min.js" ></script>
+<script>
+        function dimBack(){
+                document.querySelector("#myVideo").style.opacity = "0.1";
+        }
+        
+                let  elapsedTime=0;
+                let inc = 0;
+                let vids =["Red Rock",  "datacenter",  "EarthLoop", "FlyingThroughClouds"];
+                setInterval(() => {
+                        elapsedTime++;
+                        if (elapsedTime % 100 === 0 ) {
+                                      document.querySelector("#myVideo").src = "../assets/videos/" + vids[inc] + ".m4v";
+                                        inc ++;
+                                        if(inc >3) inc=0;
+                                }
+                        
+                        // let  s = parseFloat(document.querySelector("#myVideo").style.rotate) + 0.5;
+                        // s =  (s > 5.0    ? 1.0 : s) ;
+                        // document.querySelector("#myVideo").style.rotate = s + "";
+                        //
+                        let o = parseFloat(document.querySelector("#myVideo").style.opacity) + 0.02;
+                        o =  (o>0.8   ? 0.8 : o) ;
+                        document.querySelector("#myVideo").style.opacity = o + "";
+                        //
+                        // let a = parseFloat(document.querySelector("#triTower").style.rotate)  - 0.5;
+                        // a =  (a< 250   ?  270 : o) ;
+                        // document.querySelector("#triTower").style.rotate =  a + "";
+                        // console.log(document.querySelector("#triTower").style.rotate);
+                }, 200 );
+                
+        </script>
+
+</body>
+
+
+    
+    
+
+    
+
+
+
+
+
+

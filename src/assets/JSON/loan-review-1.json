@@ -1,0 +1,476 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "VA Loan Guaranty - Loan Review REST API",
+    "description": "<p>The Loan Review API lets lenders transmit post-close loan review related documents. This API lets lenders:</p><ul><li>Transmit Loan Review file</li><li>Transmit Uniform Closing Dataset (UCD) file</li><li>Transmit Uniform Loan Application Dataset (ULAD) file</li></ul></p><h2>Background</h2><p>Department of Veterans Affairs (VA) helps service members, Veterans, and eligible surviving spouses become homeowners. As part of our mission to serve Veterans, we provide a home loan guaranty benefit and other housing-related programs to help Veterans buy, build, repair, retain, or adapt a home for personal occupancy.</p><p>VA home loans are provided by private lenders, such as banks and mortgage companies. VA guarantees a portion of the loan, enabling the lender to provide Veterans with more favorable terms.</p><h2>Technical Overview</h2><p>You can learn about how the VA Home Loan Guaranty process works by visiting the <a href=\"https://www.benefits.va.gov/HOMELOANS/technology-knowledge-center.asp\">Home Loans Technology Knowledge Center</a> website. Specific, detailed technical information related to, but not required for, using this API can be found in our <a href=\"https://www.benefits.va.gov/HOMELOANS/documents/tech/Loan_Review_API_Companion_Document.pdf\">companion document</a>.</p><h2>Authentication and Authorization</h2><p>To make an API request, follow our authentication process to receive an <a href=\"https://oauth.net/2/\">OAuth token</a>.</p><h2>Test Data</h2><p>The database powering our sandbox environment is populated with test Veteran data. Sandbox test data mimics real Veteran data but contains no protected health information or personally identifiable information. Data is not sent upstream and it is not necessary to align submitted test data with any other system data.</p>",
+    "version": "24.6.1.0"
+  },
+  "servers": [
+    {
+      "url": "https://sandbox-api.va.gov/services/loan-review/{version}",
+      "description": "Sandbox",
+      "variables": {
+        "version": {
+          "default": "v1"
+        }
+      }
+    },
+    {
+      "url": "https://api.va.gov/services/loan-review/{version}",
+      "description": "Production",
+      "variables": {
+        "version": {
+          "default": "v1"
+        }
+      }
+    }
+  ],
+  "tags": [
+    {
+      "name": "loanReviewPublic",
+      "description": "Loan Review Public Resource"
+    }
+  ],
+  "paths": {
+    "/transmit-documents": {
+      "post": {
+        "tags": [
+          "loanReviewPublic"
+        ],
+        "summary": "Transmit documents for FFLR loan review",
+        "description": "This resource allows lender to upload the post close loan review package file along with final UCD/ULAD xml.",
+        "operationId": "POST:/transmit-documents",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoanReviewTransmitDocsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoanReviewTransmitDocsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoanReviewExceptionResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "headers": {
+              "WWW-Authenticate": {
+                "description": "Defines the authentication method that clients must use to gain access to the resource.",
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoanReviewExceptionResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoanReviewExceptionResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "Request size limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "API rate limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoanReviewExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "system.loan-review.write"
+            ]
+          }
+        ]
+      }
+    },
+    "/additional-documents": {
+      "post": {
+        "tags": [
+          "loanReviewPublic"
+        ],
+        "summary": "Transmit additional documents for FFLR loan review",
+        "description": "The loan selected for post close loan review that the lender is providing pdfs of additional documents not provided in the initial remittance of the loan for post close loan review.",
+        "operationId": "POST:/additional-documents",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoanReviewAdditionalDocsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoanReviewTransmitDocsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoanReviewExceptionResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "headers": {
+              "WWW-Authenticate": {
+                "description": "Defines the authentication method that clients must use to gain access to the resource.",
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoanReviewExceptionResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoanReviewExceptionResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "Request size limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "API rate limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoanReviewExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "system.loan-review.write"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "LoanReviewTransmitDocsRequest": {
+        "required": [
+          "loanIdentifier",
+          "loanReviewPackageFile",
+          "xmlUCDBase64",
+          "xmlULADBase64"
+        ],
+        "type": "object",
+        "properties": {
+          "loanIdentifier": {
+            "pattern": "[\\d]{12}",
+            "type": "string",
+            "description": "The 12 digit VA Loan Identification Number (LIN) assigned to the loan.",
+            "example": "101010101010"
+          },
+          "loanReviewPackageFile": {
+            "type": "string",
+            "description": "Base 64 encoded PDF of the documents required by the VA to conduct its post close loan review. Documents should be lumped together into a single pdf and submitted in this field.",
+            "example": "dGVzdHN0cmluZw=="
+          },
+          "xmlUCDBase64": {
+            "type": "string",
+            "description": "The final Uniform Closing Dataset conformant XML for the loan whose documents are being remitted for VA post close loan review expressed in MISMO Residential Reference model version 3.3.",
+            "example": "dGVzdHN0cmluZw=="
+          },
+          "xmlULADBase64": {
+            "type": "string",
+            "description": "The final Uniform Loan Application Dataset conformant XML for the loan whose documents are being remitted for VA post close loan review expressed in MISMO Residential Reference model version 3.4.",
+            "example": "dGVzdHN0cmluZw=="
+          },
+          "filename": {
+            "type": "string",
+            "description": "The name of the file.",
+            "example": "Evidence.pdf"
+          }
+        },
+        "description": "Request payload interface for lender to transmit documents of a Loan selected for review"
+      },
+      "LoanReviewExceptionResponse": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "integer",
+            "description": "The UNIX time representation of when the request was received by the server. See <https://en.wikipedia.org/wiki/Unix_time>",
+            "format": "int64",
+            "example": 1544224725393
+          },
+          "status": {
+            "type": "integer",
+            "description": "The HTTP response status code. May be removed in future versions of the API.",
+            "format": "int32"
+          },
+          "lgyRequestUuid": {
+            "type": "string",
+            "description": "A unique request ID generated by the server. The primary purpose of this ID is forensic log investigation.",
+            "example": "a4c1b87031473607"
+          },
+          "errors": {
+            "type": "array",
+            "description": "A list of problems with the request, if any.",
+            "items": {
+              "$ref": "#/components/schemas/LoanReviewFieldError"
+            }
+          }
+        }
+      },
+      "LoanReviewFieldError": {
+        "required": [
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Resource not found."
+          },
+          "rejectedValue": {
+            "type": "string",
+            "example": "101010101010"
+          },
+          "field": {
+            "type": "string",
+            "example": "Loan Identifier"
+          }
+        },
+        "description": "A list of problems with the request, if any."
+      },
+      "LoanReviewTransmitDocsResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "true if document transmission was successfull or else false."
+          }
+        },
+        "description": "Response payload for lender to transmit documents of a Loan selected for review."
+      },
+      "AdditionalDocument": {
+        "required": [
+          "description",
+          "documentType",
+          "fileType",
+          "lrFileBase64",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the additional document being provided to the VA to conduct their full file loan review",
+            "example": "abcd.pdf"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the additional document being provided to the VA to conduct their full file loan review",
+            "example": "Description of the additional document being provided to the VA to conduct their full file loan review"
+          },
+          "documentType": {
+            "pattern": "LR File|LR Deficiency|LR Review Sheet",
+            "type": "string",
+            "description": "General type of the document being submitted",
+            "example": "LR File, LR Deficiency or LR Review Sheet"
+          },
+          "fileType": {
+            "pattern": "PDF",
+            "type": "string",
+            "description": "File type of the additional document being provided to the VA to conduct their full file loan review. All documents provided to the VA for post close loan review must be pdf.",
+            "example": "PDF"
+          },
+          "lrFileBase64": {
+            "type": "string",
+            "description": "Base 64 encoded PDF of the document being provided for the VA to conduct post close loan review on the loan.",
+            "example": "dGVzdHN0cmluZw=="
+          }
+        },
+        "description": "Additional loan review document being provided by the lender."
+      },
+      "LoanReviewAdditionalDocsRequest": {
+        "required": [
+          "loanIdentifier"
+        ],
+        "type": "object",
+        "properties": {
+          "loanIdentifier": {
+            "pattern": "[\\d]{12}",
+            "type": "string",
+            "description": "The 12 digit VA Loan Identification Number (LIN) assigned to the loan.",
+            "example": "101010101010"
+          },
+          "xmlUCDBase64": {
+            "type": "string",
+            "description": "The final Uniform Closing Dataset conformant XML for the loan whose documents are being remitted for VA post close loan review expressed in MISMO Residential Reference model version 3.3.",
+            "example": "dGVzdHN0cmluZw=="
+          },
+          "xmlULADBase64": {
+            "type": "string",
+            "description": "The final Uniform Loan Application Dataset conformant XML for the loan whose documents are being remitted for VA post close loan review expressed in MISMO Residential Reference model version 3.4.",
+            "example": "dGVzdHN0cmluZw=="
+          },
+          "additionalDocuments": {
+            "type": "array",
+            "description": "Additional loan review documents being provided by the lender.",
+            "items": {
+              "$ref": "#/components/schemas/AdditionalDocument"
+            }
+          }
+        },
+        "description": "Request payload interface for lender to transmit additional documents of a Loan selected for review"
+      }
+    },
+    "securitySchemes": {
+      "oauth2": {
+        "type": "oauth2",
+        "flows": {
+          "clientCredentials": {
+            "tokenUrl": "https://staging-api.va.gov/oauth2/loan-guaranty/system/v1/token",
+            "scopes": {
+              "system.loan-review.write": "Transmit loan review documents"
+            }
+          }
+        }
+      }
+    }
+  }
+}

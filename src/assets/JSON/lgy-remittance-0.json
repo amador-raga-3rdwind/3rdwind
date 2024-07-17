@@ -1,0 +1,2058 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "VA Loan Guaranty - Guaranty Remittance REST API",
+    "description": "<p>The Guaranty Remittance API lets lenders streamline part of their post-closing operations by avoiding the need to manually input data or perform other operations. This API lets lenders:</p><ul><li>Obtain ​​feedback on the loan's funding fee amount and conformance to important aspects of VA policy before closing the loan​​​</li><li>Submit ​a closed loan for guaranty, allowing VA to​ provide feedback on VA policy conformance and calculate the appropriate funding fee amount</li><li>Remit the VA funding fee</li><li>Receive the Loan Guaranty Certificate (LGC)</li><li>Add evidence that loan policy violations were remediated</li></ul><h2>Background</h2><p>Department of Veterans Affairs (VA) helps service members, Veterans, and eligible surviving spouses become homeowners. As part of our mission to serve Veterans, we provide a home loan guaranty benefit and other housing-related programs to help Veterans buy, build, repair, retain, or adapt a home for personal occupancy.</p><p>VA home loans are provided by private lenders, such as banks and mortgage companies. VA guarantees a portion of the loan, enabling the lender to provide Veterans with more favorable terms.</p><p>The VA funding fee is a one-time payment that the Veteran, service member, or survivor pays on a VA-backed or VA direct home loan. This fee helps lower the cost of the loan for U.S. taxpayers since the VA home loan program doesn't require down payments or monthly mortgage insurance.</p><h2>Technical Overview</h2><p>You can learn about how the VA Home Loan Guaranty process works by visiting the <a href=\"https://www.benefits.va.gov/HOMELOANS/technology-knowledge-center.asp\">Home Loans Technology Knowledge Center</a> website. Specific, detailed technical information related to, but not required for, using this API can be found in our <a href=\"https://www.benefits.va.gov/HOMELOANS/documents/tech/gr-api-companion.pdf\">companion document</a>.</p><h2>Authentication and Authorization</h2><p>​​​The authentication model for the Guaranty Remittance API is based on OAuth 2.0 / OpenID Connect and supports the <a href=\"https://developer.va.gov/explore/api/guaranty-remittance/client-credentials\">client credentials grant</a>.</p><p><b>Important:</b> To get production access, you must either work for VA or have specific VA agreements in place. If you have questions, contact us.</p><h2>Test Data</h2><p>The database powering our sandbox environment is populated with test Veteran and loan data. Sandbox test data mimics real Veteran data but contains no protected health information or personally identifiable information. Data is not sent upstream and it is not necessary to align submitted test data with any other system data.</p>",
+    "version": "24.8.0.0-SNAPSHOT"
+  },
+  "servers": [
+    {
+      "url": "https://sandbox-api.va.gov/services/lgy-remittance/v0",
+      "description": "Sandbox",
+      "variables": {
+        "version": {
+          "default": "v0"
+        }
+      }
+    },
+    {
+      "url": "https://api.va.gov/services/lgy-remittance/v0",
+      "description": "Production",
+      "variables": {
+        "version": {
+          "default": "v0"
+        }
+      }
+    }
+  ],
+  "paths": {
+    "/loans/{loanIdentificationNumber}/pre-close": {
+      "post": {
+        "tags": [
+          "Pre-Close Resource"
+        ],
+        "summary": "Check pre-close loan against VA policies",
+        "description": "This resource allows lender to provide data to VA and receive feedback in response regarding a potential loan's conformance to VA policy",
+        "operationId": "POST:/loans/{loanIdentificationNumber}/pre-close",
+        "parameters": [
+          {
+            "name": "loanIdentificationNumber",
+            "in": "path",
+            "description": "VA Loan Identification Number",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "494961001876"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GuarantyRemittanceRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuarantyRemittanceResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequest"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "headers": {
+              "WWW-Authenticate": {
+                "description": "Defines the authentication method that clients must use to gain access to the resource.",
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Forbidden"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFound"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "Request size limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "API rate limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "BadRequest": {
+        "example": "{\n  \"timestamp\" : 1715900335653,\n  \"status\" : 400,\n  \"lgyRequestUuid\" : \"d9fb08f3c9f9a084\",\n  \"errors\" : [ {\n    \"message\" : \"Existing guaranteed loan found 202060874991.\",\n    \"rejectedValue\" : null,\n    \"field\" : null\n  }, {\n    \"message\" : \"Existing Loan Found 202060874991.\",\n    \"rejectedValue\" : null,\n    \"field\" : null\n  }, {\n    \"message\" : \"Loan Status Code is Terminated 202060874991.\",\n    \"rejectedValue\" : null,\n    \"field\" : null\n  }, {\n    \"message\" : \"The UCD XML provided is not valid.\",\n    \"rejectedValue\" : null,\n    \"field\" : null\n  }, {\n    \"message\" : \"The ULAD XML provided is not valid.\",\n    \"rejectedValue\" : null,\n    \"field\" : null\n  }, {\n    \"message\" : \"The request does not contain a UCD.\",\n    \"rejectedValue\" : null,\n    \"field\" : null\n  }, {\n    \"message\" : \"UCD failed to upload because LIN is missing or does not match. Please ensure that the LOAN_IDENTIFIER field is present in the XML and has the correct LIN\",\n    \"rejectedValue\" : null,\n    \"field\" : null\n  }, {\n    \"message\" : \"ULAD failed to upload because LIN is missing or does not match. Please ensure that the LOAN_IDENTIFIER field is present in the XML and has the correct LIN\",\n    \"rejectedValue\" : null,\n    \"field\" : null\n  }, {\n    \"message\" : \"The request does not contain a ULAD.\",\n    \"rejectedValue\" : null,\n    \"field\" : null\n  }, {\n    \"message\" : \"The request does not contain a LR File.\",\n    \"rejectedValue\" : null,\n    \"field\" : null\n  }, {\n    \"message\" : \"The file size must not be greater than 524288000B\",\n    \"rejectedValue\" : null,\n    \"field\" : null\n  } ]\n}"
+      },
+      "NotFound": {
+        "example": "{\n  \"timestamp\" : 1715900336116,\n  \"status\" : 404,\n  \"lgyRequestUuid\" : \"d9fb08f3c9f9a084\",\n  \"errors\" : [ {\n    \"message\" : \"LIN 202060874991 not found.\",\n    \"rejectedValue\" : null,\n    \"field\" : null\n  }, {\n    \"message\" : \"VA internal Error.\",\n    \"rejectedValue\" : null,\n    \"field\" : null\n  } ]\n}"
+      },
+      "Forbidden": {
+        "example": "{\n  \"timestamp\" : 1715900336116,\n  \"status\" : 403,\n  \"lgyRequestUuid\" : \"d9fb08f3c9f9a084\",\n  \"errors\" : [ {\n    \"message\" : \"Your account was deactivated due to inactivity for 90 days or more. To reactivate your account, please work with your Lender Admin to create a SNOW ticket to have your Account reactivated.\",\n    \"rejectedValue\" : null,\n    \"field\" : null\n  } ]\n}"
+      },
+      "InternalError": {
+        "example": "{\n  \"timestamp\" : 1715900336116,\n  \"status\" : 500,\n  \"lgyRequestUuid\" : \"d9fb08f3c9f9a084\",\n  \"errors\" : [ {\n    \"message\" : \"Internal Error - Failure to Store Loan Status in VA System\",\n    \"rejectedValue\" : null,\n    \"field\" : null\n  }, {\n    \"message\" : \"Internal Error - An unexpected error occurred\",\n    \"rejectedValue\" : null,\n    \"field\" : null\n  } ]\n}"
+      },
+      "GuarantyRemittanceDocument": {
+        "required": [
+          "contentBase64",
+          "documentCategory",
+          "filename"
+        ],
+        "type": "object",
+        "properties": {
+          "filename": {
+            "pattern": "^[a-zA-Z0-9 _\\\\.\\-\\(\\):]{1,100}\\.[a-zA-Z0-9]{2,4}$",
+            "type": "string",
+            "description": "The name of the file.",
+            "example": "Evidence.pdf"
+          },
+          "documentCategory": {
+            "type": "string",
+            "description": "The category or type of document this object contains.",
+            "example": "UCD",
+            "enum": [
+              "UCD",
+              "ULAD",
+              "LR",
+              "LR_DEFICIENCEY",
+              "LR_REVIEW_SHEET",
+              "INITIAL_NTB_DISCLOSURE",
+              "FINAL_NTB_DISCLOSURE",
+              "SURVIVING_SPOUSE_OBLIGOR_ON_IRRRL_EVIDENCE",
+              "LENDER_CERTIFIED_NO_LONGER_OWNED_EVIDENCE",
+              "LENDER_CERTIFIED_PIF_EVIDENCE",
+              "LENDER_CERTIFIED_USE_OTR_EVIDENCE",
+              "UNEQUAL_ENTITLEMENT_EVIDENCE",
+              "REMEDIATION_EVIDENCE"
+            ]
+          },
+          "contentBase64": {
+            "type": "string",
+            "description": "Base 64 encoded string of the document being provided.",
+            "example": "dGVzdHN0cmluZw=="
+          },
+          "contentType": {
+            "type": "string",
+            "description": "Content type of the document. Should correspond to the extension in filename.",
+            "example": "application/pdf"
+          },
+          "description": {
+            "maxLength": 255,
+            "minLength": 0,
+            "type": "string",
+            "description": "Optional field to add more information describing the document or its purpose."
+          }
+        },
+        "description": "PDF of the signed consent of the Veteran to exercise their one time right to have a paid off but unsold prior VA loan be ignored while calculating Guaranty Entitlement Available."
+      },
+      "GuarantyRemittanceRequest": {
+        "required": [
+          "lenderAgentRenewalFeesPaidCertification",
+          "lenderFirstLienCertification",
+          "lenderNoThirtyDayDefaultCertification",
+          "lenderStatutoryRegulatoryCertification",
+          "newLoan"
+        ],
+        "type": "object",
+        "properties": {
+          "newLoan": {
+            "$ref": "#/components/schemas/NewLoan"
+          },
+          "refinancedLoan": {
+            "$ref": "#/components/schemas/RefinancedLoan"
+          },
+          "lenderCashoutRefinancedDisclosures": {
+            "$ref": "#/components/schemas/LenderCashoutRefinanceDisclosures"
+          },
+          "lenderIrrrlCertifications": {
+            "$ref": "#/components/schemas/LenderIrrrlCertifications"
+          },
+          "lenderSeasoningCertifications": {
+            "$ref": "#/components/schemas/LenderSeasoningCertifications"
+          },
+          "lenderFirstLienCertification": {
+            "type": "string",
+            "description": "The lender certification that the mortgage for the loan being remitted for Guaranty is in the first position and superior to any other liens.",
+            "enum": [
+              "LENDER_CERTIFIES_THAT_THE_MORTGAGE_ON_THE_LOAN_IS_IN_THE_FIRST_POSITION_AND_SUPERIOR_TO_ANY_OTHER_LIEN",
+              "LENDER_CANNOT_CERTIFY_THAT_THE_MORTGAGE_ON_THE_LOAN_IS_IN_THE_FIRST_POSITION_AND_SUPERIOR_TO_ANY_OTHER_LIEN"
+            ]
+          },
+          "lenderNoThirtyDayDefaultCertification": {
+            "type": "string",
+            "description": "The lender certification that no default exists on the loan being remitted for Guaranty continuing for more than 30 days as required by 38 CFR Section 36.4303(a)(1).",
+            "enum": [
+              "LENDER_CERTIFIES_THAT_THE_NO_DEFAULT_CONTINUING_MORETHAN_30DAYS_EXISTS_ON_THE_LOAN",
+              "LENDER_CANNOT_CERTIFY_THAT_THE_NO_DEFAULT_CONTINUING_MORETHAN_30DAYS_EXISTS_ON_THE_LOAN"
+            ]
+          },
+          "lenderCompletedRepairsCertification": {
+            "type": "string",
+            "description": "The lender certification that any construction, repairs, alterations or improvements made after the appraisal of reasonable value and paid for out of proceeds of the loan have been completed properly in full accordance with the plans and specifications upon which the appraisal was based as required by 38 CFR Section 36.4303(a)(2).",
+            "enum": [
+              "LENDER_CERTIFIES_THAT_ALL_CONSTRUCTION_REPAIRS_ALTERATIONS_IMPROVEMENTS_ACCORDANCE_WITH_THE_PLANS_SPECIFICATIONS",
+              "LENDER_CANNOT_CERTIFY_THAT_ALL_CONSTRUCTION_REPAIRS_ALTERATIONS_IMPROVEMENTS_ACCORDANCE_WITH_THE_PLANS_SPECIFICATIONS"
+            ]
+          },
+          "lenderStatutoryRegulatoryCertification": {
+            "type": "string",
+            "description": "The lender certification that the loan being remitted for Guaranty conforms with all aplicable provisions of 38 USC chapter 37 and all regulations concerning guaranty of loans to veterans as required by 38 CFR Section 36.4303(a)(3).",
+            "enum": [
+              "LENDER_CERTIFIES_THAT_THE_LOAN_BEING_REMITTED_CONFORMS_WITH_ALL_APPLICABLE_PROVISIONS_OF_38C_USC_CHAPTER37_AND_ALL_REGULATIONS",
+              "LENDER_CANNOT_CERTIFY_THAT_THE_LOAN_BEING_REMITTED_CONFORMS_WITH_ALL_APPLICABLE_PROVISIONS_OF_38C_USC_CHAPTER37_AND_ALL_REGULATIONS"
+            ]
+          },
+          "lenderOverrides": {
+            "$ref": "#/components/schemas/LenderOverrides"
+          },
+          "lenderAgentRenewalFeesPaidCertification": {
+            "type": "string",
+            "description": "The lender certification that the loan being remitted for Guaranty conforms with all aplicable provisions of 38 USC chapter 37 and all regulations concerning guaranty of loans to veterans as required by 38 CFR Section 36.4303(a)(3).",
+            "enum": [
+              "LENDER_CERTIFIES_THAT_FEES_TO_ESTABLISH_RENEW_THE_LENDER_AGENT_RELATIONSHIP_ARE_CURRENT",
+              "LENDER_CANNOT_CERTIFY_THAT_FEES_TO_ESTABLISH_RENEW_THE_LENDER_AGENT_RELATIONSHIP_ARE_CURRENT"
+            ]
+          }
+        },
+        "description": "The request to check pre-close loan against VA policies"
+      },
+      "LenderCashoutRefinanceDisclosures": {
+        "required": [
+          "disclosureCertification",
+          "finalINTBDisclosureDocument",
+          "initialINTBDisclosureDocument"
+        ],
+        "type": "object",
+        "properties": {
+          "finalINTBDisclosureDocument": {
+            "$ref": "#/components/schemas/GuarantyRemittanceDocument"
+          },
+          "initialINTBDisclosureDocument": {
+            "$ref": "#/components/schemas/GuarantyRemittanceDocument"
+          },
+          "disclosureCertification": {
+            "type": "string",
+            "description": "The lender certification that Cashout Refinance disclosure rules were successfully met on the loan being remitted for Guaranty.",
+            "enum": [
+              "LENDER_CERTIFIES_THAT_CASHOUT_REFINANCE_DISCLOSURE_RULES_WERE_MET",
+              "LENDER_CANNOT_CERTIFY_THAT_CASHOUT_REFINANCE_DISCLOSURE_RULES_WERE_MET"
+            ]
+          }
+        },
+        "description": "Evidence of required lender disclosures to obligors regarding the cashout refinance loan being remitted for Guaranty"
+      },
+      "LenderIrrrlCertifications": {
+        "required": [
+          "disclosureCertification"
+        ],
+        "type": "object",
+        "properties": {
+          "disclosureCertification": {
+            "type": "string",
+            "description": "The lender certification that IRRRL disclosure rules were successfully met on the loan being remitted for Guaranty.",
+            "enum": [
+              "LENDER_CERTIFIES_IRRRL_DISCLOSURE_RULES_WERE_MET",
+              "LENDER_CANNOT_CERTIFIY_IRRRL_DISCLOSURE_RULES_WERE_MET"
+            ]
+          },
+          "borrowerQualifiesDespitePaymentIncreaseCertification": {
+            "type": "string",
+            "description": "The lender certification that a borrower qualifies for the IRRRL when the payment (PITI) on the loan being remitted for Guaranty increases by 20% over the loan being refinanced.",
+            "enum": [
+              "LENDER_CERTIFIES_BORROWER_QUALIFIES_PAYMENTINCREASE_20PERCENT",
+              "LENDER_CANNOT_CERTIFIY_BORROWER_QUALIFIES_PAYMENTINCREASE_20PERCENT"
+            ]
+          },
+          "lenderCertIRRRLInterestRateDropNotSoleyDueToDiscountPoints": {
+            "type": "boolean",
+            "description": "The lender certifies whether the interest rate drop for an IRRRL was soley the result of discount points or not."
+          }
+        },
+        "description": "Lender certifications that certain requirements related to IRRRLS have been met for the loan being remitted for Guaranty"
+      },
+      "LenderOverrides": {
+        "type": "object",
+        "properties": {
+          "priorLoanDispositions": {
+            "type": "array",
+            "description": "Collection of lender known dispositions of prior loans that are currently encumbering the entitlement of one of the Veterans on the loan being remitted for Guaranty",
+            "items": {
+              "$ref": "#/components/schemas/PriorLoanDisposition"
+            }
+          },
+          "nonObligorOnTitleRelationshipToBorrowerClarifications": {
+            "type": "array",
+            "description": "Collection of lender clarifications of how individuals who are on the title of the subject property for the loan being remitted for Guaranty, but are not obligors on the loan relate to the obligors on the loan.",
+            "items": {
+              "$ref": "#/components/schemas/NonObligorOnTitleRelationshipToBorrowerClarification"
+            }
+          }
+        },
+        "description": "A section for lenders to communicate more current information about the loan being remitted for Guaranty or other loans bearing on it. This section also allows lenders to communicate that they acknowledge loans whose data triggered certain exceptions, understand and accept the consequences of those exceptions and desire to proceed with Guaranty remittance notwithstanding those exceptions"
+      },
+      "LenderSeasoningCertifications": {
+        "type": "object",
+        "properties": {
+          "consecutivePaymentCertificationType": {
+            "type": "string",
+            "description": "The lender certification that at least six consecutive payments on the VA loan being refinanced have been made.",
+            "enum": [
+              "SIX_CONSECUTIVE_MONTHLY_PAYMENTS",
+              "CANNOT_CERTIFY_BUT_PROCEED"
+            ]
+          }
+        },
+        "description": "Lender certification that certain seasoning requirements have been met on the loan refinanced by the loan being remitted for Guaranty"
+      },
+      "LoanData": {
+        "required": [
+          "firstPaymentDueDate",
+          "loanOfficerName",
+          "vaLoanNumber"
+        ],
+        "type": "object",
+        "properties": {
+          "vaLoanNumber": {
+            "maxLength": 12,
+            "minLength": 12,
+            "type": "string",
+            "description": "The twelve digit VA loan identification number for the loan being remitted for Guaranty. This number is generated for a prospective loan and provided to the lender when the VA appraisal or IRRRL is ordered through webLGY.",
+            "example": "494961001876"
+          },
+          "loanOfficerName": {
+            "maxLength": 150,
+            "minLength": 0,
+            "type": "string",
+            "description": "The name of the loan officer of record for the loan being remitted for Guaranty.",
+            "example": "John Doe"
+          },
+          "firstPaymentDueDate": {
+            "pattern": "MM/DD/YYYY",
+            "type": "string",
+            "description": "The date the first payment is due on the loan being remitted for Guaranty.",
+            "format": "date"
+          },
+          "borrowerPaidDiscountPointsCollectedInCash": {
+            "type": "number",
+            "description": "The monetary amount, in U.S. Dollars, of loan discount points the borrower paid in cash and accordingly was not included in the total loan amount. The total monetary amount of discount points is extracted from the UCD, however, the portion of the total amount  paid in cash versus included in the loan amount is not explicitly defined in the UCD. Accordingly, the lender must use this field to explicitly convey this value to LGY. The monetary amount of the discount points the borrower paid by inclusion in the total loan amount is then calculated by subtracting the amount the borrower paid in cash from the total borrower paid discount points.",
+            "example": 400
+          },
+          "borrowerPaidFundingFeeCollectedInCash": {
+            "type": "number",
+            "description": "The monetary amount, in U.S. Dollars, of the VA Funding Fee the borrower paid in cash and accordingly was not included in the total loan amount. The total amount of the Funding Fee paid by the borrower is extracted from the UCD, however, the portion of that amount paid in cash versus included in the loan amount is not explicitly defined in the UCD. Accordingly, the lender must use this field to explicitly convey this value to LGY. The monetary amount of the VA Funding Fee the borrower paid by inclusion in the total loan amount is then calculated by subtracting the amount the borrower paid in cash from the total borrower paid Funding Fee.",
+            "example": 800
+          },
+          "borrowerPaidClosingCostsExcludingDiscountPointsFundingFeePrepaidAndEscrowsCollectedInCash": {
+            "type": "number",
+            "description": "The monetary amount, in U.S. Dollars, of closing costs (excluding discount points, Funding Fee, Prepaids and Escrow) the borrower paid in cash and accordingly was not included in the total loan amount. The total amount of these closing costs paid by the borrower is extracted from the UCD, however, the portion of that amount paid in cash versus included in the loan amount is not extractable nor tracked in the UCD. Accordingly, the lender must use this field to explicitly convey this value to LGY.",
+            "example": 2300
+          },
+          "lenderCertifiedFeeRecoupmentPeriod": {
+            "type": "integer",
+            "description": "The lender certified recoupment period for fees, closing costs, and any expenses (other than taxes, amounts held in escrow, and fees paid under 38 USC chapter 37) that are incurred by the borrower in the refinancing of the loan as required in 38 CFR 36.4306(b)(1)(i).",
+            "format": "int32",
+            "example": 8
+          }
+        },
+        "description": "Information about the loan being remitted for Guaranty"
+      },
+      "NewLoan": {
+        "required": [
+          "loanData",
+          "obligors",
+          "ucdXmlBase64",
+          "uladXmlBase64"
+        ],
+        "type": "object",
+        "properties": {
+          "loanData": {
+            "$ref": "#/components/schemas/LoanData"
+          },
+          "underwriterData": {
+            "$ref": "#/components/schemas/UnderwriterData"
+          },
+          "energyImprovementTypes": {
+            "type": "array",
+            "description": "The type of VA Energy Efficient Mortgage project being fiannced by the loan being remitted for Guaranty",
+            "items": {
+              "type": "string",
+              "description": "The type of VA Energy Efficient Mortgage project being fiannced by the loan being remitted for Guaranty",
+              "enum": [
+                "INSTALLATION_OF_SOLAR_HEATING_COOLING",
+                "REPLACEMENT_OF_A_MAJOR_SYSTEM",
+                "ADDITION_OF_A_NEW_FEATURE",
+                "INSULATION_CAULKING_WEATHER_STRIPPING",
+                "OTHER_IMPROVEMENTS"
+              ]
+            }
+          },
+          "ucdXmlBase64": {
+            "type": "string",
+            "description": "The final Uniform Closing Dataset conformant XML for the loan being remitted for Guaranty expressed in MISMO Residential Reference model version 3.3.0299",
+            "example": "dGVzdHN0cmluZw=="
+          },
+          "uladXmlBase64": {
+            "type": "string",
+            "description": "The final Uniform Loan Application Dataset conformant XML for the loan being remitted for Guaranty expressed in MISMO Residential Reference model version 3.4",
+            "example": "dGVzdHN0cmluZw=="
+          },
+          "irrrlReasonableValue": {
+            "type": "number",
+            "description": "The current reasonable value for the property being streamlined refinanced. This value is necessary if the lender is refinancing a fixed rate VA loan into an ARM VA Loan and is including discount points in the loan.",
+            "example": 220000
+          },
+          "energyEfficientMortgageAmountIncludedInLoan": {
+            "type": "number",
+            "description": "The aggregate amount of all VA Energy Efficient Mortgage projects that have been included in the loan amount. Note that these are capped by statue at $6,000.",
+            "example": 6000
+          },
+          "nonObligorsOnTitle": {
+            "type": "array",
+            "description": "Collection of lender clarifications of how individuals who are on the title of the subject property for the loan being remitted for Guaranty, but are not obligors on the loan relate to the obligors on the loan.",
+            "items": {
+              "$ref": "#/components/schemas/NonObligorOnTitle"
+            }
+          },
+          "obligors": {
+            "type": "array",
+            "description": "Collection of obligors on the loan. This obligors in this collection should match the parties in the ULAD with a Borrower role. Obligor information collected here allows the lender to specifically define the type of obligor it is (particularly for borrowers who were not Veterans Eligible for the benefit) and expressly establish marital relationships between borrowers on the loan.",
+            "items": {
+              "$ref": "#/components/schemas/Obligor"
+            }
+          }
+        },
+        "description": "The loan being remitted for Guaranty"
+      },
+      "NonObligorOnTitle": {
+        "required": [
+          "nonObligorFullName",
+          "relationshipToObligors"
+        ],
+        "type": "object",
+        "properties": {
+          "nonObligorFullName": {
+            "type": "string",
+            "description": "The full name of a person who is on the title of the subject property for the loan being remitted for Guaranty, but is not an obligor on that loan and whose relationship to the obligors on the loan needs clarification.",
+            "example": "John Doe"
+          },
+          "relationshipToObligors": {
+            "type": "string",
+            "description": "For a person who is on the title of the subject property for the loan being remitted for Guaranty, but is not an obligor on that loan, the relationship of that person to the obligors on that loan. ",
+            "enum": [
+              "SPOUSE_OF_VETERAN",
+              "NOT_SPOUSE_OF_VETERAN",
+              "UNKNOWN_REQUIRES_CLARIFICATION"
+            ]
+          }
+        },
+        "description": "Collection of lender clarifications of how individuals who are on the title of the subject property for the loan being remitted for Guaranty, but are not obligors on the loan relate to the obligors on the loan."
+      },
+      "NonObligorOnTitleRelationshipToBorrowerClarification": {
+        "required": [
+          "nonObligorFullName",
+          "relationshipToObligors"
+        ],
+        "type": "object",
+        "properties": {
+          "nonObligorFullName": {
+            "maxLength": 150,
+            "minLength": 0,
+            "type": "string",
+            "description": "The full name of a person who is on the title of the subject property for the loan being remitted for Guaranty, but is not an obligor on that loan and whose relationship to the obligors on the loan needs clarification.",
+            "example": "John Doe"
+          },
+          "relationshipToObligors": {
+            "type": "string",
+            "description": "For a person who is on the title of the subject property for the loan being remitted for Guaranty, but is not an obligor on that loan, the relationship of that person to the obligors on that loan. ",
+            "enum": [
+              "SPOUSE_OF_VETERAN",
+              "NOT_SPOUSE_OF_VETERAN",
+              "UNKNOWN_REQUIRES_CLARIFICATION"
+            ]
+          }
+        },
+        "description": "Collection of lender clarifications of how individuals who are on the title of the subject property for the loan being remitted for Guaranty, but are not obligors on the loan relate to the obligors on the loan."
+      },
+      "Obligor": {
+        "required": [
+          "eligibleSurvivingSpouse",
+          "eligibleVeteran",
+          "overrideAmountofChargedEntitlement",
+          "ssn",
+          "usingEntitlement",
+          "widowWidowerObligorOnIRRRL"
+        ],
+        "type": "object",
+        "properties": {
+          "ssn": {
+            "maxLength": 9,
+            "minLength": 9,
+            "pattern": "\\b\\d{9}\\b",
+            "type": "string",
+            "description": "The Social Security number of the Obligor on the loan being remitted for Guaranty."
+          },
+          "eligibleVeteran": {
+            "type": "boolean",
+            "description": "Obligor for whom lender has request and received and approved COE during the origination of this loan."
+          },
+          "usingEntitlement": {
+            "type": "boolean",
+            "description": "Whether the obligor will be using available entitlement on the loan."
+          },
+          "eligibleSurvivingSpouse": {
+            "type": "boolean",
+            "description": "Survicing spouse per statutory definition."
+          },
+          "widowWidowerObligorOnIRRRL": {
+            "type": "boolean",
+            "description": "Indicator that the obligor on the IRRRL is the widow of the entitling Veteran on the loan being refinanced was and also an obligor on the loan being refinanced."
+          },
+          "survivingSpouseObligorOnIRRRLEvidenceDocument": {
+            "$ref": "#/components/schemas/GuarantyRemittanceDocument"
+          },
+          "overrideAmountofChargedEntitlement": {
+            "type": "number",
+            "description": "The amount of unequal entitlement the Veteran consents to have charged for the loan being remitted for Guaranty."
+          },
+          "unequalEntitlementEvidenceDocument": {
+            "$ref": "#/components/schemas/GuarantyRemittanceDocument"
+          },
+          "spouseSsn": {
+            "maxLength": 9,
+            "minLength": 9,
+            "pattern": "\\b\\d{9}\\b",
+            "type": "string",
+            "description": "The Social Security number of the Obligor's spouse. This only needs to be provided if the Obligor's spouse is also an Obligor on the loan being remitted for Guaranty.."
+          }
+        },
+        "description": "Collection of obligors on the loan. This obligors in this collection should match the parties in the ULAD with a Borrower role. Obligor information collected here allows the lender to specifically define the type of obligor it is (particularly for borrowers who were not Veterans Eligible for the benefit) and expressly establish marital relationships between borrowers on the loan."
+      },
+      "PriorLoanDisposition": {
+        "required": [
+          "lenderCertifiedPropertyDispositionDate",
+          "vaLoanNumber"
+        ],
+        "type": "object",
+        "properties": {
+          "lenderCertifiedNoLongerOwned": {
+            "type": "boolean",
+            "description": "Lender certification that the subject property of the prior VA loan is no longer owned by the Veteran."
+          },
+          "lenderCertifiedNoLongerOwnedEvidenceDocumentation": {
+            "$ref": "#/components/schemas/GuarantyRemittanceDocument"
+          },
+          "lenderCertifiedPaidInFull": {
+            "type": "boolean",
+            "description": "Lender certification that the prior VA loan has been paid in full."
+          },
+          "lenderCertifiedPaidInFullEvidenceDocumentation": {
+            "$ref": "#/components/schemas/GuarantyRemittanceDocument"
+          },
+          "lenderCertifiedUseOneTimeRight": {
+            "type": "boolean",
+            "description": "Lender certification the the Veteran intends to exercise their one time right to have a paid off but unsold prior VA loan be ignored while calculating Guaranty Entitlement Available."
+          },
+          "lenderCertifiedUseOTR": {
+            "type": "boolean",
+            "description": "Lender certification the Veteran intends to exercise their one time right to have a paid off but unsold  prior VA loan be ignored while calculating Guaranty Entitlement Available."
+          },
+          "lenderCertifiedUseOTREvidenceDocumentation": {
+            "$ref": "#/components/schemas/GuarantyRemittanceDocument"
+          },
+          "vaLoanNumber": {
+            "maxLength": 12,
+            "minLength": 12,
+            "type": "string",
+            "description": "The twelve digit VA loan identification number for the prior VA loan that the lender is providing disposition information on.",
+            "example": "494961001876"
+          },
+          "lenderCertifiedPropertyDispositionDate": {
+            "pattern": "MM/DD/YYYY",
+            "type": "string",
+            "description": "Lender certified date that the Veteran intends to or has disposed of the subject property of a prior VA loan.",
+            "format": "date"
+          }
+        },
+        "description": "Collection of lender known dispositions of prior loans that are currently encumbering the entitlement of one of the Veterans on the loan being remitted for Guaranty"
+      },
+      "RefinancedLoan": {
+        "required": [
+          "amortization",
+          "closingDate",
+          "currentPaymentAmountPrincipalAndInterest",
+          "currentPaymentAmountPrivateMortgageInsurance",
+          "currentPaymentAmountTaxesAndInsurance",
+          "firstPaymentDueDate",
+          "interestRate",
+          "paymentDueDate"
+        ],
+        "type": "object",
+        "properties": {
+          "aggregateResidualIncome": {
+            "type": "number",
+            "description": "The current residual income, in U.S. Dollars, of the borrowers assuming the new loan never closes. This is the baseline residual income which is compared to the residual income calculated during the underwriting of the new loan to determine if the new loan increases the residual income of the borrowers.",
+            "example": 6500
+          },
+          "amortization": {
+            "type": "string",
+            "description": "The amortization type of the loan refinanced by the loan being remitted for Guaranty.",
+            "enum": [
+              "FIXED_RATE",
+              "ARM",
+              "HYBRID_ARM",
+              "TRADITIONAL_ARM",
+              "INTEREST_ONLY",
+              "GEM",
+              "GPM"
+            ]
+          },
+          "closingDate": {
+            "pattern": "MM/DD/YYYY",
+            "type": "string",
+            "description": "The closing date/origination date of the loan refinanced by the loan being remitted for Guaranty.",
+            "format": "date"
+          },
+          "currentPaymentAmountPrincipalAndInterest": {
+            "type": "number",
+            "description": "The current principal and interest portion of the monthly payment, in U.S. Dollars, due on the loan refinanced by the loan being remitted for Guaranty.",
+            "example": 14
+          },
+          "currentPaymentAmountPrivateMortgageInsurance": {
+            "type": "number",
+            "description": "The current private mortgage insurance portion of the monthly payment, in U.S. Dollars, due on the loan refinanced by the loan being remitted for Guaranty.",
+            "example": 1000
+          },
+          "currentPaymentAmountTaxesAndInsurance": {
+            "type": "number",
+            "description": "The current taxes, insurance and other escrowed items portion of the monthly payment, in U.S. Dollars, due on the loan refinanced by the loan being remitted for Guaranty.",
+            "example": 800
+          },
+          "firstPaymentDueDate": {
+            "pattern": "MM/DD/YYYY",
+            "type": "string",
+            "description": "The date the first payment was due for the loan refinanced by the loan being remitted for Guaranty.",
+            "format": "date"
+          },
+          "interestRate": {
+            "type": "number",
+            "description": "The current interest rate on the loan refinanced by the loan being remitted for Guaranty.",
+            "example": 7.5
+          },
+          "guarantorInsurerType": {
+            "type": "string",
+            "description": "The type of Guarantor or Insurer for the loan refinanced by the loan being remitted for Guaranty.",
+            "enum": [
+              "VA",
+              "FHA",
+              "CONVENTIONAL",
+              "OTHER"
+            ]
+          },
+          "paymentDueDate": {
+            "pattern": "MM/DD/YYYY",
+            "type": "string",
+            "description": "The current payment due date for the loan refinanced by the loan being remitted for Guaranty.",
+            "format": "date"
+          },
+          "remainingTermInMonths": {
+            "type": "integer",
+            "description": "The remaining term in months for the loan refinanced by the loan being remitted for Guaranty.",
+            "format": "int32",
+            "example": 18
+          },
+          "vaLoanNumber": {
+            "maxLength": 12,
+            "minLength": 12,
+            "type": "string",
+            "description": "The twelve digit VA loan identification number for the loan refinanced by the loan being remitted for Guaranty.",
+            "example": "494961001876"
+          },
+          "interimConstructionRepairLoan": {
+            "type": "boolean",
+            "description": "Indicator indicating whether the loan refinanced by the loan  being remitted for Guaranty was an interim construction loan.",
+            "example": true
+          }
+        },
+        "description": "The loan being refinanced by the loan being remitted for Guaranty"
+      },
+      "UnderwriterData": {
+        "required": [
+          "aggregateResidualIncome",
+          "creditScore",
+          "debtToIncomeRatio",
+          "familySize",
+          "liquidAssets",
+          "spousalMonthlyIncome",
+          "totalMonthlyGrossIncome",
+          "totalMonthlyGrossIncomeIncludesSpouse",
+          "underwriterID",
+          "underwritingMethod"
+        ],
+        "type": "object",
+        "properties": {
+          "aggregateResidualIncome": {
+            "type": "number",
+            "description": "The aggregate residual income, in U.S. Dollars, used to qualify the Veteran for the loan being remitted for Guaranty.",
+            "example": 4250
+          },
+          "juniorUnderwriterName": {
+            "type": "string",
+            "description": "The name of the underwriter (if any) who assisted the Underwriter of record for the loan being remitted for Guaranty.",
+            "example": "John Doe"
+          },
+          "residualIncomeGuideline": {
+            "type": "number",
+            "description": "The minimum amount, in U.S. Dollars, of residual income proscribed by VA guidelines based on the family size and location of the qualifying Veterans for the loan being remitted for Guaranty.",
+            "example": 8000
+          },
+          "riskClassification": {
+            "type": "string",
+            "description": "The final risk classification returned by an automated underwriting system for the loan being remitted for Guaranty",
+            "enum": [
+              "APPROVE",
+              "REFER"
+            ]
+          },
+          "underwriterID": {
+            "pattern": "[0-9]+",
+            "type": "string",
+            "description": "The VA identification number for the VA approved underwriter of record for the loan being remitted for Guaranty.",
+            "example": "500978"
+          },
+          "underwritingMethod": {
+            "type": "string",
+            "description": "The method by which the loan being remitted for Guaranty was underwritten.",
+            "enum": [
+              "AUS_DESKTOP_UNDERWRITER",
+              "AUS_DESKTOP_PROSPECTOR",
+              "MANUAL"
+            ]
+          },
+          "creditScore": {
+            "type": "integer",
+            "description": "The average credit score for the Veteran obligor on the loan being remitted for Guaranty.",
+            "format": "int32",
+            "example": 690
+          },
+          "debtToIncomeRatio": {
+            "type": "number",
+            "description": "The debt to income ratio for the loan being remitted for Guaranty.",
+            "example": 33.33
+          },
+          "liquidAssets": {
+            "type": "number",
+            "description": "The monetary amount, in U.S. Dollars, of liquid assets available to the Veteran obligor when the loan being remitted for Guaranty was closed.",
+            "example": 30000
+          },
+          "totalMonthlyGrossIncome": {
+            "type": "number",
+            "description": "The total gross monthly income, in U.S. Dollars, used to qualify the Veteran obligor on the loan being remitted for Guaranty",
+            "example": 6500
+          },
+          "totalMonthlyGrossIncomeIncludesSpouse": {
+            "type": "boolean",
+            "description": "Indicator indicating whether the total monthly gross income is inclusive of spousal income",
+            "example": true
+          },
+          "spousalMonthlyIncome": {
+            "type": "number",
+            "description": "The gross monthly income, in U.S. Dollars, for the spouse of the Veteran obligor on the loan being remitted for Guaranty",
+            "example": 13000
+          },
+          "familySize": {
+            "type": "integer",
+            "description": "The total number of household members including all dependents and non-dependents residing in the property.",
+            "format": "int32",
+            "example": 5
+          }
+        },
+        "description": "Information about the loan being remitted for Guaranty"
+      },
+      "CashoutNetTangibleBenefits": {
+        "required": [
+          "armToFixed",
+          "eliminatesMortgageInsurance",
+          "increasedResidualIncome",
+          "lessThan90LoantoValue",
+          "lowerInterestRate",
+          "lowerPayment",
+          "meetsNetTangibleBenefitsRequirements",
+          "refinancesInterimConstructionRepairLoan",
+          "shorterTerm"
+        ],
+        "type": "object",
+        "properties": {
+          "armToFixed": {
+            "type": "boolean",
+            "description": "Indicates whether a Cashout Refinance loan remitted for Guaranty refinances an adjustable rate mortgage into a fixed rate mortgage and accordingly provides a net tangible benefit to the Veteran."
+          },
+          "eliminatesMortgageInsurance": {
+            "type": "boolean",
+            "description": "Indicates whether a Cashout Refinance loan remitted for Guaranty eliminates mortgage insurance from the refinanced loan and accordingly provides a net tangible benefit to the Veteran"
+          },
+          "increasedResidualIncome": {
+            "type": "boolean",
+            "description": "Indicates whether a Cashout Refinance loan remitted for Guaranty increased the amount of residual income available to the Veteran family and accordingly provides a net tangible benefit to the Veteran."
+          },
+          "lessThan90LoantoValue": {
+            "type": "boolean",
+            "description": "Indicates whether a Cashout Refinance loan remitted for Guaranty had an initial loan to value less than 90% and accordingly provides a net tangible benefit to the Veteran"
+          },
+          "lowerInterestRate": {
+            "type": "boolean",
+            "description": "Indicates whether a Cashout Refinance loan remitted for Guaranty carries a lower interest rate than the loan being refinanced and accordingly provides a net tangible benefit to the Veteran"
+          },
+          "lowerPayment": {
+            "type": "boolean",
+            "description": "Indicates whether a Cashout Refinance loan remitted for Guaranty carries a lower monthly payment than the loan being refinanced and accordingly provides a net tangible benefit to the Veteran"
+          },
+          "meetsNetTangibleBenefitsRequirements": {
+            "type": "boolean",
+            "description": "Indicates whether the Cashout Refinance loan remitted for Guaranty meets Cashout Refinance Net Tangible Benefits requirements by providing at least one net tangible benefit to the Veteran."
+          },
+          "refinancesInterimConstructionRepairLoan": {
+            "type": "boolean",
+            "description": "Indicates whether a Cashout Refinance loan remitted for Guaranty refinanced an interim construction or repair loan and accordingly provides a net tangible benefit to the Veteran"
+          },
+          "shorterTerm": {
+            "type": "boolean",
+            "description": "Indicates whether a Cashout Refinance loan remitted for Guaranty has a shorter term than the term remaining on the loan being refinanced and accordingly provides a net tangible benefit to the Veteran"
+          }
+        },
+        "description": "The results of the evaluation of the loan for regulatory cashout net tangible benefits applicable to Cashout Refinance loans"
+      },
+      "EntitlementEncumbrance": {
+        "required": [
+          "encumberedAmount",
+          "encumbranceReason",
+          "lin",
+          "originalLoanAmount",
+          "originationDate",
+          "propertyAddress",
+          "propertyEligibleForOneTimeRestoration"
+        ],
+        "type": "object",
+        "properties": {
+          "encumbranceReason": {
+            "type": "string",
+            "description": "Description of why the prior loan is encumbering the entitlement of this Veteran.",
+            "enum": [
+              "UNCOVERED_CLAIM_AGAINST_GUARANTY",
+              "TERMINATED_UNRESTORED_LOAN",
+              "ACTIVE_LOAN",
+              "PAID_IN_FULL_UNRESTORED_LOAN"
+            ]
+          },
+          "encumberedAmount": {
+            "type": "number",
+            "description": "The amount by which the prior loan is encumbering the entitlement of this Veteran. This is equal to the amount of entitlement charged to the Veteran for that prior loan."
+          },
+          "lin": {
+            "maxLength": 12,
+            "minLength": 12,
+            "type": "string",
+            "description": "The twelve digit VA loan identification number for the prior loan encumbering the available entitlement of this Veteran."
+          },
+          "originalLoanAmount": {
+            "type": "number",
+            "description": "The loan amount at origination of the prior loan encumbering the available entitlement of this Veteran."
+          },
+          "originationDate": {
+            "type": "string",
+            "description": "The origination date of the prior loan encumbering the available entitlement of this Veteran.",
+            "format": "date"
+          },
+          "propertyAddress": {
+            "maxLength": 150,
+            "minLength": 0,
+            "type": "string",
+            "description": "The property address of the prior loan encumbering the available entitlement of this Veteran."
+          },
+          "propertyEligibleForOneTimeRestoration": {
+            "type": "boolean",
+            "description": "Indicates whether the Veteran can potentially exercise their one time right to have a paid off but unsold prior VA loan be ignored while calculating Guaranty Entitlement Available."
+          }
+        },
+        "description": "Collection of prior VA loan for the obligor that have an encumbering effect on their Guaranty Entitlement Available for the loan remitted for Guaranty."
+      },
+      "EntitlingObligor": {
+        "required": [
+          "entitlementAmountToBeChargedForThisLoan",
+          "entitlementAmountToBeChargedForThisLoanToReachMaxGuaranty",
+          "entitlementBeingEncumbered",
+          "entitlementEncumbrances",
+          "guarantyEntitlementAvailableForThisLoan"
+        ],
+        "type": "object",
+        "properties": {
+          "entitlementAmountToBeChargedForThisLoan": {
+            "type": "number",
+            "description": "The amount of entitlement that will be charged for this Veteran for the loan being remitted for Guaranty."
+          },
+          "entitlementAmountToBeChargedForThisLoanToReachMaxGuaranty": {
+            "type": "number",
+            "description": "The amount of entitlement required to be charged for this Veteran for the loan being remitted for Guaranty to achieve maximum Guaranty for the loan. When this amount is higher than the entitlement amount to be charged for the Veteran, it indicates this is a joint loan situation where one of the other Veterans on the loan has encumbered entitlement insufficient to cover an equally distributed entitlement load but could be made up for by sufficent Guaranty Entitlement available by this Veteran to cover an unequal distribution of entitlement load. By default, only equally distributed entitlement is allowed but with signed consent of all the Veterans on the loan, unequal entitlement charges are allowed so the lender can reach maximum guaranty. This field details how entitlement can be spread unequally within the bounds of each Veteran's available entitlement in order to reach the maximum potential guaranty."
+          },
+          "entitlementBeingEncumbered": {
+            "type": "number",
+            "description": "The amount of entitlement being encumbered for this Veteran by prior VA loans that are either active, paid off but unsold, or terminated with an unrepaid VA loss. This value is similar to the same value on the Certificate of Eligibility but is reflective of any changes to the prior loans that have occured since the Certificate of Eligibility was generated."
+          },
+          "entitlementEncumbrances": {
+            "type": "array",
+            "description": "Collection of prior VA loan for the obligor that have an encumbering effect on their Guaranty Entitlement Available for the loan remitted for Guaranty.",
+            "items": {
+              "$ref": "#/components/schemas/EntitlementEncumbrance"
+            }
+          },
+          "guarantyEntitlementAvailableForThisLoan": {
+            "type": "number",
+            "description": "The total amount of Guaranty Entitlement Available for this Veteran for the loan remitted for Guaranty"
+          },
+          "overrideAmountOfChargedEntitlement": {
+            "type": "number",
+            "description": "The lender provided override amount of entitlement to be charged for this Veteran for the loan being remitted for Guaranty. This amount is only applicable to joint loans with multiple veterans and overrides the default equally distributed entitlement load entitlement amount to enable unequally distributed entitlement load so a loan can reach maximum guaranty. This value is the amount provided in the request at LenderOverrides.UnequalChargedEntitlementOverride[].OverrideAmountofChargedEntitlement."
+          }
+        },
+        "description": "Collection of obligors using their entitlement on the loan remitted for Guaranty and the information related to entitlement usage for that Veteran"
+      },
+      "FeeRecoupment": {
+        "required": [
+          "feeOvershootInCash",
+          "feeOvershootInLoanAmount",
+          "feeRecoupmentRequirementsReason",
+          "loanMeetsRecoupmentRequirements",
+          "lowerPaymentAmount",
+          "netVeteranPaidFees",
+          "recoupmentPeriod"
+        ],
+        "type": "object",
+        "properties": {
+          "loanMeetsRecoupmentRequirements": {
+            "type": "boolean",
+            "description": "Indicates whether the loan remitted for Guaranty meets statutory and regulatory fee recoupment requirements."
+          },
+          "feeOvershootInCash": {
+            "type": "number",
+            "description": "The amount by which the loan remitted for Guaranty exceeds the allowable amount of Net Veteran Paid Fees (amount recoverable within 36 months due to a lower payment amount) attributable to cash collected from the Veterans at or prior to closing."
+          },
+          "feeOvershootInLoanAmount": {
+            "type": "number",
+            "description": "The amount by which the loan remitted for Guaranty exceeds the allowable amount of Net Veteran Paid Fees (amount recoverable within 36 months due to a lower payment amount) attributable to an increased loan amount to cover those fees."
+          },
+          "lowerPaymentAmount": {
+            "type": "number",
+            "description": "The amount by which the loan remitted for Guaranty lowers the monthly payment amount versus the loan being refinanced."
+          },
+          "netVeteranPaidFees": {
+            "type": "number",
+            "description": "The amount of fees (either in cash or through an increased loan amount) incidental to the mortgage itself, exclusive of escrow items like taxes and insurance as well as other prepaids like prepaid interest, the VA Funding Fee and fees paid by the lender themselves."
+          },
+          "recoupmentPeriod": {
+            "type": "integer",
+            "description": "The number of months required to fully recoup the Net Veteran Paid Fees due to a lower monthly payment amount.",
+            "format": "int32"
+          },
+          "feeRecoupmentRequirementsReason": {
+            "type": "string",
+            "description": "Detailed reason why the loan remitted for Guaranty either met or did not meet Fee Recoupment requirements",
+            "enum": [
+              "RECOUPMENT_PERIOD_IS_36_MONTHS_OR_LESS",
+              "VETERAN_PAID_NO_FEES",
+              "RECOUPMENT_PERIOD_IS_LONGER_THAN_36_MONTHS"
+            ]
+          }
+        },
+        "description": "The results of the evaluation of the loan against fee recoupment requirements applicable to IRRRL and TYPE-1 VA to VA Cashout Refinance loans"
+      },
+      "FundingFeeOwedVA": {
+        "required": [
+          "daysToRemit",
+          "lateChargeDue",
+          "lateInterestPeriods",
+          "lateRemittanceWaiver",
+          "obligors",
+          "remittanceDate",
+          "totalAmountCollected",
+          "totalAmountSubjectToFF",
+          "totalDueVA",
+          "totalFundingFeeDueForTheLoan",
+          "totalLateInterestDue"
+        ],
+        "type": "object",
+        "properties": {
+          "totalAmountSubjectToFF": {
+            "type": "number",
+            "description": "The portion of the loan amount that is subject to the funding fee. For loans where the funding fee is included in the loan amount, the amount of the funding fee is excluded from this value. For joint loans involving non-veterans, this value also excludes the portion of the loan amount allocable to those non-veterans."
+          },
+          "totalFundingFeeDueForTheLoan": {
+            "type": "number",
+            "description": "The total funding fee due to the VA for the loan exclusive of any late charges or late interest due because of a late remittance of the loan."
+          },
+          "daysToRemit": {
+            "type": "integer",
+            "description": "The number of days between the closing date of the loan remitted for Guaranty and the date that the funding fee for the loan was remitted (for Guaranty). Loans remitted more than 15 days after closing are subject to a 4% late charge on the funding fee amount. Loans remitted more than 30 days after closing are subject to daily interest on the owed funding fee amount.",
+            "format": "int32"
+          },
+          "lateChargeDue": {
+            "type": "number",
+            "description": "The amount of late charge due from the lender in addition to the funding fee due to late remittance of the funding fee. This amount is 4% of the total funding fee due to the VA and is assessed on loans where the funding fee is remitted later than 15 days after the closing date of the loan."
+          },
+          "totalLateInterestDue": {
+            "type": "number",
+            "description": "The total amount of late interest due from the lender in addition to the funding fee caused by remittance of the funding fee more than 30 days after loan closing. This value is equal to the sum of all LateInterestForPeriods for all late interest periods."
+          },
+          "totalDueVA": {
+            "type": "number",
+            "description": "The total amount due to the VA inclusive of the Funding Fee and any late charge or late interest assessed on late remitted funding fees."
+          },
+          "totalAmountCollected": {
+            "type": "number",
+            "description": "The amount of funding fee collected by the lender from the Veteran borrowers at closing either in cash of by inclusion in the total loan amount."
+          },
+          "downPaymentPercent": {
+            "type": "number",
+            "description": "The down payment percent for the loan remitted for Guaranty. This value is used to calculate the appropriate funding fee rate for each Veteran on the loan when the loan is a Purchase, Construction, or Cashout Refinance loan."
+          },
+          "lateInterestPeriods": {
+            "type": "array",
+            "description": "For loans remitted more than 30 days after the closing date of the loan, daily late interest is due to the VA. Each period of interest from the closing date of the loan to the remittance date of the loan will have an entry in the Late Interest Periods collection. ",
+            "items": {
+              "$ref": "#/components/schemas/LateInterestPeriod"
+            }
+          },
+          "lateRemittanceWaiver": {
+            "type": "string",
+            "description": "Indicates whether a waiver of late interest rules has been previously granted by the VA.",
+            "example": "NOT_WAIVED",
+            "enum": [
+              "WAIVED",
+              "NOT_WAIVED"
+            ]
+          },
+          "remittanceDate": {
+            "type": "string",
+            "description": "The date the loan was remitted for Guaranty and the funding fee was remitted.",
+            "format": "date"
+          },
+          "obligors": {
+            "type": "array",
+            "description": "Collection of obligors using their entitlement on the loan remitted for Guaranty and the funding fee information attributable to that Veteran",
+            "items": {
+              "$ref": "#/components/schemas/ObligorResponse"
+            }
+          }
+        },
+        "description": "Information about the funding fee that is owed to the VA by the lender for the loan remitted for Guaranty"
+      },
+      "GuarantyRemittanceResponse": {
+        "required": [
+          "loanProfferedForGuaranty"
+        ],
+        "type": "object",
+        "properties": {
+          "loanProfferedForGuaranty": {
+            "$ref": "#/components/schemas/LoanProfferedForGuaranty"
+          },
+          "loanGuarantyCertificateBase64": {
+            "type": "string",
+            "description": "Base 64 encoded pdf of the Loan Guaranty Certificate memorializing a loan for which Guaranty has successfully been secured."
+          },
+          "noticeOfIndemnificationBase64": {
+            "type": "string",
+            "description": "Base 64 encoded pdf of the indemnification notification letter."
+          },
+          "loanExceptions": {
+            "type": "array",
+            "description": "Collection of exceptions identified during the processing of the loan remitted for Guaranty",
+            "items": {
+              "$ref": "#/components/schemas/LoanExceptionDTO"
+            }
+          }
+        },
+        "description": "The loan remitted by the Lender for Guaranty after it has been evaluated for Guaranty"
+      },
+      "GuarantyResults": {
+        "required": [
+          "entitlingObligors",
+          "excessOverAllowableLoanAmount",
+          "guarantyAmount",
+          "guarantyEligibleEnergyImprovementAmount",
+          "guarantyPercentOfTotalAmountFinanced",
+          "guarantyPercentOfTotalGuaranteeableLoanAmount",
+          "jointLoanAmountFinancedSubjectToEntitlement",
+          "jointLoanEntitlingVeteranPercentage",
+          "maxGuarantyPercentWithUnequalEntitlementLoad",
+          "propertyCountyConformingLoanLimitOnClosingDate",
+          "totalAmountFinancedEligibleForGuaranty",
+          "totalAmountOfEntitlementRequiredForMaxGuaranty",
+          "totalChargedEntitlement"
+        ],
+        "type": "object",
+        "properties": {
+          "excessOverAllowableLoanAmount": {
+            "type": "number",
+            "description": "The excess loan amount above the lesser of (Sale Price - Down Payment or reasonable value of the subject property) plus VA Funding Fee included in the loan amount + up to $6000 of Energy Efficient Improvements. The excess amount is inelligble for Guaranty."
+          },
+          "guarantyAmount": {
+            "type": "number",
+            "description": "The monetary amount of Guaranty on the loan remitted for Guaranty."
+          },
+          "guarantyEligibleEnergyImprovementAmount": {
+            "type": "number",
+            "description": "The amount of energy improvements designated on the loan remitted for Guaranty equal to or less than the statutory limit of $6,000. "
+          },
+          "guarantyPercentOfTotalAmountFinanced": {
+            "type": "number",
+            "description": "The Guaranty Percent of the total loan (Note) amount."
+          },
+          "guarantyPercentOfTotalGuaranteeableLoanAmount": {
+            "type": "number",
+            "description": "The Guaranty Percent of the portion of the total loan amount that is able to be Guaranteed (exclusive of amounts in excess of what is statutorily Guaranteeable, e.g. cashout refinances with a note amount in excess of reasonable value or loan amount portions attributable to non Veteran obligors). Guaranty percent less than maximum for this value generally indicate less than full entitlement available for the Veteran(s) on the loan."
+          },
+          "jointLoanAmountFinancedSubjectToEntitlement": {
+            "type": "number",
+            "description": "The portion of the loan amount that will be charged against the entitling Veterans on the loan remitted for Guaranty. This value is exclusive of: any loan amount portions that are in excess of statutory constraints on what can be guaranteed, any Energy Improvement amounts which are Guaranteeable but not charged against Veteran(s) entitlement, and portions of the total loan amount that are attributable to non-Veteran obligors for joint loans involving non-veterans."
+          },
+          "jointLoanEntitlingVeteranPercentage": {
+            "type": "number",
+            "description": "The percent of the total loan (Note) amount that is attributable to entitling Veterans for joint loans involving veterans and non-Veterans"
+          },
+          "maxGuarantyPercentWithUnequalEntitlementLoad": {
+            "type": "number",
+            "description": "The maximum Guaranty Percent available for this joint loan assuming an unequal distribution of entitlment load (e.g. one Veteran is charged more entitlement than other Veterans on the loan due to those other Veterans having insufficient Guaranty Entitlement available to cover an equal split of the Total Amount of Entitlement Required for maximum Guaranty)."
+          },
+          "entitlingObligors": {
+            "type": "array",
+            "description": "Collection of obligors using their entitlement on the loan remitted for Guaranty and the information related to entitlement usage for that Veteran",
+            "items": {
+              "$ref": "#/components/schemas/EntitlingObligor"
+            }
+          },
+          "otherPersonsAffectingGuaranty": {
+            "type": "array",
+            "description": "Collection of persons who impact the Guaranty calculation but whom are not an Entitling Veteran on the loan. This includes obligors who are not eligible benefit recipients (eligible Veteran using their entitlement or eligible Surviving Spouse), and not the spouse of an eligible Veteran on the loan remitted for Guaranty. This list also includes persons who are not obligors on the loan but are listed on the title of the subject property of the loan remitted for Guaranty.",
+            "items": {
+              "$ref": "#/components/schemas/OtherPersonAffectingGuaranty"
+            }
+          },
+          "propertyCountyConformingLoanLimitOnClosingDate": {
+            "type": "number",
+            "description": "The conforming loan limit for the subject property of the loan remitted for Guaranty on the date of closing. This limit is determined by the County and State in which the property is located based on tables published by FHFA as calculated by the formula in the Housing and Recovery Act of 2008."
+          },
+          "totalAmountFinancedEligibleForGuaranty": {
+            "type": "number",
+            "description": "The amount eligible for Guaranty for the loan remitted for Guaranty. This is the total loan amount subtracting any amounts not guaranteeable (e.g. excess funding fee included in the loan amount, excess energy improvement amounts, cashout refinance amounts exceeding reasonable value.)"
+          },
+          "totalAmountOfEntitlementRequiredForMaxGuaranty": {
+            "type": "number",
+            "description": "The total amount of entitlement that must be available from the entitling obligors on the loan in order to reach maximum Guaranty for the loan remitted for Guaranty"
+          },
+          "totalChargedEntitlement": {
+            "type": "number",
+            "description": "The total amount of entitlement that was charged against the entitling Veteran obligors on the loan."
+          }
+        },
+        "description": "Information relating to the Guaranty Amount the lender will receive on the loan remitted for Guaranty "
+      },
+      "InputData": {
+        "required": [
+          "amortizationType",
+          "applicationDate",
+          "borrowerPaidFundingFeeAtClosing",
+          "borrowerPaidFundingFeeBeforeClosing",
+          "closingDate",
+          "disbursementDate",
+          "energyImprovementsAddedToLoanAmount",
+          "fundingFeeAmountAddedToLoanAmount",
+          "fundingFeeAmountNotFinancedPaidByBorrowers",
+          "fundingFeeAmountNotFinancedPaidByOthers",
+          "interestRate",
+          "lenderCredits",
+          "monthlyPaymentAmountPrincipalAndInterest",
+          "monthlyPaymentAmountTi",
+          "nonObligorsOnTitle",
+          "obligors",
+          "otherPayoffsAmountNotPrincipalReductionEscrowRefund",
+          "otherPayoffsAmountPrincipalReductionEscrowRefund",
+          "property",
+          "term",
+          "totalAmountFinancedByLender",
+          "ucdVALoanNumber"
+        ],
+        "type": "object",
+        "properties": {
+          "amortizationType": {
+            "type": "string",
+            "description": "The VA amortization type of the loan remitted for Guaranty. This value is extracted from UCD data provided in the request. See the Extracting Data from the UCD for Guaranty Remittance document for additional detail.",
+            "enum": [
+              "FIXED_RATE",
+              "ARM",
+              "HYBRID_ARM",
+              "TRADITIONAL_ARM",
+              "INTEREST_ONLY",
+              "GEM",
+              "GPM"
+            ]
+          },
+          "applicationDate": {
+            "type": "string",
+            "description": "The date the loan originator signed the application. This value is extracted from ULAD data provided in the request. See the Extracting Data from the ULAD for Guaranty Remittance document for additional detail.",
+            "format": "date"
+          },
+          "appraisalOrderedDate": {
+            "type": "string",
+            "description": "The date the appraisal was ordered for a Purchase, Construction, or Cashout Refinance loan. This value is determined from VA data captured when the lender ordered the appraisal for the loan remitted for Guaranty.",
+            "format": "date"
+          },
+          "armInitialRatePeriod": {
+            "type": "integer",
+            "description": "The number of months after origination when the first interest rate adjustment can occur.  This value is extracted from UCD data provided in the request. See the Extracting Data from the UCD for Guaranty Remittance document for additional detail",
+            "format": "int32"
+          },
+          "armInitialChangeRateCap": {
+            "type": "number",
+            "description": "The maximum number of percentage points by which the rate can increase from the initial interest rate at the first rate change.  This value is extracted from UCD data provided in the request. See the Extracting Data from the UCD for Guaranty Remittance document for additional detail."
+          },
+          "armLifetimeRateCeiling": {
+            "type": "number",
+            "description": "The stated maximum percentage to which the interest rate can increase over the life of the loan. This value is extracted from UCD data provided in the request. See the Extracting Data from the UCD for Guaranty Remittance document for additional detail"
+          },
+          "armMargin": {
+            "type": "number",
+            "description": "The number of percentage points to be added to the index to arrive at the new interest rate. This value is extracted from UCD data provided in the request. See the Extracting Data from the UCD for Guaranty Remittance document for additional detail."
+          },
+          "armLifetimeRateFloor": {
+            "type": "number",
+            "description": "The stated minimum percentage to which the interest rate can decrease over the life of the loan. This value is extracted from UCD data provided in the request. See the Extracting Data from the UCD for Guaranty Remittance document for additional detail."
+          },
+          "armPerChangeRateCap": {
+            "type": "number",
+            "description": "The maximum number of percentage points by which the rate can increase from the previous interest rate. This value is extracted from UCD data provided in the request. See the Extracting Data from the UCD for Guaranty Remittance document for additional detail."
+          },
+          "armSubsequentRateChangeFrequency": {
+            "type": "integer",
+            "description": "The number of months between subsequent rate adjustments.  Extracted from UCD data: This value is extracted from UCD data provided in the request. See the Extracting Data from the UCD for Guaranty Remittance document for additional detail.",
+            "format": "int32"
+          },
+          "chargedDiscountPointsIncludedInLoanAmount": {
+            "type": "number",
+            "description": "The dollar amount of loan discount points paid for by inclusion in the total loan amount. Determined by subtracting the amount of borrower paid discount points paid in cash (specified in NewLoan.LoanData.BorrowerPaidDiscountPointsCollectedInCash) from the TotalBorrowerPaidDiscountPoints"
+          },
+          "chargedDiscountPointsIncludedInLoanPercent": {
+            "type": "number",
+            "description": "The number of loan discount points paid for by inclusion in the total loan amount. This number is determined by dividing the ChargedDiscountPointsIncludedInLoanAmount by the total loan amount."
+          },
+          "closingDate": {
+            "type": "string",
+            "description": "The date the closing documents were fully executed and the borrower becomes contractually responsible for the debt for the loan remitted for Guaranty. This value is extracted from UCD data provided in the request. See the Extracting Data from the UCD for Guaranty Remittance document for additional detail",
+            "format": "date"
+          },
+          "disbursementDate": {
+            "type": "string",
+            "description": "The date the loan funds for the loan remitted for Guaranty are disbursed to the borrower or another party on the borrower's behalf. This value is extracted from UCD data provided in the request. See the Extracting Data from the UCD for Guaranty Remittance document for additional detail.",
+            "format": "date"
+          },
+          "downPaymentAmount": {
+            "type": "number",
+            "description": "The amount of down payment or funds provided by the borrower at closing. This value is extracted from UCD data provided in the request. See the Extracting Data from the UCD for Guaranty Remittance document for additional detail."
+          },
+          "energyImprovementsAddedToLoanAmount": {
+            "type": "number",
+            "description": "The amount of Energy Efficient Mortgage funds included in the total loan amount. This value is extracted from UCD data provided in the request. See the Extracting Data from the UCD for Guaranty Remittance document for additional detail."
+          },
+          "borrowerPaidEscrowAtClosing": {
+            "type": "number",
+            "description": "The dollar amount of escrow items paid by the borrower at closing. This value is extracted from UCD data provided in the request. See the Extracting Data from the UCD for Guaranty Remittance document for additional detail."
+          },
+          "borrowerPaidPrepaidsAtClosing": {
+            "type": "number",
+            "description": "The dollar amount of prepaid items paid by the borrower at closing. This value is extracted from UCD data provided in the request. See the Extracting Data from the UCD for Guaranty Remittance document for additional detail."
+          },
+          "borrowerPaidPrepaidsBeforeClosing": {
+            "type": "number",
+            "description": "The dollar amount of prepaid items paid by the borrower before closing. This value is extracted from UCD data provided in the request. See the Extracting Data from the UCD for Guaranty Remittance document for additional detail."
+          },
+          "borrowerPaidFundingFeeBeforeClosing": {
+            "type": "number",
+            "description": "The amount of the VA Funding Fee paid by the borrower before closing. This value is extracted from UCD data provided in the request. See the Extracting Data from the UCD for Guaranty Remittance document for additional detail."
+          },
+          "borrowerPaidFundingFeeAtClosing": {
+            "type": "number",
+            "description": "The amount of the VA Funding Fee paid by the borrower at closing. This value is extracted from UCD data provided in the request. See the Extracting Data from the UCD for Guaranty Remittance document for additional detail."
+          },
+          "fundingFeeAmountAddedToLoanAmount": {
+            "type": "number",
+            "description": "The dollar amount of the VA funding fee paid for by inclusion in the total loan amount. Determined by subtracting the amount of borrower paid VA Funding Fee paid in cash (specified in NewLoan.LoanData.BorrowerPaidFundingFeeCollectedInCash) from the TotalBorrowerPaidFundingFeeAmount"
+          },
+          "fundingFeeAmountNotFinancedPaidByBorrowers": {
+            "type": "number",
+            "description": "The dollar amount of the VA funding fee paid for by the borrower in cash. This value reflects what the lender specified in the Request at NewLoan.LoanData.BorrowerPaidFundingFeeCollectedInCash"
+          },
+          "fundingFeeAmountNotFinancedPaidByOthers": {
+            "type": "number",
+            "description": "The total VA Funding Fee amount paid for by entities other than the borrower. This value is extracted from UCD data provided in the request. See the Extracting Data from the UCD for Guaranty Remittance document for additional detail."
+          },
+          "interestRate": {
+            "type": "number",
+            "description": "The actual interest rate as disclosed on the note for the loan remitted for Guaranty. This value is extracted from UCD data provided in the request. See the Extracting Data from the UCD for Guaranty Remittance document for additional detail. "
+          },
+          "irrrlOrderedDate": {
+            "type": "string",
+            "description": "The date the lender ordered the Interest Rate Reduction Refinance Loan in webLGY. This value is determined from VA data captured when the lender ordered the IRRRL for the loan remitted for Guaranty.",
+            "format": "date"
+          },
+          "lenderCredits": {
+            "type": "number",
+            "description": "The amount of lender credits. This value is extracted from UCD data provided in the request. See the Extracting Data from the UCD for Guaranty Remittance document for additional detail."
+          },
+          "ucdIndicatedLoanCategory": {
+            "type": "string",
+            "description": "The loan category as indicated on the UCD.This value is extracted from UCD data provided in the request. See the Extracting Data from the UCD for Guaranty Remittance document for additional detail. "
+          },
+          "loanCategory": {
+            "type": "string",
+            "description": "The loan category determined by the type of appraisal ordered on the VA Loan Number remitted for Guaranty or whether or alternately whether the VA Loan Number remitted for Guaranty was generated by ordering an IRRRL.",
+            "enum": [
+              "PURCHASE",
+              "CONSTRUCTION",
+              "IRRRL",
+              "CASHOUT_REFINANCE",
+              "MANUFACTURED",
+              "ASSUMPTION"
+            ]
+          },
+          "monthlyPaymentAmountPrincipalAndInterest": {
+            "type": "number",
+            "description": "The dollar amount of the principal and interest payment as stated on the Note for the loan remitted for Guaranty. This value is extracted from UCD data provided in the request. See the Extracting Data from the UCD for Guaranty Remittance document for additional detail."
+          },
+          "monthlyPaymentAmountTi": {
+            "type": "number",
+            "description": "The estimated amount of the payment that is applied toward escrows during the projected payment period for the loan remitted for Guaranty. This value is extracted from UCD data provided in the request. See the Extracting Data from the UCD for Guaranty Remittance document for additional detail. "
+          },
+          "otherPayoffsAmountNotPrincipalReductionEscrowRefund": {
+            "type": "number",
+            "description": "The combined total payoff amount of debts and liabilities that are not the first lien mortgage of the loan being refinanced and are not principal reductions or escrow refunds. This value is extracted from UCD data provided in the request. See the Extracting Data from the UCD for Guaranty Remittance document for additional detail. "
+          },
+          "otherPayoffsAmountPrincipalReductionEscrowRefund": {
+            "type": "number",
+            "description": "The combined total payoff amount of debts and liabilities that are attributable to principal reductions or escrow refunds. This value is extracted from UCD data provided in the request. See the Extracting Data from the UCD for Guaranty Remittance document for additional detail. "
+          },
+          "obligors": {
+            "type": "array",
+            "description": "Collection of the obligors on the loan",
+            "items": {
+              "$ref": "#/components/schemas/InputDataObligor"
+            }
+          },
+          "nonObligorsOnTitle": {
+            "type": "array",
+            "description": "Collection of individuals who are on the title of the subject property for the loan being remitted for Guaranty, but are not obligors on the loan. Extracted from ULAD Parties with a Property owner role but not also a Borrower Role. See the Extracting Data from the ULAD for Guaranty Remittance document for additional detail. ",
+            "items": {
+              "$ref": "#/components/schemas/InputDataNonObligor"
+            }
+          },
+          "property": {
+            "$ref": "#/components/schemas/Property"
+          },
+          "purchasePrice": {
+            "type": "number",
+            "description": "The sale price of the subject property for the loan remitted for Guaranty. This value is extracted from UCD data provided in the request. See the Extracting Data from the UCD for Guaranty Remittance document for additional detail. "
+          },
+          "refinanceFirstLienPayoffAmount": {
+            "type": "number",
+            "description": "The payoff amount of the first lien mortgage on the loan being refinanced by the loan remitted for Guaranty. This value is extracted from UCD data provided in the request. See the Extracting Data from the UCD for Guaranty Remittance document for additional detail. "
+          },
+          "term": {
+            "maximum": 3,
+            "minimum": 0,
+            "type": "integer",
+            "description": "The scheduled number of months after which the loan remitted for Guaranty will mature. This value is extracted from UCD data provided in the request. See the Extracting Data from the UCD for Guaranty Remittance document for additional detail. ",
+            "format": "int32"
+          },
+          "totalAmountFinancedByLender": {
+            "type": "number",
+            "description": "The amount to be repaid as disclosed on the note for the loan remitted for Guaranty.  This value is extracted from UCD data provided in the request. See the Extracting Data from the UCD for Guaranty Remittance document for additional detail. "
+          },
+          "ucdVALoanNumber": {
+            "maxLength": 12,
+            "minLength": 12,
+            "type": "string",
+            "description": "The twelve digit VA loan identification number for the loan being remitted for Guaranty as indicated on the UCD. This value is extracted from UCD data provided in the request. See the Extracting Data from the UCD for Guaranty Remittance document for additional detail. "
+          },
+          "totalBorrowerPaidClosingCostsBeforeClosing": {
+            "type": "number",
+            "description": "The total amount of closing costs paid by the borrower prior to closing. This value is extracted from UCD data provided in the request. See the Extracting Data from the UCD for Guaranty Remittance document for additional detail. "
+          },
+          "totalBorrowerPaidClosingCostsAtClosing": {
+            "type": "number",
+            "description": "The total amount of closing costs paid by the borrower prior to closing. This value is extracted from UCD data provided in the request. See the Extracting Data from the UCD for Guaranty Remittance document for additional detail. "
+          },
+          "totalRefinancePayoffsAmount": {
+            "type": "number",
+            "description": "The total amount of closing costs paid by the borrower prior to closing. This value is extracted from UCD data provided in the request. See the Extracting Data from the UCD for Guaranty Remittance document for additional detail. "
+          },
+          "cashToCloseFromBorrower": {
+            "type": "number",
+            "description": "The amount of cash required from the borrower to close the loan. This value is extracted from UCD data provided in the request. See the Extracting Data from the UCD for Guaranty Remittance document for additional detail."
+          },
+          "closingCostsFinanced": {
+            "type": "number",
+            "description": "The total amount of closing costs financed by inclusion in the total loan amount. This value is extracted from UCD data provided in the request. See the Extracting Data from the UCD for Guaranty Remittance document for additional detail."
+          },
+          "borrowerPaidDiscountPointsBeforeClosing": {
+            "type": "number",
+            "description": "The total amount of discount points paid by the borrower prior to closing. This value is extracted from UCD data provided in the request. See the Extracting Data from the UCD for Guaranty Remittance document for additional detail."
+          },
+          "borrowerPaidDiscountPointsAtClosing": {
+            "type": "number",
+            "description": "The total amount of discount points paid by the borrower at closing. This value is extracted from UCD data provided in the request. See the Extracting Data from the UCD for Guaranty Remittance document for additional detail."
+          }
+        },
+        "description": "Information relating to the Guaranty Amount the lender will receive on the loan remitted for Guaranty "
+      },
+      "InputDataNonObligor": {
+        "required": [
+          "mannerHowTitleHeld",
+          "name",
+          "relationshipToObligors"
+        ],
+        "type": "object",
+        "properties": {
+          "relationshipToObligors": {
+            "type": "string",
+            "description": "For a person who is on the title of the subject property for the loan being remitted for Guaranty, but is not an obligor on that loan, the relationship of that person to the obligors on that loan. Extracted from ULAD Parties with a Property owner role but not also a Borrower Role. See the Extracting Data from the ULAD for Guaranty Remittance document for additional detail. ",
+            "enum": [
+              "SPOUSE_OF_VETERAN",
+              "NOT_SPOUSE_OF_VETERAN",
+              "UNKNOWN_REQUIRES_CLARIFICATION"
+            ]
+          },
+          "mannerHowTitleHeld": {
+            "type": "string",
+            "description": "A value from a MISMO prescribed list that specifies a type of real property ownership by one or more parties. This defines the rights of the parties to occupy, sell their interest in the property to others, to will the property, or to sever joint ownership of the property. Extracted from ULAD Parties with a Property owner role but not also a Borrower Role. See the Extracting Data from the ULAD for Guaranty Remittance document for additional detail. ",
+            "enum": [
+              "SOLE_OWNERSHIP",
+              "TENANCY_IN_COMMON",
+              "JOINT_TENANCY_WITH_RIGHT_OF_SURVIVORSHIP",
+              "TENANCY_BY_ENTIRETY",
+              "LIFE_ESTATE",
+              "Other"
+            ]
+          },
+          "name": {
+            "type": "string",
+            "description": "For a person who is on the title of the subject property for the loan being remitted for Guaranty, but is not an obligor on that loan.  See the Extracting Data from the ULAD for Guaranty Remittance document for additional detail."
+          }
+        },
+        "description": "Collection of the obligors on the loan"
+      },
+      "InputDataObligor": {
+        "required": [
+          "mannerHowTitleHeld",
+          "obligorType"
+        ],
+        "type": "object",
+        "properties": {
+          "obligorType": {
+            "type": "string",
+            "description": "The type of obligor that defines whether the obligor is using their own entitlement and if so what type or alternately how that obligor relates to the Veteran whose entitlement enabled this loan to receive VA Guaranty. Extracted from the ULAD. See the Extracting Data from the ULAD for Guaranty Remittance document for additional detail. ",
+            "enum": [
+              "VETERAN_USING_ENTITLEMENT",
+              "SPOUSE_OF_VETERAN_USING_ENTITLEMENT",
+              "NON_VETERAN_VETERAN_NOT_USING_ENTITLEMENT",
+              "SURVIVING_SPOUSE_USING_DECEASED_VETERAN_ENTITLEMENT",
+              "WIDOW_ON_IRRRL",
+              "VETERAN_SPOUSE_NOT_USING_ENTITLEMENT_OF_VETERAN_USING_ENTITLEMENT",
+              "NON_VETERAN_SPOUSE_OF_VETERAN_USING_ENTITLEMENT",
+              "NON_VETERAN_VETERAN_INELIGIBLE_FOR_THE_HOME_LOAN_BENEFIT"
+            ]
+          },
+          "mannerHowTitleHeld": {
+            "type": "string",
+            "description": "A value from a MISMO prescribed list that specifies a type of real property ownership by one or more parties. This defines the rights of the parties to occupy, sell their interest in the property to others, to will the property, or to sever joint ownership of the property. Extracted from ULAD data. See the Extracting Data from the ULAD for Guaranty Remittance document for additional detail.",
+            "enum": [
+              "SOLE_OWNERSHIP",
+              "TENANCY_IN_COMMON",
+              "JOINT_TENANCY_WITH_RIGHT_OF_SURVIVORSHIP",
+              "TENANCY_BY_ENTIRETY",
+              "LIFE_ESTATE",
+              "Other"
+            ]
+          }
+        },
+        "description": "Collection of the obligors on the loan. Obligors in this collection are extracted from ULAD data provided in the request. See the Extracting Data from the ULAD for Guaranty Remittance document for additional detail."
+      },
+      "IrrrlRequirementResults": {
+        "required": [
+          "excessDiscountPointsInLoanAmount",
+          "meetsIrrrlDiscountPointsInLoanAmountRequirements",
+          "meetsIrrrlTermExtensionRequirements",
+          "termExtension"
+        ],
+        "type": "object",
+        "properties": {
+          "meetsIrrrlTermExtensionRequirements": {
+            "type": "boolean",
+            "description": "Indicates whether the term of the IRRRL remitted for Guaranty extends the term of the loan being refinanced within statutory/regulatory requirements "
+          },
+          "termExtension": {
+            "type": "integer",
+            "description": "Length in months that the the term of the IRRRL remitted for Guaranty extends the term of the loan being refinanced ",
+            "format": "int32"
+          },
+          "meetsIrrrlDiscountPointsInLoanAmountRequirements": {
+            "type": "boolean",
+            "description": "Indicates whether the amount of discount points included in the loan amount of the IRRRL remitted for Guaranty is equal to or less than the two that are allowed by regulation. "
+          },
+          "excessDiscountPointsInLoanAmount": {
+            "type": "number",
+            "description": "The monetary amount of discount points above 2 that are included in the loan amount of the IRRRL remitted for Guaranty."
+          }
+        },
+        "description": "The results of the evaluation of the IRRRL against term extension and discount point rules"
+      },
+      "LateInterestPeriod": {
+        "required": [
+          "daysInPeriod",
+          "endDate",
+          "lateInterestForPeriod",
+          "rate",
+          "startDate"
+        ],
+        "type": "object",
+        "properties": {
+          "startDate": {
+            "type": "string",
+            "description": "The first day in this late interest period and the first day that the new interest rate published by treasury takes effect.",
+            "format": "date"
+          },
+          "endDate": {
+            "type": "string",
+            "description": "The last day for this late interest period.",
+            "format": "date"
+          },
+          "daysInPeriod": {
+            "type": "integer",
+            "description": "The number of days in the interest period. It is the day difference between the period start date and end date.",
+            "format": "int32"
+          },
+          "rate": {
+            "type": "number",
+            "description": "The applicable interest rate for the late interest period. This rate is published periodically by yearly by the Department of Treasury."
+          },
+          "lateInterestForPeriod": {
+            "type": "number",
+            "description": "The amount of interest accrued in this interest period. It is the multiplication of the daily interest rate, the number of days in the late interest period/365 and the funding fee amount due to the VA."
+          }
+        },
+        "description": "For loans remitted more than 30 days after the closing date of the loan, daily late interest is due to the VA. Each period of interest from the closing date of the loan to the remittance date of the loan will have an entry in the Late Interest Periods collection. "
+      },
+      "LoanExceptionDTO": {
+        "required": [
+          "classification",
+          "description",
+          "instructionToLender",
+          "overridden"
+        ],
+        "type": "object",
+        "properties": {
+          "classification": {
+            "type": "string",
+            "description": "The classification of the exception identified during the processing of the loan remitted for Guaranty.",
+            "enum": [
+              "CRITICAL_ERROR",
+              "ISSUE_REQUIRES_LENDER_OVERRIDE",
+              "ADVISORY"
+            ]
+          },
+          "description": {
+            "type": "string",
+            "description": "Detailed description of the exception identified during the processing of the loan"
+          },
+          "instructionToLender": {
+            "type": "string",
+            "description": "Message returned to the lender detailing the exception and what needs to be done to remediate it"
+          },
+          "overridden": {
+            "type": "boolean",
+            "description": "Whether the lender overrode the exception by agreeing to perform the required financial or indemnification remediation and communicated as such in the remediation assertions. This is only applicable to exceptions classified as Issue Requires Lender Override. Critical exceptions can never be remediated and advisory exceptions never need to be."
+          },
+          "outcome": {
+            "type": "string",
+            "description": "Outcome type in case of business exception.",
+            "enum": [
+              "$1_GUARANTY",
+              "INDEMNIFICATION",
+              "NONE"
+            ]
+          }
+        },
+        "description": "Collection of exceptions identified during the processing of the loan remitted for Guaranty"
+      },
+      "LoanProfferedForGuaranty": {
+        "required": [
+          "fundingFeeOwedVA",
+          "guarantyResults",
+          "inputData",
+          "originatingLender",
+          "status",
+          "vaDeterminedLoanCategory"
+        ],
+        "type": "object",
+        "properties": {
+          "refinanceNetTangibleBenefits": {
+            "$ref": "#/components/schemas/RefinanceNetTangibleBenefits"
+          },
+          "cashoutNetTangibleBenefits": {
+            "$ref": "#/components/schemas/CashoutNetTangibleBenefits"
+          },
+          "feeRecoupment": {
+            "$ref": "#/components/schemas/FeeRecoupment"
+          },
+          "fundingFeeOwedVA": {
+            "$ref": "#/components/schemas/FundingFeeOwedVA"
+          },
+          "guarantyResults": {
+            "$ref": "#/components/schemas/GuarantyResults"
+          },
+          "inputData": {
+            "$ref": "#/components/schemas/InputData"
+          },
+          "irrrlRequirementResults": {
+            "$ref": "#/components/schemas/IrrrlRequirementResults"
+          },
+          "overcollectedFundingFeeRefundRequiredFromLender": {
+            "$ref": "#/components/schemas/OvercollectedFundingFeeRefundRequiredFromLender"
+          },
+          "requiredRemediation": {
+            "$ref": "#/components/schemas/RequiredRemediation"
+          },
+          "status": {
+            "type": "string",
+            "description": "Remittance Status of the loan remitted for Guaranty. \n\nA result of Remitted means the loan remitted for Guaranty has been successfully remitted and collection of the funding fee owed to the VA has been initiated. However, collection of the VA Funding Fee has not occurred or other remedial actions have not beend completed/confirmed. The list of remaining remdiation actions is returned in RemdiationAction[]. \nA result of Guaranteed means the loan remitted for Guaranty is now Guaranteed, any owed funding fee has been succesfully collected from the lender by the VA and any other required remediation actions have been completed/confirmed. \n",
+            "enum": [
+              "UNREMITTED",
+              "INFLIGHT_REMITTANCE",
+              "REMITTED",
+              "GUARANTEED"
+            ]
+          },
+          "vaDeterminedLoanCategory": {
+            "type": "string",
+            "description": "The VA determined loan category based on what type of appraisal was ordered for Purchase, Construction, and Cashout Refinance loans or if an IRRRL was ordered when the VA Loan Number was initially generated",
+            "enum": [
+              "PURCHASE",
+              "CONSTRUCTION",
+              "IRRRL",
+              "CASHOUT_REFINANCE",
+              "MANUFACTURED",
+              "ASSUMPTION"
+            ]
+          },
+          "cashoutType": {
+            "type": "string",
+            "description": "Whether the Cashout Refinance loan remitted for Guaranty was a Type-1 or Type-2 cashout refinance. TYPE-1 cashout refinances occur when the total loan amount is less than or equal to  the payoffs of existing liens and loans on the subject property of the loan remitted for Guaranty",
+            "enum": [
+              "TYPE_1",
+              "TYPE_2"
+            ]
+          },
+          "originatingLender": {
+            "type": "string",
+            "description": "The name of the funding lender for the loan remitted for Guaranty. This information is retrieved from LGY data and reflects who the lender/sponsoring lender was when the appraisal was requested or as subsequently updated."
+          },
+          "originatingAgent": {
+            "type": "string",
+            "description": "The name of the agent (broker) who originated the loan remitted for Guaranty. This information is retrieved from LGY data and reflects who the agent was when the appraisal was requested or as subsequently updated."
+          },
+          "priorLoanSeasoningResults": {
+            "$ref": "#/components/schemas/PriorLoanSeasoningResults"
+          }
+        },
+        "description": "The loan remitted by the Lender for Guaranty after it has been evaluated for Guaranty"
+      },
+      "ObligorResponse": {
+        "required": [
+          "allocableAmount",
+          "firstOrSubsequentUseOfBenefit",
+          "fundingFeeExemptStatus",
+          "fundingFeeOwed",
+          "fundingFeeRate",
+          "serviceType"
+        ],
+        "type": "object",
+        "properties": {
+          "allocableAmount": {
+            "type": "number",
+            "description": "The portion of the loan amount subject to the funding fee that is allocable to this Veteran. For non-joint loans this is the full loan amount subject to the funding fee. For joint loans this is an equal split between the entitling Veterans on the loan for their collective portion (excluding any portion of the loan amount for non-veterans) of the loan amount subject to the funding fee."
+          },
+          "firstOrSubsequentUseOfBenefit": {
+            "type": "string",
+            "description": "Whether the Veteran obligor for whom a portion of the funding fee owed is allocable is a first time or subsequent user of the VA home loan benefit. Non-exempt subsequent users of the benefit pay a higher funding fee rate on Purchase, Construction and Cashout Refinance loans.",
+            "enum": [
+              "FIRST_USE",
+              "SUBSEQUENT_USE"
+            ]
+          },
+          "fundingFeeExemptStatus": {
+            "type": "string",
+            "description": "Whether the Veteran obligor for whom a portion of the funding fee owed is allocable is exempt from paying their portion due to service connected disability or meeting other funding fee exemption criteria.",
+            "enum": [
+              "EXEMPT",
+              "NOT_EXEMPT"
+            ]
+          },
+          "fundingFeeOwed": {
+            "type": "number",
+            "description": "The amount of funding fee owed attributable to this Veteran. It is the multiplication of the Funding Fee Rate for this Veteran by the Allocable Amount for this Veteran."
+          },
+          "fundingFeeRate": {
+            "type": "number",
+            "description": "The applicable Funding Fee Rate for this Veteran for the loan being remitted for Guaranty. The Funding Fee rate is determined based on exemption status, loan category, whether the Veteran is a first time or subsequent user of the home loan benefit. Returned as a percentage. i.e. 1.5 is returned for a value of 0.015"
+          },
+          "serviceType": {
+            "type": "string",
+            "description": "Whether the Veteran obligor for whom a portion of the funding fee owed is allocable served as active duty or national guard reserve. After 1/1/2020 service type no longer affects the funding fee rate, but it did prior to that.",
+            "enum": [
+              "ACTIVE_DUTY",
+              "RESERVE_NATIONAL_GUARD_DUTY"
+            ]
+          }
+        },
+        "description": "Collection of obligors using their entitlement on the loan remitted for Guaranty and the funding fee information attributable to that Veteran"
+      },
+      "OtherPersonAffectingGuaranty": {
+        "required": [
+          "loanRelationship",
+          "proportionateAffectOnGuaranty"
+        ],
+        "type": "object",
+        "properties": {
+          "loanRelationship": {
+            "type": "string",
+            "description": "The relationship to the loan of the person who impacts the Guaranty calculation but whom is not an Entitling Veteran on the loan.",
+            "enum": [
+              "NON_OBLIGOR_ON_TITLE_NOT_SPOUSE",
+              "OBIGLOR_NOT_SPOUSE"
+            ]
+          },
+          "proportionateAffectOnGuaranty": {
+            "type": "number",
+            "description": "The percent of the total loan amount attributable to the person who impacts the Guaranty calculation but whom is not an Entitling Veteran on the loan."
+          }
+        },
+        "description": "Collection of persons who impact the Guaranty calculation but whom are not an Entitling Veteran on the loan. This includes obligors who are not eligible benefit recipients (eligible Veteran using their entitlement or eligible Surviving Spouse), and not the spouse of an eligible Veteran on the loan remitted for Guaranty. This list also includes persons who are not obligors on the loan but are listed on the title of the subject property of the loan remitted for Guaranty."
+      },
+      "OvercollectedFundingFeeRefundRequiredFromLender": {
+        "required": [
+          "cashFundingFeeRefundOwedToVeteranByLender",
+          "lenderOverChargeAmount",
+          "loanAmountReductionFundingFeeRefundOwedToVeteranByLender"
+        ],
+        "type": "object",
+        "properties": {
+          "cashFundingFeeRefundOwedToVeteranByLender": {
+            "type": "number",
+            "description": "The portion of the over collected amount of the VA Funding Fee that must be refunded to the Veteran in cash (due to being collected from the Veteran in cash)."
+          },
+          "lenderOverChargeAmount": {
+            "type": "number",
+            "description": "The total amount of the VA Funding Fee that was over collected from the Veteran(s) at closing."
+          },
+          "loanAmountReductionFundingFeeRefundOwedToVeteranByLender": {
+            "type": "number",
+            "description": "The portion of the over collected amount of the VA Funding Fee that must be refunded to the Veteran by reducing the principal balance of the loan remitted for Guaranty to offset the overcollected portion included in the loan amount"
+          }
+        },
+        "description": "Information related to an overcollected funding fee requiring action from the lender to make the Veteran whole"
+      },
+      "PriorLoanSeasoningResults": {
+        "required": [
+          "loanMeetsSeasoningPaymentNumberRequirements",
+          "loanMeetsSeasoningRequirements",
+          "priorLoanSeasoningDays",
+          "seasoningRequirementsApply"
+        ],
+        "type": "object",
+        "properties": {
+          "loanMeetsSeasoningRequirements": {
+            "type": "boolean",
+            "description": "Indicates whether the prior VA loan being refinanced by the loan remitted for Guaranty was seasoned for the required 210 days prior to the closing of the loan remitted for Guaranty."
+          },
+          "loanMeetsSeasoningPaymentNumberRequirements": {
+            "type": "boolean",
+            "description": "Indicates whether the prior VA loan being refinanced by the loan remitted for Guaranty had at least six payments made on the loan prior to the closing of the loan remitted for Guaranty."
+          },
+          "priorLoanSeasoningDays": {
+            "type": "integer",
+            "description": "The number of days the prior VA loan being refinanced by the loan remitted for Guaranty was seasoned. This value is measured from the first payment due date of the Prior VA loan being refinanced to the closing date of the loan remitted for Guaranty",
+            "format": "int64"
+          },
+          "seasoningRequirementsApply": {
+            "type": "boolean",
+            "description": "Indicates whether statutory and regulatory seasoning requirements for prior VA loans apply to the loan remitted for Guaranty"
+          }
+        },
+        "description": "The results of the evaluation of prior loan seasoning for refinance loans remitted for Guaranty that seasoning rules apply to."
+      },
+      "Property": {
+        "required": [
+          "city",
+          "county",
+          "countyFipsCode",
+          "state",
+          "ucdState",
+          "ucdZipcode",
+          "zipCode"
+        ],
+        "type": "object",
+        "properties": {
+          "city": {
+            "maxLength": 50,
+            "minLength": 0,
+            "type": "string",
+            "description": "The name of the city in which the subject property of the Loan remitted for Guaranty is located as reported on the VA appraisal."
+          },
+          "county": {
+            "maxLength": 50,
+            "minLength": 0,
+            "type": "string",
+            "description": "The name of the county in which the subject property of the Loan remitted for Guaranty is located as reported on the VA appraisal."
+          },
+          "countyFipsCode": {
+            "maxLength": 3,
+            "minLength": 0,
+            "type": "string",
+            "description": "The FIPS Code of the county in which the subject property of the Loan remitted for Guaranty is located as reported on the VA appraisal."
+          },
+          "noticeOfValueIssuer": {
+            "type": "string",
+            "description": "The issuer of the VA notice of value.",
+            "enum": [
+              "SAR",
+              "VA"
+            ]
+          },
+          "reasonableValue": {
+            "type": "number",
+            "description": "The reasonable value of the property as determined on the VA notice of value based off the VA appraisal."
+          },
+          "novExpirationDate": {
+            "type": "string",
+            "description": "The date the VA Notice of Value on the subject property of the loan remitted for Guarany expires after which it is not a valid assessment of the subject propertys reasonable value.",
+            "format": "date"
+          },
+          "state": {
+            "maxLength": 2,
+            "minLength": 0,
+            "type": "string",
+            "description": "The two-character representation of the US state, US Territory, or Military APO FPO in which the subject property of the Loan remitted for Guaranty is located as reported on the VA appraisal.",
+            "example": "KY"
+          },
+          "ucdState": {
+            "maxLength": 2,
+            "minLength": 0,
+            "type": "string",
+            "description": "The two-character representation of the US state, US Territory, or Military APO FPO in which the subject property of the Loan remitted for Guaranty is located. This value is extracted from UCD data provided in the request. See the Extracting Data from the UCD for Guaranty Remittance document for additional detail. ",
+            "example": "KY"
+          },
+          "ucdZipcode": {
+            "maxLength": 9,
+            "minLength": 0,
+            "type": "string",
+            "description": "The postal code (ZIP Code in the US) in which the subject property of the Loan remitted for Guaranty is located. This value is extracted from UCD data provided in the request. See the Extracting Data from the UCD for Guaranty Remittance document for additional detail. "
+          },
+          "zipCode": {
+            "maxLength": 9,
+            "minLength": 0,
+            "type": "string",
+            "description": "The postal code (ZIP Code in the US) in which the subject property of the Loan remitted for Guaranty is located as reported on the VA appraisal."
+          },
+          "remainingEconomicLife": {
+            "type": "number",
+            "description": "The number of years of remaining economic life in the subject property of the loan."
+          }
+        },
+        "description": "Information about the subject property for the loan remitted for Guaranty."
+      },
+      "RefinanceNetTangibleBenefits": {
+        "required": [
+          "excessDiscountPointsOvercharge",
+          "lifetimeInterestOvercharge",
+          "loanToValue",
+          "meetsDiscountPointsIncludedInLoanAmountRequirements",
+          "meetsRateReductionRequirements",
+          "rateReductionInBasisPoints",
+          "refinanceCategory",
+          "satisfiesNetTangibleBenefits"
+        ],
+        "type": "object",
+        "properties": {
+          "loanToValue": {
+            "type": "number",
+            "description": "The loan to value ratio for the loan remitted for Guaranty. This value is used to determine how many discount points are allowed to be included in Fixed Rate to ARM refinances when prevailing interest rates are higher at origination of the loan remitted for Guaranty versus the loan it refinances."
+          },
+          "meetsDiscountPointsIncludedInLoanAmountRequirements": {
+            "type": "boolean",
+            "description": "Indicates whether the loan remitted for Guaranty meets net tangible benefit requirements for allowable discount points included in the loan amount."
+          },
+          "meetsRateReductionRequirements": {
+            "type": "boolean",
+            "description": "Indicates whether the loan remitted for Guaranty meets net tangible benefit rate reduction requirements"
+          },
+          "satisfiesNetTangibleBenefits": {
+            "type": "boolean",
+            "description": "Indicates whether the loan remitted for Guaranty satisfies  net tangible benefit requirements"
+          },
+          "rateReductionInBasisPoints": {
+            "type": "number",
+            "description": "The amount of interest rate reduction expressed in basis points provided by the loan remitted for Guaranty versus the loan being refinanced. This rate reduction is calculated by subtracting the current interest rate for the loan being refinanced from the initial interest rate of the loan being remitted for Guaranty."
+          },
+          "refinanceCategory": {
+            "type": "string",
+            "description": "Indicates whether the loan remitted for Guaranty refinances a pervious fixed or adjustable rate loan into a fixed or adjustable rate loan. This is relevant to how much of an interest rate reduction is required and allowable discount points included in the loan amount.",
+            "enum": [
+              "FIXED_RATE_TO_FIXED_RATE",
+              "FIXED_RATE_TO_ARM",
+              "ARM_TO_FIXED_RATE",
+              "ARM_TO_ARM"
+            ]
+          },
+          "lifetimeInterestOvercharge": {
+            "type": "number",
+            "description": "The amount of excess interest over the life of the loan charged on the loan remitted for Guaranty due to an interest rate that does not meet interest rate reduction requirements to establish a net tangible benefit for the Veteran"
+          },
+          "excessDiscountPointsOvercharge": {
+            "type": "number",
+            "description": "The amount of excess discount points included in the loan amount versus what is allowed to establish a net tangible benefit for the Veteran"
+          }
+        },
+        "description": "The results of the evaluation of the loan for statutory net tangible benefits applicable to IRRRL and TYPE-1 Cashout Refinance loans"
+      },
+      "RequiredRemediation": {
+        "required": [
+          "totalCashRefundToVeteran",
+          "totalCashRefundToVeteranExclusiveOfFundingFee",
+          "totalRequiredPrincipalPaydownExclusiveOfFundingFee",
+          "totalRequiredprincipalPaydown"
+        ],
+        "type": "object",
+        "properties": {
+          "totalCashRefundToVeteran": {
+            "type": "number",
+            "description": "Aggregate amount the lender must return to the Veteran in cash to remediate violations of statutory and regulatory rules or over collected funding fees."
+          },
+          "totalRequiredprincipalPaydown": {
+            "type": "number",
+            "description": "Aggregate amount the lender must pay down the loan principal balance to remediate violations of statutory and regulatory rules or over collected funding fees."
+          },
+          "totalCashRefundToVeteranExclusiveOfFundingFee": {
+            "type": "number",
+            "description": "Aggregate amount the lender must pay down the loan principal balance to remediate violations of statutory and regulatory rules or over collected funding fees."
+          },
+          "totalRequiredPrincipalPaydownExclusiveOfFundingFee": {
+            "type": "number",
+            "description": "Aggregate amount the lender must pay down the loan principal balance to remediate violations of statutory and regulatory rules or over collected funding fees."
+          }
+        },
+        "description": "Information on any remediation measures required by the lender to Guaranty the loan due to violations of statutory/regulatory rules."
+      }
+    },
+    "securitySchemes": {
+      "oauth2": {
+        "type": "oauth2",
+        "flows": {
+          "clientCredentials": {
+            "tokenUrl": "https://staging-api.va.gov/oauth2/loan-guaranty/system/v1/token",
+            "scopes": {
+              "system.loan-remittance.read": "Retrieve loan guaranty certificate",
+              "system.loan-remittance.write": "Submit loan to the VA for remittance",
+              "system.remediation-evidence.write": "Submit remediation evidence to the VA for remitted loan"
+            }
+          }
+        }
+      }
+    }
+  }
+}

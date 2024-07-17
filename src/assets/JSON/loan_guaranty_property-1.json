@@ -1,0 +1,1405 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Loan Guaranty Public REST API",
+    "description": "The Loan Guaranty Public REST API provides endpoints for the VA's Loan Guaranty (LGY) services.\n## Background\nThe Department of Veterans Affairs helps Servicemembers, Veterans, and eligible surviving spouses become homeowners. As part of our mission to serve veterans, we provide a home loan guaranty benefit and other housing-related programs to help veterans buy, build, repair, retain, or adapt a home for their own personal occupancy.\n\nVA Home Loans are provided by private lenders, such as banks and mortgage companies. VA guarantees a portion of the loan, enabling the lender to provide veterans with more favorable terms.\n\nFor many years, lenders have accessed VA loan functionality through a traditional web application, https://vip.vba.va.gov. As part of an effort to streamline the veteran home loan process, the VA Loan Guaranty team is offering some services through a REST API. The LGY team plans to add additional resources over time.\n\n**Loan Guaranty Public REST API FAQ**: https://lgy.va.gov/lgyhub/help.\n## Getting Started\n### Registration\nBefore using this service, you must register by associating your developer.va.gov account to your institution's LGY service account. To do this, you will make a one-time call to the registration end point and provide a PIN which has been provided to you out of band.\n### Authorization\nAPI requests are authorized by means of a symmetric API token, provided in an HTTP header with name \"apikey\".",
+    "version": "24.6.1.0"
+  },
+  "servers": [
+    {
+      "url": "https://sandbox-api.va.gov/services/loan_guaranty/{version}",
+      "description": "Sandbox",
+      "variables": {
+        "version": {
+          "default": "v1"
+        }
+      }
+    },
+    {
+      "url": "https://api.va.gov/services/loan_guaranty/{version}",
+      "description": "Production",
+      "variables": {
+        "version": {
+          "default": "v1"
+        }
+      }
+    }
+  ],
+  "paths": {
+    "/registrations": {
+      "post": {
+        "tags": [
+          "api-registration-resource-controller"
+        ],
+        "summary": "Register your API account",
+        "description": "Allows VA-affiliated institutions to associate their VA API account to an LGY service account",
+        "operationId": "POST:/registrations",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiRegistrationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExceptionResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization information not provided",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "No API key found in request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Invalid authorization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "You cannot consume this service"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExceptionResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "Request size limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "API rate limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKey": []
+          }
+        ]
+      }
+    },
+    "/property-appraisals/{vaLin}/scores/{scoreId}": {
+      "get": {
+        "tags": [
+          "property-appraisal-resource-controller"
+        ],
+        "summary": "Read a property appraisal's score report. Improve this text with a couple of paragraphs about this process.",
+        "description": "TBD",
+        "operationId": "GET:/property-appraisals/{vaLin}/scores/{scoreId}",
+        "parameters": [
+          {
+            "name": "vaLin",
+            "in": "path",
+            "description": "VA Loan Identification Number",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": 494961001876
+          },
+          {
+            "name": "scoreId",
+            "in": "path",
+            "description": "The ID of the score. This is provided by the earlier outbound request.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PropertyAppraisalScoreDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExceptionResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization information not provided",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "No API key found in request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Invalid authorization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "You cannot consume this service"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExceptionResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "Request size limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "API rate limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKey": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "property-appraisal-resource-controller"
+        ],
+        "summary": "Adds a new score. This request is essentially a reply to an early outbound request to provide a score for a given appraisal.",
+        "description": "TBD",
+        "operationId": "PATCH:/property-appraisals/{vaLin}/scores/{scoreId}",
+        "parameters": [
+          {
+            "name": "vaLin",
+            "in": "path",
+            "description": "VA Loan Identification Number",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": 494961001876
+          },
+          {
+            "name": "scoreId",
+            "in": "path",
+            "description": "The ID of the score. This is provided by the earlier outbound request.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostPropertyAppraisalScoresReportRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExceptionResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization information not provided",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "No API key found in request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Invalid authorization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "You cannot consume this service"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExceptionResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "Request size limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "API rate limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKey": []
+          }
+        ]
+      }
+    },
+    "/property-appraisals/{vaLin}/avm-reports/{valuationId}": {
+      "get": {
+        "tags": [
+          "property-appraisal-resource-controller"
+        ],
+        "summary": "Read a property appraisal's score report. Improve this text with a couple of paragraphs about this process.",
+        "description": "TBD",
+        "operationId": "GET:/property-appraisals/{vaLin}/avm-reports/{valuationId}",
+        "parameters": [
+          {
+            "name": "vaLin",
+            "in": "path",
+            "description": "VA Loan Identification Number",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": 494961001876
+          },
+          {
+            "name": "valuationId",
+            "in": "path",
+            "description": "The ID of the valuation (AVM). This is provided by the earlier outbound request.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PropertyAppraisalValuationDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExceptionResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization information not provided",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "No API key found in request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Invalid authorization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "You cannot consume this service"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExceptionResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "Request size limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "API rate limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKey": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "property-appraisal-resource-controller"
+        ],
+        "summary": "Uploads property appraisal AVM reports",
+        "description": "TBD",
+        "operationId": "PATCH:/property-appraisals/{vaLin}/avm-reports/{valuationId}",
+        "parameters": [
+          {
+            "name": "vaLin",
+            "in": "path",
+            "description": "VA Loan Identification Number",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": 494961001876
+          },
+          {
+            "name": "valuationId",
+            "in": "path",
+            "description": "The ID of the valuation (AVM). This is provided by the earlier outbound request.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostPropertyAppraisalValuationsReportRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExceptionResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization information not provided",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "No API key found in request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Invalid authorization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "You cannot consume this service"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExceptionResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "Request size limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "API rate limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKey": []
+          }
+        ]
+      }
+    },
+    "/users/authorizations/ams": {
+      "get": {
+        "tags": [
+          "user-resource-controller"
+        ],
+        "summary": "Get an LGY user's basic information and Appraisal Management System (AMS) authorizations.",
+        "description": "Returns a 404 if the user is not present in LGY or has no AMS permissions. In either case, a more descriptive eror message will indicate the exact reason.",
+        "operationId": "GET:/users/authorizations/ams",
+        "parameters": [
+          {
+            "name": "vaEauthSecId",
+            "in": "query",
+            "description": "The user's AccessVA/EAuth/SSOe ID. This value must be numeric, but may contain leading zeroes.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppraisalManagementSystemUserDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExceptionResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization information not provided",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "No API key found in request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Invalid authorization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "You cannot consume this service"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExceptionResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "Request size limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "API rate limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExceptionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/registrations/me": {
+      "get": {
+        "tags": [
+          "api-registration-resource-controller"
+        ],
+        "summary": "Check your registration status",
+        "description": "Provides information about your registration status",
+        "operationId": "GET:/registrations/me",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegistrationStatus"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExceptionResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization information not provided",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "No API key found in request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Invalid authorization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "You cannot consume this service"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExceptionResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "Request size limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "API rate limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKey": []
+          }
+        ]
+      }
+    },
+    "/healthcheck": {
+      "get": {
+        "tags": [
+          "health-check-resource-controller"
+        ],
+        "operationId": "GET:/healthcheck",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExceptionResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization information not provided",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "No API key found in request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Invalid authorization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "You cannot consume this service"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExceptionResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "Request size limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "API rate limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExceptionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ExceptionResponse": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "lgyRequestUuid": {
+            "type": "string"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LgyFieldError"
+            }
+          }
+        }
+      },
+      "LgyFieldError": {
+        "required": [
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "rejectedValue": {
+            "type": "string"
+          },
+          "field": {
+            "type": "string"
+          }
+        }
+      },
+      "ApiRegistrationRequest": {
+        "required": [
+          "pin",
+          "username"
+        ],
+        "type": "object",
+        "properties": {
+          "username": {
+            "maxLength": 40,
+            "minLength": 1,
+            "type": "string"
+          },
+          "pin": {
+            "maxLength": 512,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "description": "A one-time PIN provided out-of-band to you to link your API account to your lending institution"
+      },
+      "PostPropertyAppraisalScoresReportRequest": {
+        "required": [
+          "reportAsHTMLBase64Encoded",
+          "reportAsXMLBase64Encoded"
+        ],
+        "type": "object",
+        "properties": {
+          "reportAsXMLBase64Encoded": {
+            "type": "string"
+          },
+          "reportAsHTMLBase64Encoded": {
+            "type": "string"
+          },
+          "appraisalOrderReferenceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "error_MESSAGE": {
+            "type": "string"
+          }
+        }
+      },
+      "PostPropertyAppraisalValuationsReportRequest": {
+        "type": "object",
+        "properties": {
+          "reportAsXMLBase64Encoded": {
+            "type": "string"
+          },
+          "reportAsHTMLBase64Encoded": {
+            "type": "string"
+          },
+          "result": {
+            "type": "boolean"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      },
+      "AppraisalManagementSystemUserDTO": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "maxLength": 40,
+            "minLength": 0,
+            "type": "string"
+          },
+          "middleName": {
+            "maxLength": 40,
+            "minLength": 0,
+            "type": "string"
+          },
+          "lastName": {
+            "maxLength": 40,
+            "minLength": 0,
+            "type": "string"
+          },
+          "vaEauthSecId": {
+            "maxLength": 15,
+            "minLength": 0,
+            "type": "string"
+          },
+          "affiliate": {
+            "type": "boolean"
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "stationId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "appraiserId": {
+            "maxLength": 15,
+            "minLength": 0,
+            "type": "string"
+          },
+          "email": {
+            "maxLength": 255,
+            "minLength": 0,
+            "type": "string"
+          },
+          "appraisalManagementSystemUserRole": {
+            "type": "string",
+            "enum": [
+              "VA_MANAGER",
+              "VA_STAFF",
+              "APPRAISER"
+            ]
+          }
+        }
+      },
+      "RegistrationStatus": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "registered": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PropertyAppraisalScoreDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "APPRAISAL_REPORT_RECEIVED",
+              "SCORE_ORDERED",
+              "SCORE_OBTAINED",
+              "ORDER_AVM_REQUEST_RECEIVED",
+              "AVM_REPORT_ORDERED",
+              "AVM_REPORT_OBTAINED",
+              "AVM_RETRO_REPORT_OBTAINED",
+              "AVM_RETRO_REPORT_NOT_AVAILABLE",
+              "AVM_REPORT_NOT_OBTAINED",
+              "ERRORED",
+              "SERVICE_PROVIDER_SYSTEM_NOT_ONLINE",
+              "ORDER_RETRO_AVM_REJECTED",
+              "NO_SCORE_REPORT_OBTAINED"
+            ]
+          },
+          "createdDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "receivedDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      },
+      "PropertyAppraisalValuationDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "APPRAISAL_REPORT_RECEIVED",
+              "SCORE_ORDERED",
+              "SCORE_OBTAINED",
+              "ORDER_AVM_REQUEST_RECEIVED",
+              "AVM_REPORT_ORDERED",
+              "AVM_REPORT_OBTAINED",
+              "AVM_RETRO_REPORT_OBTAINED",
+              "AVM_RETRO_REPORT_NOT_AVAILABLE",
+              "AVM_REPORT_NOT_OBTAINED",
+              "ERRORED",
+              "SERVICE_PROVIDER_SYSTEM_NOT_ONLINE",
+              "ORDER_RETRO_AVM_REJECTED",
+              "NO_SCORE_REPORT_OBTAINED"
+            ]
+          },
+          "createdDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "receivedDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "valuationDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "apikey": {
+        "in": "header",
+        "name": "apikey",
+        "type": "apiKey"
+      }
+    }
+  },
+  "security": [
+    {
+      "apikey": []
+    }
+  ]
+}

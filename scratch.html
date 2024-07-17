@@ -1,1 +1,85 @@
-<form><table class='w-full m-2 p-2 !important'><tr><td class='w-32'>Start Date</td><td class='max-w-[150px]'><input  type='date'   value='2024-05-18' pattern="(?:19|20)(?:[0-9]{2}-(?:(?:0[1-9]|1[0-2])-(?:0[1-9]|1[0-9]|2[0-8])|(?:(?!02)(?:0[1-9]|1[0-2])-(?:29|30))|(?:(?:0[13578]|1[02])-31))|(?:[13579][26]|[02468][048])-02-29)"  class='Entry487245'  title='start_date'></td><td class='max-w-[350px]'>none</td><td class='text-xs font-extrathin'>Starting date for asteroid search</td></tr><tr><td class='w-32'>End Date</td><td class='max-w-[150px]'><input  type='date'   value='2024-05-24' pattern="(?:19|20)(?:[0-9]{2}-(?:(?:0[1-9]|1[0-2])-(?:0[1-9]|1[0-9]|2[0-8])|(?:(?!02)(?:0[1-9]|1[0-2])-(?:29|30))|(?:(?:0[13578]|1[02])-31))|(?:[13579][26]|[02468][048])-02-29)"  class='Entry487245'  title='end_date'></td><td class='max-w-[350px]'>7 days after start_date</td><td class='text-xs font-extrathin'>Ending date for asteroid search</td></tr><tr><td class='w-32'>Api Key</td><td class='max-w-[150px]'><input  type='text'   value='demo_key'  class='Entry487245'  title='api_key'></td><td class='max-w-[350px]'>DEMO_KEY</td><td class='text-xs font-extrathin'>api.nasa.gov key for expanded usage</td></tr><tr><td colspan='4' class='p-0 h-1 mt-4 bg-indigo-100'></td></tr><tr class='h-12'><td class='w-32'></td><td><button id='fetchEntry487245-1'  class='btn btn-warning' onclick='fetchData(this)'>Fetch Data</button></td><td></td><td class='text-xs font-extrathin'></td></tr></table></form>
+"
+Address Validation API|address-validation-3
+|Provides methods to standardize and validate addresses.
+|restricted access,verification
+","
+Appeals Status API|appeals-status-1
+|Allows retrieval of all decision review request statuses (both legacy and AMA). Statuses are read only.
+|restricted access,va benefits
+","
+Benefits Claims API|benefits-claims-2
+|Find and submit Veteran benefits claims.
+|va benefits,authorization code grant,client credentials grant
+","
+Benefits Documents API|benefits-documents-1
+|Submit or retrieve a list of supporting claim documents from the Veterans Benefits Management System.
+|restricted access,va benefits,client credentials grant
+","
+Benefits Intake API|benefits-claims-2
+|Upload and get the status of VA benefits documents.
+|va benefits
+","
+Benefits Reference Data API|benefits-reference-data-1
+|Look up data and codes that help with VA benefits claims.
+|va benefits,open data
+","
+Clinical Health API (FHIR)|fhir-clinical-health-0
+|Use to develop clinical-facing applications that improve access to and management of patient health data.
+|restricted access,health,authorization code grant
+","
+Community Care Eligibility API|community-care-eligibility-0
+|VA's Community Care Eligibility API utilizes VA's Facility API, VA's Enrollment & Eligibility system and others to satisfy requirements found in the VA's MISSION Act of 2018.
+|health,authorization code grant,client credentials grant
+","
+Decision Reviews API|appeals-decision-reviews-2
+|Allows submission, management, and retrieval of decision review requests and details such as statuses in accordance with the AMA.
+|restricted access,va benefits
+","
+Direct Deposit Management API|direct-deposit-management-1
+|Manage direct deposit information for payments from the VA.
+|restricted access,va benefits,client credentials grant
+","
+Education Benefits API|benefits-education-1
+|Determine Veteran eligibility for the Post-9/11 GI Bill’s education benefits.
+|restricted access,va benefits,client credentials grant
+","
+Guaranty Remittance API|lgy-remittance-0
+|Lets lenders automate parts of the mortgage post-closing process
+|restricted access,loan guaranty,client credentials grant
+","
+Loan Guaranty API|loan_guaranty_property-1
+|Use the Loan Guaranty API to Manage VA Home Loans.
+|restricted access,loan guaranty
+","
+Loan Review API|loan-review-1
+|Transmit post-close Loan Guaranty documents.
+|restricted access,loan guaranty,client credentials grant
+","
+Patient Health API (FHIR)|fhir-4
+|Use the OpenID Connect and SMART on FHIR standards to allow VA patients to authorize third-party applications to access data on their behalf.
+|health,authorization code grant,client credentials grant
+","
+Provider Directory API|provider-directory-r4-0
+|Use this API to return lists of VA providers and their information, such as locations, specialties, office hours, and more.
+|health,open data
+","
+VA Facilities API|facilities-1
+|Find VA facilities, including their addresses, available services, and hours of operation.
+|facilities,open data
+","
+VA Forms API|forms-0
+|Look up VA forms and check for new versions.
+|forms,open data
+","
+VA Letter Generator API|va-letter-generator
+|Generate documents and letters for proof of existing VA benefits and status.
+|restricted access,verification,client credentials grant
+","
+Veteran Confirmation API|confirmation
+|Confirm Veteran status for a given person with an API key.
+|verification
+","
+Veteran Service History and Eligibility API|veteran-verification
+|Confirm Veteran status for a given person, or get a Veteran’s service history or disability rating.
+|verification,authorization code grant,client credentials grant
+"

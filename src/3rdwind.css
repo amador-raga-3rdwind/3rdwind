@@ -1,11 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-
-a {
-    @apply text-stone-500 py-2 bg-transparent hover:bg-amber-200  font-thin !important;
- }
+/* @tailwind typography; */
 
 h1,h2,h3,h4,p  {
     @apply mt-1 mb-0 !important;
@@ -32,27 +28,35 @@ button {
 
 
 button-nav {
-    @apply btn text-sm  mr-2 h-8 bg-teal-400 
-    hover:bg-teal-600 hover:text-stone-100 min-w-24 w-fit !important;
+    @apply btn text-sm  mr-2 h-8 bg-slate-500 text-stone-100  cursor-pointer
+    hover:bg-slate-600 min-w-24 w-fit !important;
 }
 
 api-value {
-        @apply  w-full  text-stone-700 font-extralight !important; ;
-    }
+    @apply  w-full  min-w-[500px] text-stone-700 font-extralight first-letter:capitalize !important; ;
+}
 
 api-key {
-        @apply  min-w-[250px] text-sm font-bold !important;;
-    }
-
+    @apply  min-w-[250px] text-sm font-bold !important;;
+}
 
 api-object {
-    @apply CROSS !important;;
-     /* pb-1 outline-offset-1 outline-blue-400 drop-shadow-sm odd:shadow-red-300  even:shadow-indigo-300; */
+  @apply CROSS !important;;
 }
 
 api-node {
-    @apply GRID rounded-sm drop-shadow-md  border-red-400 !important;;
+  @apply GRID rounded-sm drop-shadow-md  border-red-400 !important;;
 }
+
+
+.fetchButton {
+    @apply btn bg-slate-600 btn-xs m-0 my-2 px-2 text-stone-100 h-5 w-fit  !important;
+}
+
+.fetchDate {
+    @apply btn bg-slate-600 mx-1 p-1 btn-sm text-stone-100  !important;
+}
+
 
 .submitBtn{
     @apply btn btn-disabled cursor-none btn-sm py-0 w-fit bg-orange-300 font-bold m-1 !important;
@@ -87,7 +91,7 @@ api-root {
 }
 
 .checkbox, .toggle {
-    @apply text-white h-12 bg-green-500 text-xs cursor-pointer border-red-500  border-2 font-extrabold  !important;
+    @apply text-white h-12 bg-slate-700 text-xs cursor-pointer border-slate-200  outline-1 outline outline-slate-500 border font-extrabold  !important;
 }
 
 .api-div, api-div{
@@ -95,7 +99,7 @@ api-root {
 }
 
 .api-section, api-section{
-    @apply  grid container drop-shadow-sm w-full bg-stone-100 mb-2 hover:brightness-110  !important;
+    @apply  grid container drop-shadow-sm w-fit  px-2 m-2  !important;
 }
 
 
@@ -104,12 +108,12 @@ api-header{
 }
 
 .dataFields{
-    @apply cursor-progress mx-2 mt-1 max-w-full w-fit hover:text-red-800  !important;
+    @apply m-2 p-1 w-fit hover:text-orange-600  !important;
 }
 
 
 input {
-    @apply max-w-28 max-h-7 py-2 mb-2 rounded-t-md cursor-text bg-indigo-100  hover:bg-amber-100 !important;
+    @apply max-w-36 max-h-7 py-2 mb-2 rounded-sm cursor-pointer bg-indigo-100  hover:bg-amber-100 !important;
 }
 
 .agency-selector{
@@ -117,27 +121,49 @@ input {
 }
 
 table {
-    @apply drop-shadow-xl bg-stone-200 rounded-md p-2 !important;
+    @apply drop-shadow-xl max-w-full  rounded-t-md pb-2 overflow-clip !important;
 }
 
-thead{
-    @apply bg-indigo-500 text-white;
+tbody {
+  @apply   outline-1  outline outline-slate-300 py-4 mb-4 max-w-full !important;
 }
 
-td{
+thead, caption{
+    @apply tableHead;
+}
+
+.th{
+  @apply tableHead px-3 rounded-none !important;
+}
+
+.tableHead{
+  @apply p-0 m-0 text-xl text-white rounded-t-lg bg-slate-700 h-9 max-w-full !important;
+}
+
+td > a{
+    @apply px-2 py-1  text-stone-800  !important;
+}
+
+a{
+    @apply px-2 py-1  text-blue-500  !important;
+}
+
+
+th, td {
     @apply px-2 text-left;
 }
+
 
 .muted{
     @apply  brightness-50  !important;
 }
 
 .deactivated {
-    @apply pointer-events-none disabled;
+    @apply pointer-events-none disabled !important;
 }
 
 .activated {
-    @apply pointer-events-auto;
+    @apply pointer-events-auto !important;
 }
 
 button-submit{
@@ -145,14 +171,14 @@ button-submit{
 }
 
 hr {
-    @apply border-success bg-success h-[2px] m-0 mt-2; 
+    @apply outline outline-1 outline-stone-100 h-[2px] my-2;
 }
 .agency-button{
     @apply bg-teal-400 hover:bg-amber-200;
 }
 
 .selectedItem {
-    @apply  btn rounded-tr-3xl  btn-success translate-y-3 text-lg  text-white  font-extrabold  before:content-["☑️"]  !important  ;
+    @apply font-bold before:content-["☑️"]  !important  ;
 }
 
 .orbit {
@@ -160,8 +186,8 @@ hr {
 }
 
 .selectedSection {
-    @apply  
-    btn rounded-l-3xl m-2  bg-indigo-700 text-lg  text-white  font-extrabold deactivated  before:content-["▶"]  !important  ;
+    @apply
+    btn rounded-l-3xl m-2  bg-slate-600 text-lg  text-white  font-extrabold deactivated  before:content-["▶"]  !important  ;
 }
 
 .selectedCategory {
@@ -172,7 +198,7 @@ hr {
 }
 
 .navButton {
-    @apply btn text-sm bg-teal-200 hover:bg-amber-300 min-w-24 ;
+    @apply text-sm bg-teal-200 btn hover:bg-amber-300 min-w-24 ;
 }
 
 nav-link {
@@ -180,33 +206,127 @@ nav-link {
 }
 
 #extraFilter{
-    @apply bg-stone-100 w-full pb-2;
+    @apply w-full pb-2 bg-stone-100;
 }
 
 .nodeButton{
-    @apply btn bg-amber-500 text-white text-2xl;  
+    @apply text-2xl text-white btn bg-amber-500;
 }
 
 
 .urlMedia{
-    @apply  hover:animate-bounce hover:text-green-500 duration-300
-            text-3xl text-amber-600 cursor-pointer hover:scale-150 hover:rotate-12; 
+    @apply  text-3xl duration-300 cursor-pointer hover:animate-bounce hover:text-green-500 text-amber-600 hover:scale-150 hover:rotate-12;
 }
 
 .item-selector{
-    @apply  hover:bg-amber-300 cursor-pointer !important; 
+    @apply  hover:bg-amber-300 cursor-pointer !important;
 }
 
 .orbit-launcher{
-    @apply text-lg bg-stone-200 min-h-full pl-6  my-2 !important;
+    @apply text-lg min-h-full pl-6  my-2 cursor-pointer  !important;
 }
 
 
 .selected-orbit {
-    @apply  rounded-l-2xl  font-bold text-indigo-800 text-right bg-gradient-to-tr brightness-110 from-indigo-50 to-indigo-700 deactivated  !important  ;
+    @apply  rounded-l-2xl pr-8 w-full font-bold text-stone-300 text-right bg-gradient-to-tr brightness-110 from-indigo-200 to-slate-700 deactivated  !important  ;
 }
 
 
 p{
     @apply py-0 !important;
 }
+
+
+.imgThumb {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+    background-image: url('assets/images/nasa_icon.png'); /* Set the icon image as the background */
+}
+
+.imgThumb img {
+    display: block;
+    width: 100%;
+    height: auto;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.imgThumb .thumbnail {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.imgThumb:hover img {
+    opacity: 1;
+}
+
+.dropdownContent {
+  @apply dropdown-content p-2 fixed z-10 bg-zinc-200 -translate-y-16 min-w-fit ring-1  rounded-box !important;
+}
+
+.launcher {
+  @apply bg-transparent align-top drop-shadow-md dataFields !important;
+}
+
+.blaster {
+  @apply font-mono font-thin align-top pl-8 w-52  min-w-52 flex-auto text-stone-700
+      text-nowrap cursor-pointer dataFields  !important;
+}
+
+.orbiter {
+  @apply align-top w-full max-w-full z-40  bg-transparent drop-shadow-2xl shadow-rose-400  !important;
+}
+
+.upper-container, upper-container{
+  @apply align-top capsule-header bg-slate-600 text-sm  !important;
+}
+
+
+.capsule-header{
+  @apply align-top w-fit min-w-full text-3xl h-full rounded-t-3xl text-white !important;
+}
+
+.bottom-container{
+  @apply max-h-[800px] z-20 align-top outline  min-w-full outline-slate-500 bg-stone-50 outline-1 p-0 m-0 w-full h-fit overflow-x-hidden overflow-y-auto !important;
+}
+
+
+.federal-container{
+  @apply w-full xl:max-w-[1500px] lg:max-w-[1200px] md:max-w-[900px] max-h-[90vh]  mx-0 p-0 my-2 border-none outline-none select-none text-stone-800 font-thin overflow-hidden !important;
+}
+
+.h1 {
+  @apply text-2xl !important;
+}
+
+.h2 {
+  @apply text-xl !important;
+}
+
+.h3 {
+    @apply text-lg !important;
+}
+/*
+.h4 {
+  @apply text-md;
+} */
+
+.h5 {
+  @apply text-sm !important;
+}
+
+.h6 {
+  @apply text-xs !important;
+}
+/*
+.sections{
+  @apply px-3 m-0 bg-slate-300 ;
+} */

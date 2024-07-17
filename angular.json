@@ -20,10 +20,17 @@
               "zone.js"
             ],
             "tsConfig": "tsconfig.app.json",
+
             "assets": [
               "src/favicon.ico",
-              "src/assets"
+              "src/assets",
+              {
+                "glob": "**/*",
+                "input": "src/assets/JSON",
+                "output": "/assets/JSON/"
+              }
             ],
+
             "styles": [
               "src/3rdwind.css"
             ],
@@ -34,13 +41,13 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kb",
-                  "maximumError": "1mb"
+                  "maximumWarning": "1mb",
+                  "maximumError": "2mb"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "2kb",
-                  "maximumError": "4kb"
+                  "maximumWarning": "2mb",
+                  "maximumError": "4mb"
                 }
               ],
               "outputHashing": "all"
@@ -53,7 +60,7 @@
           },
           "defaultConfiguration": "production"
         },
-        "serve": {          
+        "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {

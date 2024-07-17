@@ -1,0 +1,978 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Benefits Documents Service API",
+    "description": "The Benefits Documents Service API lets internal systems submit supporting\nclaim documentation to the Veterans Benefits Management System (VBMS) eFolder or retrieve a list of supporting documents in a Veteran's VBMS eFolder.\n## Technical overview\nThe Benefits Documents Service API receives a VBMS Filenumber which it uses to associate a file to a particular VBMS folder. \nValid document attachment types are:\n* PDF\n* JPG\n* TXT\n* TIF\n* PNG\n* GIF\n* BMP\n### Authentication and Authorization\nThe authentication model for the Benefits Documents Service API is based on OAuth 2.0/OpenID \nConnect and supports the [client credentials grant (CCG)](https://developer.va.gov/explore/authorization/docs/client-credentials?api=benefits_documents_service).\n**Important**: To get production access, you must either work for VA or have specific VA \nagreements in place. If you have questions, [contact us](https://developer.va.gov/support/contact-us).\n",
+    "version": "v1"
+  },
+  "servers": [
+    {
+      "url": "https://sandbox-api.va.gov/services/benefits-documents/{version}",
+      "description": "Sandbox",
+      "variables": {
+        "version": {
+          "default": "v1"
+        }
+      }
+    },
+    {
+      "url": "https://api.va.gov/services/benefits-documents/{version}",
+      "description": "Production",
+      "variables": {
+        "version": {
+          "default": "v1"
+        }
+      }
+    }
+  ],
+  "paths": {
+    "/uploads/status": {
+      "post": {
+        "tags": [
+          "Documents Service"
+        ],
+        "summary": "Returns the upload status of multiple claim documents.",
+        "description": "  Returns the current asynchronous processing status of multiple claims\n  document uploads related to the given list of requestIds.\n",
+        "operationId": "POST:/uploads/status",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UploadRequestAsyncProcessingStatusBulkRequestV1"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadRequestAsyncProcessingStatusBulkResponseV1"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BasicErrorDocumentV1"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BasicErrorDocumentV1"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Method Not Allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BasicErrorDocumentV1"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "Request size limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "API rate limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BasicErrorDocumentV1"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "documents.read"
+            ]
+          }
+        ]
+      }
+    },
+    "/documents": {
+      "post": {
+        "tags": [
+          "Documents Service"
+        ],
+        "summary": "Uploads a file to a Veteran's VBMS eFolder.",
+        "description": "Receives and uploads a file based on the required parameters of systemName\ndocType, fileNumber, claimId, and fileName. Parameters are described in the\nschema for UploadRequestV1.UploadData (below these endpoints).\n\n## Example Payload\n\nThe following demonstrates a (redacted) multipart payload suitable for submitting to\nthis endpoint. Most programming languages should have provisions for assembling a\nmultipart payload like this without having to do so manually.\n\n```\nPOST /benefits-documents/v1/documents HTTP/1.1\nHost: <server>\nUser-Agent: curl/7.75.0\nAccept: */*\nAuthorization: Bearer <token>\nContent-Length: 11871\nContent-Type: multipart/form-data; boundary=------------------------94408bea7cc00a68\n\nContent-Type: application/json\n\n{\n  \"data\": {\n    \"systemName\":\"VA.gov\",\n    \"docType\":\"L533\",\n    \"fileNumber\":\"987654321\",\n    \"claimId\":\"123\",\n    \"fileName\":\"Test-PDF-Valid.pdf\",\n    \"trackedItemIds\": [ 456,789 ]\n  }\n}\n\n```\n\nIn this curl example, we store the parameters inside JSON file called\nupload-request.p2iO.json:\n\n```\n{\n  \"data\": {\n    \"systemName\":\"VA.gov\",\n    \"docType\":\"L533\",\n    \"fileNumber\":\"987654321\",\n    \"claimId\":\"123\",\n    \"fileName\":\"Test-PDF-Valid.pdf\",\n    \"trackedItemIds\": [ 456,789 ]\n  }\n}\n\n```\n\nThis is an example curl command:\n\n```\n\ncurl -v '-HAuthorization: Bearer <token>' -HContent-Type:multipart/form-data --form 'parameters=@upload-request.p2iO.json;type=application/json' --form 'file=@<path/to/pdf/file>;type=application/pdf' http://<server>/benefits-documents/v1/documents\n\n```\n\n",
+        "operationId": "POST:/documents",
+        "parameters": [
+          {
+            "name": "lighthouse-client-id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "required": [
+                  "file",
+                  "parameters"
+                ],
+                "type": "object",
+                "properties": {
+                  "parameters": {
+                    "$ref": "#/components/schemas/UploadRequestV1"
+                  },
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadResponseV1"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BasicErrorDocumentV1"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BasicErrorDocumentV1"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Method Not Allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BasicErrorDocumentV1"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "Request size limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "API rate limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BasicErrorDocumentV1"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "documents.write"
+            ]
+          }
+        ]
+      }
+    },
+    "/documents/search": {
+      "post": {
+        "tags": [
+          "Documents Service"
+        ],
+        "summary": "Returns all claims evidence documents associated with the claimId and fileNumber.",
+        "description": "  Returns a list of all claims evidence documents related to the\n  claim identified by the claimId and fileNumber.\n",
+        "operationId": "POST:/documents/search",
+        "parameters": [
+          {
+            "name": "lighthouse-client-id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClaimDocumentsRequestV1"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClaimDocumentsResponseV1"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BasicErrorDocumentV1"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BasicErrorDocumentV1"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Method Not Allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BasicErrorDocumentV1"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "Request size limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "API rate limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BasicErrorDocumentV1"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "documents.read"
+            ]
+          }
+        ]
+      }
+    },
+    "/uploads/{requestId}/status": {
+      "get": {
+        "tags": [
+          "Documents Service"
+        ],
+        "summary": "Returns the asynchronous processing status of a single claim document upload.",
+        "description": "  Returns the current asynchronous processing status of a claims\n  document upload related to the given requestId.\n",
+        "operationId": "GET:/uploads/{requestId}/status",
+        "parameters": [
+          {
+            "name": "requestId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadRequestAsyncProcessingStatusResponseV1"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BasicErrorDocumentV1"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BasicErrorDocumentV1"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Method Not Allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BasicErrorDocumentV1"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "Request size limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "API rate limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BasicErrorDocumentV1"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "documents.read"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "BasicErrorDocumentV1": {
+        "required": [
+          "errors"
+        ],
+        "type": "object",
+        "properties": {
+          "errors": {
+            "type": "array",
+            "description": "The list of errors returned from the attempted operation.",
+            "items": {
+              "$ref": "#/components/schemas/BasicErrorV1"
+            }
+          }
+        },
+        "description": "An error response in JSON:API format (see https://jsonapi.org/format/#document-structure)."
+      },
+      "BasicErrorV1": {
+        "type": "object",
+        "properties": {
+          "detail": {
+            "type": "string",
+            "description": "A human-readable explanation specific to this occurrence of the problem.",
+            "example": "Code must match \"^[A-Z]{2}$\""
+          },
+          "status": {
+            "type": "integer",
+            "description": "The HTTP status code generated by the origin server for this occurrence of the problem.",
+            "format": "int32",
+            "example": 400
+          },
+          "type": {
+            "type": "string",
+            "description": "A URI reference that identifies the problem type.",
+            "example": "https://example.net/validation-error"
+          },
+          "title": {
+            "type": "string",
+            "description": "A short, human-readable summary of the problem type.",
+            "example": "Invalid field value"
+          },
+          "instance": {
+            "type": "string",
+            "description": "A URI reference that identifies the specific occurrence of the problem.",
+            "example": "e6d1119e-dc91-4b4d-b583-0f309de0807b"
+          },
+          "diagnostics": {
+            "type": "string",
+            "description": "Diagnostic information that can be submitted with a support request to aid with diagnosing and solving issues.",
+            "example": "e6d1119edc914b4db5830f309de0807b"
+          }
+        },
+        "description": "API invocation or processing error"
+      },
+      "UploadRequestAsyncProcessingStatusBulkRequestV1": {
+        "required": [
+          "data"
+        ],
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/UploadRequestAsyncProcessingStatusBulkRequestV1.UploadRequestIds"
+          }
+        },
+        "description": "Requests the asynchronous processing status of more than one document upload request."
+      },
+      "UploadRequestAsyncProcessingStatusBulkRequestV1.UploadRequestIds": {
+        "required": [
+          "requestIds"
+        ],
+        "type": "object",
+        "properties": {
+          "requestIds": {
+            "type": "array",
+            "description": "The list of requestIds that identify upload requests to retrieve status for.",
+            "items": {
+              "type": "integer",
+              "description": "The list of requestIds that identify upload requests to retrieve status for.",
+              "format": "int64"
+            }
+          }
+        }
+      },
+      "UploadRequestAsyncProcessingStatusBulkResponseV1": {
+        "required": [
+          "data"
+        ],
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/UploadRequestAsyncProcessingStatusBulkResponseV1.UploadRequestStatuses"
+          }
+        }
+      },
+      "UploadRequestAsyncProcessingStatusBulkResponseV1.UploadRequestStatuses": {
+        "required": [
+          "requestIdsNotFound",
+          "statuses"
+        ],
+        "type": "object",
+        "properties": {
+          "statuses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UploadRequestAsyncProcessingStatusV1"
+            }
+          },
+          "requestIdsNotFound": {
+            "type": "array",
+            "description": "A list populated with requestIds whose status was not found.\n",
+            "items": {
+              "type": "integer",
+              "description": "A list populated with requestIds whose status was not found.\n",
+              "format": "int64"
+            }
+          }
+        }
+      },
+      "UploadRequestAsyncProcessingStatusV1": {
+        "required": [
+          "requestId",
+          "status",
+          "steps"
+        ],
+        "type": "object",
+        "properties": {
+          "requestId": {
+            "type": "integer",
+            "description": "The requestId of the upload request.",
+            "format": "int64",
+            "example": 600000001
+          },
+          "time": {
+            "$ref": "#/components/schemas/UploadRequestAsyncProcessingStatusV1.WorkflowTime"
+          },
+          "status": {
+            "type": "string",
+            "description": "The current execution status of the workflow:\n* `IN_PROGRESS`: the workflow is currently executing.\n* `SUCCESS`: the workflow has completed all steps successfully.\n* `FAILED`: the workflow could not complete because a step encountered\na non-recoverable error.\n",
+            "enum": [
+              "IN_PROGRESS",
+              "SUCCESS",
+              "FAILED"
+            ]
+          },
+          "steps": {
+            "type": "array",
+            "description": "The list of workflow steps that process the document upload, ordered by their sequence.",
+            "items": {
+              "$ref": "#/components/schemas/UploadRequestAsyncProcessingStatusV1.Step"
+            }
+          },
+          "error": {
+            "$ref": "#/components/schemas/UploadRequestAsyncProcessingStatusV1.WorkflowError"
+          }
+        },
+        "description": "The asynchronous processing workflow status of a single upload request."
+      },
+      "UploadRequestAsyncProcessingStatusV1.Step": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The workflow step name:\n* `CLAIMS_EVIDENCE`: the workflow step that uploads the document to Claims Evidence.\n* `BENEFITS_GATEWAY_SERVICE`: the workflow step that uploads the document to Benefits\nGateway Service.\n",
+            "enum": [
+              "BENEFITS_GATEWAY_SERVICE",
+              "CLAIMS_EVIDENCE"
+            ]
+          },
+          "nextStepName": {
+            "type": "string",
+            "description": "The workflow step name:\n* `CLAIMS_EVIDENCE`: the workflow step that uploads the document to Claims Evidence.\n* `BENEFITS_GATEWAY_SERVICE`: the workflow step that uploads the document to Benefits\nGateway Service.\n",
+            "enum": [
+              "BENEFITS_GATEWAY_SERVICE",
+              "CLAIMS_EVIDENCE"
+            ]
+          },
+          "description": {
+            "type": "string",
+            "description": "A short description of the workflow step"
+          },
+          "status": {
+            "type": "string",
+            "description": "The current execution status of the workflow step:\n* `NOT_STARTED`: the workflow step is not yet executing and awaiting completion\nof the previous step.\n* `IN_PROGRESS`: the workflow step is currently executing.\n* `SUCCESS`: the workflow step has completed successfully.\n* `FAILED`: the workflow step encountered a non-recoverable error.\n",
+            "enum": [
+              "NOT_STARTED",
+              "IN_PROGRESS",
+              "SUCCESS",
+              "FAILED"
+            ]
+          }
+        },
+        "description": "The description of a single workflow step."
+      },
+      "UploadRequestAsyncProcessingStatusV1.WorkflowError": {
+        "type": "object",
+        "properties": {
+          "detail": {
+            "type": "string",
+            "description": "A human-readable summary of the error."
+          },
+          "step": {
+            "type": "string",
+            "description": "The workflow step name:\n* `CLAIMS_EVIDENCE`: the workflow step that uploads the document to Claims Evidence.\n* `BENEFITS_GATEWAY_SERVICE`: the workflow step that uploads the document to Benefits\nGateway Service.\n",
+            "enum": [
+              "BENEFITS_GATEWAY_SERVICE",
+              "CLAIMS_EVIDENCE"
+            ]
+          }
+        },
+        "description": "Workflow error information."
+      },
+      "UploadRequestAsyncProcessingStatusV1.WorkflowTime": {
+        "type": "object",
+        "properties": {
+          "startTime": {
+            "type": "integer",
+            "description": "The time, in milliseconds since epoch, that the workflow began executing.",
+            "format": "int64",
+            "example": 1502199000
+          },
+          "endTime": {
+            "type": "integer",
+            "description": "The time, in milliseconds since epoch, that the workflow finished executing.\nIn the case of a currently executing workflow, this will be null.\n",
+            "format": "int64",
+            "example": 1502199000
+          }
+        },
+        "description": "Workflow timing information."
+      },
+      "UploadRequestV1": {
+        "required": [
+          "data"
+        ],
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/UploadRequestV1.UploadData"
+          }
+        }
+      },
+      "UploadRequestV1.UploadData": {
+        "required": [
+          "claimId",
+          "docType",
+          "fileName",
+          "systemName"
+        ],
+        "type": "object",
+        "properties": {
+          "trackedItemIds": {
+            "type": "array",
+            "description": "A list of tracked item IDs that are associated\nwith the document being uploaded.\n",
+            "example": [
+              1,
+              2,
+              3
+            ],
+            "items": {
+              "type": "integer",
+              "description": "A list of tracked item IDs that are associated\nwith the document being uploaded.\n",
+              "format": "int64"
+            }
+          },
+          "systemName": {
+            "type": "string",
+            "description": "Indicates which system is uploading the document.",
+            "example": "va.gov"
+          },
+          "docType": {
+            "type": "string",
+            "description": "Indicates the L code of the type of document being uploaded.",
+            "example": "L122"
+          },
+          "fileNumber": {
+            "type": "string",
+            "description": "The Veteran's VBMS fileNumber used when uploading the document to VBMS.\n It indicates the eFolder in which the document resides.\n",
+            "example": "999012105"
+          },
+          "participantId": {
+            "type": "integer",
+            "description": "A unique identifier assigned to each patient entry in the Master Patient Index\nlinking patients to their records across VA systems.\n",
+            "format": "int64",
+            "example": 999012105
+          },
+          "claimId": {
+            "maximum": 9223372036854776000,
+            "minimum": 1,
+            "type": "integer",
+            "description": "The VBMS-issued claim identifier with which the document is associated.",
+            "format": "int64",
+            "example": 1234
+          },
+          "fileName": {
+            "maxLength": 256,
+            "type": "string",
+            "description": "The name of the file being uploaded.",
+            "example": "Document.pdf"
+          }
+        }
+      },
+      "UploadResponseV1": {
+        "required": [
+          "data"
+        ],
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/UploadResponseV1.UploadInfo"
+          }
+        }
+      },
+      "UploadResponseV1.UploadInfo": {
+        "required": [
+          "requestId",
+          "success"
+        ],
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Indicates if the upload request was successful.",
+            "example": true
+          },
+          "requestId": {
+            "maximum": 9223372036854776000,
+            "type": "integer",
+            "description": "The upload request identifier.",
+            "format": "int64",
+            "example": 12345678
+          }
+        }
+      },
+      "ClaimDocumentsRequestV1": {
+        "required": [
+          "data"
+        ],
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/ClaimDocumentsRequestV1.ClaimDocuments"
+          }
+        }
+      },
+      "ClaimDocumentsRequestV1.ClaimDocuments": {
+        "required": [
+          "claimId"
+        ],
+        "type": "object",
+        "properties": {
+          "claimId": {
+            "maximum": 9223372036854776000,
+            "minimum": 1,
+            "type": "integer",
+            "description": "The VBMS-issued claim identifier with which the document is associated.",
+            "format": "int64",
+            "example": 1234
+          },
+          "fileNumber": {
+            "type": "string",
+            "description": "The Veteran's VBMS fileNumber used when uploading the document to VBMS.\n It indicates the eFolder in which the document resides.\n",
+            "example": "999012105"
+          },
+          "participantId": {
+            "type": "integer",
+            "description": "A unique identifier assigned to each patient entry in the Master Patient Index\nlinking patients to their records across VA systems.\n",
+            "format": "int64",
+            "example": 999012105
+          }
+        }
+      },
+      "ClaimDocumentV1": {
+        "required": [
+          "documentId",
+          "documentTypeLabel",
+          "originalFileName",
+          "uploadedDateTime"
+        ],
+        "type": "object",
+        "properties": {
+          "documentId": {
+            "type": "string",
+            "example": "12345678-ABCD-0123-cdef-124345679ABC"
+          },
+          "originalFileName": {
+            "type": "string",
+            "example": "SupportingDocument.pdf"
+          },
+          "documentTypeLabel": {
+            "type": "string",
+            "example": "VA 21-526 Veterans Application for Compensation or Pension"
+          },
+          "trackedItemId": {
+            "type": "integer",
+            "format": "int64",
+            "example": 600000001
+          },
+          "uploadedDateTime": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2016-02-04T17:51:56Z"
+          }
+        },
+        "description": "The list of benefits claim documents.\n"
+      },
+      "ClaimDocumentsResponseV1": {
+        "required": [
+          "data"
+        ],
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/ClaimDocumentsResponseV1.Documents"
+          }
+        }
+      },
+      "ClaimDocumentsResponseV1.Documents": {
+        "type": "object",
+        "properties": {
+          "documents": {
+            "type": "array",
+            "description": "The list of benefits claim documents.\n",
+            "items": {
+              "$ref": "#/components/schemas/ClaimDocumentV1"
+            }
+          }
+        }
+      },
+      "UploadRequestAsyncProcessingStatusResponseV1": {
+        "required": [
+          "data"
+        ],
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/UploadRequestAsyncProcessingStatusV1"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "oauth2": {
+        "type": "oauth2",
+        "flows": {
+          "clientCredentials": {
+            "tokenUrl": "https://api.va.gov/oauth2/exemplar/system/v1/token",
+            "scopes": {
+              "documents.write": "The Veteran's access to upload files that provide verification of eligibility for their benefits.",
+              "documents.read": "The Veteran's access to read data about files that have been uploaded."
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,427 @@
+{
+	"Structure": {
+		"Header": {
+			"ID": {
+				"__prefix": "message",
+				"__text": "IDREF309"
+			},
+			"Test": {
+				"__prefix": "message",
+				"__text": "false"
+			},
+			"Prepared": {
+				"__prefix": "message",
+				"__text": "2024-07-09T01:08:02.927703+01:00"
+			},
+			"Sender": {
+				"_id": "Unknown",
+				"__prefix": "message"
+			},
+			"Receiver": {
+				"_id": "Unknown",
+				"__prefix": "message"
+			},
+			"__prefix": "message"
+		},
+		"Structures": {
+			"Dataflows": {
+				"Dataflow": [
+					{
+						"Name": {
+							"_xml:lang": "en",
+							"__prefix": "common",
+							"__text": "Air emission accounts"
+						},
+						"Structure": {
+							"Ref": {
+								"_id": "SEEAAIR",
+								"_version": "1.3",
+								"_agencyID": "ESTAT",
+								"_package": "datastructure",
+								"_class": "DataStructure"
+							},
+							"__prefix": "structure"
+						},
+						"_id": "DF_SEEA_AEA",
+						"_agencyID": "ESTAT",
+						"_version": "1.3",
+						"_isFinal": "true",
+						"__prefix": "structure"
+					},
+					{
+						"Name": {
+							"_xml:lang": "en",
+							"__prefix": "common",
+							"__text": "Physical energy flow accounts"
+						},
+						"Structure": {
+							"Ref": {
+								"_id": "SEEANRG",
+								"_version": "1.3",
+								"_agencyID": "ESTAT",
+								"_package": "datastructure",
+								"_class": "DataStructure"
+							},
+							"__prefix": "structure"
+						},
+						"_id": "DF_SEEA_ENERGY",
+						"_agencyID": "ESTAT",
+						"_version": "1.3",
+						"_isFinal": "true",
+						"__prefix": "structure"
+					},
+					{
+						"Name": {
+							"_xml:lang": "en",
+							"__prefix": "common",
+							"__text": "Annual financial accounts"
+						},
+						"Structure": {
+							"Ref": {
+								"_id": "NA_SEC",
+								"_version": "1.9",
+								"_agencyID": "ESTAT",
+								"_package": "datastructure",
+								"_class": "DataStructure"
+							},
+							"__prefix": "structure"
+						},
+						"_id": "NASEC_IDCFINA_A",
+						"_agencyID": "ESTAT",
+						"_version": "1.9",
+						"_isFinal": "true",
+						"__prefix": "structure"
+					},
+					{
+						"Name": {
+							"_xml:lang": "en",
+							"__prefix": "common",
+							"__text": "Quarterly financial accounts"
+						},
+						"Structure": {
+							"Ref": {
+								"_id": "NA_SEC",
+								"_version": "1.9",
+								"_agencyID": "ESTAT",
+								"_package": "datastructure",
+								"_class": "DataStructure"
+							},
+							"__prefix": "structure"
+						},
+						"_id": "NASEC_IDCFINA_Q",
+						"_agencyID": "ESTAT",
+						"_version": "1.9",
+						"_isFinal": "true",
+						"__prefix": "structure"
+					},
+					{
+						"Name": {
+							"_xml:lang": "en",
+							"__prefix": "common",
+							"__text": "Annual non-financial accounts"
+						},
+						"Structure": {
+							"Ref": {
+								"_id": "NA_SEC",
+								"_version": "1.9",
+								"_agencyID": "ESTAT",
+								"_package": "datastructure",
+								"_class": "DataStructure"
+							},
+							"__prefix": "structure"
+						},
+						"_id": "NASEC_IDCNFSA_A",
+						"_agencyID": "ESTAT",
+						"_version": "1.9",
+						"_isFinal": "true",
+						"__prefix": "structure"
+					},
+					{
+						"Name": {
+							"_xml:lang": "en",
+							"__prefix": "common",
+							"__text": "Quarterly non-financial accounts"
+						},
+						"Structure": {
+							"Ref": {
+								"_id": "NA_SEC",
+								"_version": "1.9",
+								"_agencyID": "ESTAT",
+								"_package": "datastructure",
+								"_class": "DataStructure"
+							},
+							"__prefix": "structure"
+						},
+						"_id": "NASEC_IDCNFSA_Q",
+						"_agencyID": "ESTAT",
+						"_version": "1.9",
+						"_isFinal": "true",
+						"__prefix": "structure"
+					},
+					{
+						"Name": {
+							"_xml:lang": "en",
+							"__prefix": "common",
+							"__text": "NA Main Aggregates"
+						},
+						"Structure": {
+							"Ref": {
+								"_id": "NA_MAIN",
+								"_version": "1.9",
+								"_agencyID": "ESTAT",
+								"_package": "datastructure",
+								"_class": "DataStructure"
+							},
+							"__prefix": "structure"
+						},
+						"_id": "NA_MAIN",
+						"_agencyID": "ESTAT",
+						"_version": "1.9",
+						"_isFinal": "true",
+						"__prefix": "structure"
+					},
+					{
+						"Name": {
+							"_xml:lang": "en",
+							"__prefix": "common",
+							"__text": "SDMX-MDGs"
+						},
+						"Structure": {
+							"Ref": {
+								"_id": "MDG",
+								"_version": "1.2",
+								"_agencyID": "IAEG",
+								"_package": "datastructure",
+								"_class": "DataStructure"
+							},
+							"__prefix": "structure"
+						},
+						"_id": "DF_UNDATA_MDG",
+						"_agencyID": "IAEG",
+						"_version": "1.2",
+						"_isFinal": "true",
+						"__prefix": "structure"
+					},
+					{
+						"Name": {
+							"_xml:lang": "en",
+							"__prefix": "common",
+							"__text": "SDG Harmonized Global Dataflow"
+						},
+						"Description": {
+							"_xml:lang": "en",
+							"__prefix": "common",
+							"__text": "Reporting and dissemination dataflow for harmonized global SDG indicators."
+						},
+						"Structure": {
+							"Ref": {
+								"_id": "SDG",
+								"_version": "1.18",
+								"_agencyID": "IAEG-SDGs",
+								"_package": "datastructure",
+								"_class": "DataStructure"
+							},
+							"__prefix": "structure"
+						},
+						"_id": "DF_SDG_GLH",
+						"_agencyID": "IAEG-SDGs",
+						"_version": "1.18",
+						"_isFinal": "true",
+						"__prefix": "structure"
+					},
+					{
+						"Name": {
+							"_xml:lang": "en",
+							"__prefix": "common",
+							"__text": "SDMX_UIS_UNData"
+						},
+						"Structure": {
+							"Ref": {
+								"_id": "UIS_UNData",
+								"_version": "1.1",
+								"_agencyID": "UIS",
+								"_package": "datastructure",
+								"_class": "DataStructure"
+							},
+							"__prefix": "structure"
+						},
+						"_id": "DF_UNData_UIS",
+						"_agencyID": "UIS",
+						"_version": "1.1",
+						"_isFinal": "true",
+						"__prefix": "structure"
+					},
+					{
+						"Name": {
+							"_xml:lang": "en",
+							"__prefix": "common",
+							"__text": "SDMX-CountryData"
+						},
+						"Structure": {
+							"Ref": {
+								"_id": "CountryData",
+								"_version": "1.4",
+								"_agencyID": "UNSD",
+								"_package": "datastructure",
+								"_class": "DataStructure"
+							},
+							"__prefix": "structure"
+						},
+						"_id": "DF_UNDATA_COUNTRYDATA",
+						"_agencyID": "UNSD",
+						"_version": "1.4",
+						"_isFinal": "true",
+						"__prefix": "structure"
+					},
+					{
+						"Annotations": {
+							"Annotation": [
+								{
+									"AnnotationTitle": {
+										"__prefix": "common",
+										"__text": "COMMODITY,TRANSACTION"
+									},
+									"AnnotationType": {
+										"__prefix": "common",
+										"__text": "LAYOUT_ROW"
+									},
+									"_id": "@SDMX",
+									"__prefix": "common"
+								},
+								{
+									"AnnotationTitle": {
+										"__prefix": "common",
+										"__text": "TIME_PERIOD"
+									},
+									"AnnotationType": {
+										"__prefix": "common",
+										"__text": "LAYOUT_COLUMN"
+									},
+									"_id": "@SDMX",
+									"__prefix": "common"
+								},
+								{
+									"AnnotationTitle": {
+										"__prefix": "common",
+										"__text": "REF_AREA"
+									},
+									"AnnotationType": {
+										"__prefix": "common",
+										"__text": "LAYOUT_ROW_SECTION"
+									},
+									"_id": "@SDMX",
+									"__prefix": "common"
+								},
+								{
+									"AnnotationTitle": {
+										"__prefix": "common",
+										"__text": "FREQ,OBS_STATUS=A,UNIT_MULT=0"
+									},
+									"AnnotationType": {
+										"__prefix": "common",
+										"__text": "NOT_DISPLAYED"
+									},
+									"_id": "@SDMX",
+									"__prefix": "common"
+								}
+							],
+							"__prefix": "common"
+						},
+						"Name": {
+							"_xml:lang": "en",
+							"__prefix": "common",
+							"__text": "UNSD Energy Statistics"
+						},
+						"Structure": {
+							"Ref": {
+								"_id": "DSD_ENERGY",
+								"_version": "1.1",
+								"_agencyID": "UNSD",
+								"_package": "datastructure",
+								"_class": "DataStructure"
+							},
+							"__prefix": "structure"
+						},
+						"_id": "DF_UNDATA_ENERGY",
+						"_agencyID": "UNSD",
+						"_version": "1.1",
+						"_isFinal": "true",
+						"__prefix": "structure"
+					},
+					{
+						"Name": {
+							"_xml:lang": "en",
+							"__prefix": "common",
+							"__text": "Energy Balance DataFlow"
+						},
+						"Structure": {
+							"Ref": {
+								"_id": "DSD_ENERGY_BALANCE_UNDATA",
+								"_version": "1.0",
+								"_agencyID": "UNSD",
+								"_package": "datastructure",
+								"_class": "DataStructure"
+							},
+							"__prefix": "structure"
+						},
+						"_id": "DF_UNData_EnergyBalance",
+						"_agencyID": "UNSD",
+						"_version": "1.0",
+						"_isFinal": "false",
+						"__prefix": "structure"
+					},
+					{
+						"Name": {
+							"_xml:lang": "en",
+							"__prefix": "common",
+							"__text": "SDMX_GHG_UNDATA"
+						},
+						"Structure": {
+							"Ref": {
+								"_id": "DSD_GHG_UNDATA",
+								"_version": "1.0",
+								"_agencyID": "UNSD",
+								"_package": "datastructure",
+								"_class": "DataStructure"
+							},
+							"__prefix": "structure"
+						},
+						"_id": "DF_UNData_UNFCC",
+						"_agencyID": "UNSD",
+						"_version": "1.0",
+						"_isFinal": "true",
+						"__prefix": "structure"
+					},
+					{
+						"Name": {
+							"_xml:lang": "en",
+							"__prefix": "common",
+							"__text": "WB World Development Indicators"
+						},
+						"Structure": {
+							"Ref": {
+								"_id": "WDI",
+								"_version": "1.0",
+								"_agencyID": "WB",
+								"_package": "datastructure",
+								"_class": "DataStructure"
+							},
+							"__prefix": "structure"
+						},
+						"_id": "DF_UNDATA_WDI",
+						"_agencyID": "WB",
+						"_version": "1.0",
+						"_isFinal": "true",
+						"__prefix": "structure"
+					}
+				],
+				"__prefix": "structure"
+			},
+			"__prefix": "message"
+		},
+		"_xmlns:message": "http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message",
+		"_xmlns:structure": "http://www.sdmx.org/resources/sdmxml/schemas/v2_1/structure",
+		"_xmlns:common": "http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common",
+		"__prefix": "message"
+	}
+}

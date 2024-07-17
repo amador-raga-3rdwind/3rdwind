@@ -1,0 +1,459 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Community Care Eligibility",
+    "description": "The Community Care Eligibility API determines if a Veteran is **likely** or **unlikely** **eligible** for community care.\n\nThis API's eligibility projections ***are not final***. Messaging about the results of this API should stress that a Veteran is **likely** or **unlikely** eligible for community care, but that decision is not final until they have consulted VA staff and scheduled an appointment.\n\n## Background\n\nUnder the VA MISSION Act of 2018, Veterans have better access to health care with VA and community providers through a new set of improved eligibility criteria. VA gives care to Veterans through community providers when VA facilities cannot provide the care needed. Community care is based on specific eligibility requirements, availability of VA care, and the needs and circumstances of individual VA patients. It must first be authorized by VA before a Veteran can receive care from a community provider. [Learn more about VA Community Care.](https://www.va.gov/COMMUNITYCARE/programs/veterans/General_Care.asp)\n\n## Technical overview\n\n### Authentication and Authorization\n\nThe authentication model for the Community Care Eligibility API uses OAuth 2.0 / OpenID Connect. The following authorization models are supported:\n- [Authorization code flow](https://developer.va.gov/explore/authorization/docs/authorization-code?api=community_care)\n- [Client credentials grant](https://developer.va.gov/explore/authorization/docs/client-credentials?api=community_care) (restricted access)\n\n\n**Important:** To get production access using client credentials grant, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](https://developer.va.gov/support/contact-us).\n\n### Eligibility estimates\n\nTo determine a Veteran's likelihood of community care eligibility, this API checks: \n- Eligibility based on a subset of [VA community care eligibility criteria.](https://www.va.gov/COMMUNITYCARE/programs/veterans/General_Care.asp#Eligibility)\n- Whether the Veteran has an active or pending [Patient Aligned Care Team](https://www.patientcare.va.gov/primarycare/PACT.asp) (PACT) status\n\n**Note:** Two VA community care criteria, best *medical interests* and *quality standards*, are outside the scope of this API.\n\n#### Likely eligible\nA Veteran is **likely eligible** for community care if any of the following apply: \n- The Veteran qualifies for the \"Hardship\" provision according to the Eligibility and Enrollment System. Eligibility code **H** is returned.\n- The Veteran qualifies for the \"Grandfather\" provision according to the Eligibility and Enrollment System. Eligibility code **G** is returned.\n- The Veteran lives in a U.S. state or territory without a full service VA medical facility. Eligibility code **N** is returned.\n- The Veteran does not live near a VA facility that offers the requested medical service within the approved drive time range of a Veteran's location. In this case, a **drive time** over 30 minutes for primary care or over 60 minutes for specialty care is returned.\n\n#### Unlikely eligible\n\nA Veteran is **unlikely eligible** for community care if any of the following apply: \n- The Veteran does not meet one of the VA eligibility criteria this API checks for according to the Eligibility and Enrollment System. Eligibility code **X** is returned.\n- The Veteran lives near a VA facility that offers the requested medical service within the approved drive time range of a Veteran's location. In this case, a **drive time** within 30 minutes for primary care or within 60 minutes for specialty care is returned.\n- The Veteran's [Patient Aligned Care Team](https://www.patientcare.va.gov/primarycare/PACT.asp) (PACT) status returns **active** or **pending**. This only applies when a requested medical service is for primary care.\n#### Undetermined eligibility\n\nThis API may not be able to determine the likelihood of a Veteran's eligibility if any of the following apply:\n- The Veteran's geocoded location (based on latitude and longitude position) is incomplete, out-of-date, or unavailable, so no accurate drive time calculation to the nearest VA facility can be performed. **Null** is returned.\n- The Veteran's PACT status was unable to be determined during a request for primary care. **Null** is returned. \n\n### Test Data\n\nYou can use [mock test data in the sandbox environment](https://github.com/department-of-veterans-affairs/vets-api-clients/blob/master/test_accounts/community_care_test_accounts.md). After testing this API in sandbox, you can start the process of moving to production.\n\n",
+    "version": "v0"
+  },
+  "security": [
+    {
+      "OauthFlow": [
+        "patient/CommunityCareEligibility.read"
+      ]
+    }
+  ],
+  "paths": {
+    "/search": {
+      "get": {
+        "tags": [
+          "Search"
+        ],
+        "summary": "Estimate the likelihood of a Veteran's eligibility for community care based on their ICN and requested medical service.",
+        "operationId": "GET:/search",
+        "parameters": [
+          {
+            "name": "patient",
+            "in": "query",
+            "description": "The patient ICN",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "011235813V213455"
+          },
+          {
+            "name": "serviceType",
+            "in": "query",
+            "description": "Patient's desired medical service type for community care",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "Audiology",
+                "Cardiology",
+                "Dermatology",
+                "Gastroenterology",
+                "Gynecology",
+                "MentalHealthCare",
+                "Nutrition",
+                "Ophthalmology",
+                "Optometry",
+                "Orthopedics",
+                "Podiatry",
+                "PrimaryCare",
+                "Urology",
+                "WomensHealth"
+              ]
+            },
+            "example": "Gastroenterology"
+          },
+          {
+            "name": "extendedDriveMin",
+            "in": "query",
+            "description": "Optional extended drive-radius to include more VA medical facilities in response (Does not change overall eligibility. Must exceed standard drive time for service-type.)",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "examples": {
+              "extendedDriveMin": {
+                "description": "extendedDriveMin",
+                "value": 70
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Record found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommunityCareEligibilityResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequest"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFound"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "Request size limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "API rate limit exceeded"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Address": {
+        "type": "object",
+        "properties": {
+          "country": {
+            "type": "string"
+          },
+          "street": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "zip": {
+            "type": "string"
+          }
+        }
+      },
+      "BadRequest": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "type": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "timestamp": 1557407878250,
+          "type": "UnknownServiceTypeException",
+          "message": "Unknown service type: dentistry"
+        }
+      },
+      "CommunityCareEligibilityResponse": {
+        "type": "object",
+        "properties": {
+          "patientRequest": {
+            "$ref": "#/components/schemas/PatientRequest"
+          },
+          "eligibilityCodes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EligibilityCode"
+            }
+          },
+          "grandfathered": {
+            "type": "boolean"
+          },
+          "noFullServiceVaMedicalFacility": {
+            "type": "boolean"
+          },
+          "patientAddress": {
+            "$ref": "#/components/schemas/Address"
+          },
+          "patientCoordinates": {
+            "$ref": "#/components/schemas/Coordinates"
+          },
+          "nearbyFacilities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Facility"
+            }
+          },
+          "eligible": {
+            "type": "boolean"
+          },
+          "processingStatus": {
+            "type": "string",
+            "enum": [
+              "successful",
+              "geocoding-not-available",
+              "geocoding-out-of-date",
+              "geocoding-incomplete"
+            ]
+          },
+          "pactStatus": {
+            "type": "string",
+            "enum": [
+              "None",
+              "Pending",
+              "Active"
+            ]
+          },
+          "$lock": {
+            "type": "object"
+          }
+        },
+        "example": {
+          "patientRequest": {
+            "patientIcn": "011235813V213455",
+            "serviceType": "PrimaryCare",
+            "timestamp": "2019-05-09T13:17:58.250Z"
+          },
+          "eligibilityCodes": [
+            {
+              "description": "Basic",
+              "code": "B"
+            }
+          ],
+          "grandfathered": false,
+          "noFullServiceVaMedicalFacility": false,
+          "patientAddress": {
+            "country": "USA",
+            "street": "742 Evergeen Terrace",
+            "city": "Springfield",
+            "state": "KY",
+            "zip": "89144"
+          },
+          "patientCoordinates": {
+            "latitude": 40.758541,
+            "longitude": -73.982132
+          },
+          "nearbyFacilities": [
+            {
+              "id": "vha_1597XY",
+              "name": "Springfield VA Clinic",
+              "physicalAddress": {
+                "street": "2584 South Street",
+                "city": "Springfield",
+                "state": "KY",
+                "zip": "10946"
+              },
+              "coordinates": {
+                "latitude": 41.81,
+                "longitude": 67.65
+              },
+              "driveMinutes": {
+                "min": 0,
+                "max": 10
+              },
+              "phoneNumber": "177-112-8657 x",
+              "website": "https://www.va.gov"
+            },
+            {
+              "id": "vha_46368ZZ",
+              "name": "Shelbyville VA Clinic",
+              "physicalAddress": {
+                "street": "121393 Main Street",
+                "city": "Shelbyville",
+                "state": "KY",
+                "zip": "75025"
+              },
+              "coordinates": {
+                "latitude": 196.418,
+                "longitude": 317.811
+              },
+              "driveMinutes": {
+                "min": 20,
+                "max": 30
+              },
+              "phoneNumber": "1-422-983-2040",
+              "website": "https://www.va.gov",
+              "mobile": false,
+              "active": true
+            }
+          ],
+          "eligible": false,
+          "processingStatus": "successful",
+          "pactStatus": "Active",
+          "$lock": []
+        }
+      },
+      "Coordinates": {
+        "type": "object",
+        "properties": {
+          "latitude": {
+            "type": "number"
+          },
+          "longitude": {
+            "type": "number"
+          }
+        }
+      },
+      "DriveMinutes": {
+        "type": "object",
+        "properties": {
+          "min": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "max": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "EligibilityCode": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          }
+        }
+      },
+      "Facility": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "physicalAddress": {
+            "$ref": "#/components/schemas/Address"
+          },
+          "coordinates": {
+            "$ref": "#/components/schemas/Coordinates"
+          },
+          "driveMinutes": {
+            "$ref": "#/components/schemas/DriveMinutes"
+          },
+          "phoneNumber": {
+            "type": "string"
+          },
+          "website": {
+            "type": "string"
+          },
+          "mobile": {
+            "type": "boolean"
+          },
+          "active": {
+            "type": "boolean"
+          }
+        }
+      },
+      "NotFound": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "type": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "timestamp": 1557407878250,
+          "type": "UnknownPatientIcnException",
+          "message": "Unknown patient ICN: 011235813V213455"
+        }
+      },
+      "PatientRequest": {
+        "type": "object",
+        "properties": {
+          "patientIcn": {
+            "type": "string"
+          },
+          "serviceType": {
+            "type": "string"
+          },
+          "extendedDriveMin": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "timestamp": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "OauthFlow": {
+        "type": "oauth2",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "https://sandbox-api.va.gov/oauth2/authorization",
+            "tokenUrl": "https://sandbox-api.va.gov/oauth2/token",
+            "scopes": {
+              "patient/CommunityCareEligibility.read": "Community Care Eligibility"
+            }
+          }
+        }
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "https://sandbox-api.va.gov/services/community-care/{version}/eligibility",
+      "description": "Sandbox",
+      "variables": {
+        "version": {
+          "default": "v0"
+        }
+      }
+    },
+    {
+      "url": "https://api.va.gov/services/community-care/{version}/eligibility",
+      "description": "Production",
+      "variables": {
+        "version": {
+          "default": "v0"
+        }
+      }
+    }
+  ]
+}

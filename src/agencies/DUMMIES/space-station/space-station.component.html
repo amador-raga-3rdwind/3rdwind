@@ -1,0 +1,50 @@
+
+
+
+
+<ng-template #portalNotReady>
+  <h1>LOADING PROVISIONS....</h1>
+</ng-template>
+
+<table class="federal-container min-h-[800px]">
+          <tr *ngIf="PortalReadyMessage()!=''; else portalNotReady">
+                    <td  class="launcher   {{isHoverMode()?'':' hidden'}}" >
+                              <div class="blaster"
+                              *ngFor="let port of portal; let i=index;"
+                              [innerHTML]=" (port.key.length<30) ? port.key : port.key.substr(0,30)" (click)="isHoverMode.set(false); scanPayload(port.key)"
+                              (mouseover)="scanPayload(port.key)" > </div>
+
+                    </td>
+                    <td class="flex-1 orbiter" *ngIf="isSystemReady">
+                        <div class=" bg-transparent {{isHoverMode()? 'z-60 fixed w-fit':''}} w-fit">
+                              <div id="capsule-0" class="overflow-hidden w-fit upper-container " >
+                                <button (click)="infoToggle = !infoToggle;" class="text-xl mx-2 {{infoToggle?'-top-20 left-1/2 rotate-180 text-slate-400':''}} float-start mr-6 btn-sm bg-transparent btn-circle text-orange-200">⤴️</button>
+                                <button (click)="isHoverMode.set(true)" title="Go Back to Portal" class="float-end animate-spin  text-red-800 m-1 bg-slate-300 text-4xl btn-circle {{isHoverMode()?'hidden':''}}">x</button>
+                                    <div class="container w-full h1" >{{info()["title"]}} {{ info()["version"]}}
+                                      <!-- TAGS -->
+                                    </div>
+
+                                    <div *ngFor="let tag of tags()" class=" text-stone-100 dropdown dropdown-hover">
+                                          <button  tabindex="0" role="button"
+                                          class="mx-1 btn-xs btn btn-primary"   >
+                                          {{tag["name"]}}</button>
+                                          <div tabindex="0" class="text-sm mt-1 p-4 min-w-[300px] rounded-md w-fit bg-indigo-500 text-slate-50 drop-shadow-md dropdown-content">{{tag['description']}}
+                                          </div>
+                                      </div>
+                                      <!-- TAGS -->
+                                      <div class="max-h-[400px] text-sm w-fit px-4 overflow-y-auto " [hidden]="!infoToggle"
+                                      [innerHTML]="sanitizer.bypassSecurityTrustHtml(info()['description'])" ></div>
+                              </div>
+
+
+                              <div id="apiResult"></div>
+                              <!-- ==================================================== -->
+                              <div class="bottom-container w-fit">
+                                              <div id="capsule-1"  class="w-fit" [innerHTML]="sanitizer.bypassSecurityTrustHtml(utils._SECTION(expo()))">
+                                              </div>
+                              </div>
+                        </div>
+
+                    </td>
+          </tr>
+</table>

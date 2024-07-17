@@ -1,0 +1,1947 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Benefits Data Lookup API",
+    "description": "This API lets you look up information that is specifically\nfiltered and formatted to be accepted within VA benefits claims.\nUnless otherwise specified, data returned may be used for any\nbenefits claim that accepts the data. The information returned is:\n* Contention types\n* Countries\n* Disabilities\n* Intake sites\n* Military pay types\n* Service branches\n* Special circumstances\n* States\n* VA medical treatment facilities\n\n## Technical overview\nAll returned data is pulled from the Veterans Benefits Administration\n(VBA). The data cache is refreshed daily.\n\nEach endpoint returns a specific information type. No input parameters\nare needed to return a list of values unless otherwise specified under\nthe endpoint documentation. None of the endpoints send or receive\nprotected health information (PHI) or personally identifiable information\n(PII).\n\n### Authentication and Authorization\nAPI requests are authorized through a symmetric API token provided in an\nHTTP header with name 'apikey'.\n\n### Testing in the sandbox environment\nTest data from the sandbox environment is for testing your API only\nand is not guaranteed to be up-to-date.\n\nThis API has a reduced API rate limit in the sandbox, so when you're ready to move\nto production, be sure to\n[request a production API key.](https://developer.va.gov/go-live)\n",
+    "contact": {
+      "name": "VA.gov"
+    },
+    "version": "0.0.1"
+  },
+  "servers": [
+    {
+      "url": "https://sandbox-api.va.gov/services/benefits-reference-data/{version}",
+      "description": "Sandbox",
+      "variables": {
+        "version": {
+          "default": "v1"
+        }
+      }
+    },
+    {
+      "url": "https://api.va.gov/services/benefits-reference-data/{version}",
+      "description": "Production",
+      "variables": {
+        "version": {
+          "default": "v1"
+        }
+      }
+    }
+  ],
+  "paths": {
+    "/contention-types": {
+      "get": {
+        "tags": [
+          "Reference Data"
+        ],
+        "summary": "Retrieve a list of contention types.",
+        "description": "Provides choices for Veteran VBA request types such as \"New\", \"Supplemental\", or \"Higher Level Review\".",
+        "operationId": "GET:/contention-types",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page of results requested",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "An integer indicating the maximum number of results",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Contention types retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContentionTypesResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequest"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization information not provided",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "No API key found in request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Invalid authorization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "You cannot consume this service"
+                  }
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "Request size limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "API rate limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalServerError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceUnavailable"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apikeyAuth": []
+          }
+        ]
+      }
+    },
+    "/countries": {
+      "get": {
+        "tags": [
+          "Reference Data"
+        ],
+        "summary": "Retrieve a list of countries.",
+        "description": "Provides a current list of Countries, standardized by the VA, which can be used for completing a Veteran's benefits profile or patient contact information update (PCIU) such as \"Bolivia\", \"China\", or \"Serbia/Montenegro\".",
+        "operationId": "GET:/countries",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page of results requested",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "An integer indicating the maximum number of results",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Countries retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CountriesResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequest"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization information not provided",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "No API key found in request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Invalid authorization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "You cannot consume this service"
+                  }
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "Request size limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "API rate limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalServerError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceUnavailable"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apikeyAuth": []
+          }
+        ]
+      }
+    },
+    "/disabilities": {
+      "get": {
+        "tags": [
+          "Reference Data"
+        ],
+        "summary": "Retrieve a list of disabilities.",
+        "description": "All types of disabilities that for which Veterans Benefits Administration (VBA) claim classification codes exist for such as \"ALS\", \"angina\", or \"emphysema\".",
+        "operationId": "GET:/disabilities",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page of results requested",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "An integer indicating the maximum number of results",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Disabilities retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DisabilitiesResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequest"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization information not provided",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "No API key found in request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Invalid authorization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "You cannot consume this service"
+                  }
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "Request size limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "API rate limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalServerError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceUnavailable"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apikeyAuth": []
+          }
+        ]
+      }
+    },
+    "/intake-sites": {
+      "get": {
+        "tags": [
+          "Reference Data"
+        ],
+        "summary": "Retrieve a list of intake sites.",
+        "description": "The location where a Veteran's military separation process will occur such as \"Andrews AFB\", \"Fort Sam Houston\", or \"Moody AFB\".",
+        "operationId": "GET:/intake-sites",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page of results requested",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "An integer indicating the maximum number of results",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Intake Sites retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntakeSitesResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequest"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization information not provided",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "No API key found in request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Invalid authorization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "You cannot consume this service"
+                  }
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "Request size limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "API rate limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalServerError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceUnavailable"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apikeyAuth": []
+          }
+        ]
+      }
+    },
+    "/military-pay-types": {
+      "get": {
+        "tags": [
+          "Reference Data"
+        ],
+        "summary": "Retrieve a list of military pay types.",
+        "description": "For example, \"Separation\", \"Severance\", or \"Temporary Disability Retired List (TDRL)\".",
+        "operationId": "GET:/military-pay-types",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page of results requested",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "An integer indicating the maximum number of results",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Military Pay Types retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MilitaryPayTypesResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequest"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization information not provided",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "No API key found in request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Invalid authorization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "You cannot consume this service"
+                  }
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "Request size limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "API rate limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalServerError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceUnavailable"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apikeyAuth": []
+          }
+        ]
+      }
+    },
+    "/service-branches": {
+      "get": {
+        "tags": [
+          "Reference Data"
+        ],
+        "summary": "Retrieve a list of service branches.",
+        "description": "A current list of US Military Service Branches, spelled and standardized by the VA such as, \"Army\", \"National Oceanic & Atmospheric Administration\", and \"Space Force\".",
+        "operationId": "GET:/service-branches",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page of results requested",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "An integer indicating the maximum number of results",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Service Branches retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceBranchesResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequest"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization information not provided",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "No API key found in request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Invalid authorization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "You cannot consume this service"
+                  }
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "Request size limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "API rate limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalServerError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceUnavailable"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apikeyAuth": []
+          }
+        ]
+      }
+    },
+    "/special-circumstances": {
+      "get": {
+        "tags": [
+          "Reference Data"
+        ],
+        "summary": "Retrieve a list of special circumstances.",
+        "description": "Provides the codes and descriptions for special circumstances considered for VBA claims such as \"Temporary Total Disability\", \"Spouse Aide and Attendance\", or \"Automobile Allowance\".",
+        "operationId": "GET:/special-circumstances",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page of results requested",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "An integer indicating the maximum number of results",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Special Circumstances retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SpecialCircumstancesResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequest"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization information not provided",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "No API key found in request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Invalid authorization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "You cannot consume this service"
+                  }
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "Request size limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "API rate limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalServerError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceUnavailable"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apikeyAuth": []
+          }
+        ]
+      }
+    },
+    "/states": {
+      "get": {
+        "tags": [
+          "Reference Data"
+        ],
+        "summary": "Retrieve a list of states.",
+        "description": "A current list of States (including US territories and key military mail hubs) standardized by the VA, which can be used for completing a Veteran's benefits profile or patient contact information update (PCIU) such as \"FL\", \"GU\", or \"PW\".",
+        "operationId": "GET:/states",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page of results requested",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "An integer indicating the maximum number of results",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "States retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatesResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequest"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization information not provided",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "No API key found in request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Invalid authorization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "You cannot consume this service"
+                  }
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "Request size limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "API rate limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalServerError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceUnavailable"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apikeyAuth": []
+          }
+        ]
+      }
+    },
+    "/treatment-centers": {
+      "get": {
+        "tags": [
+          "Reference Data"
+        ],
+        "summary": "Retrieve a list of treatment centers.",
+        "description": "Takes input of a two character state and provides the names, cities and VA identifiers for facilities in that state such as \"Tuscaloosa VA Medical Center\", \"Augusta VA Medical Center\", or \"Perry Point VAMC - VA Maryland Health Care System.",
+        "operationId": "GET:/treatment-centers",
+        "parameters": [
+          {
+            "name": "stateCode",
+            "in": "query",
+            "description": "State to find treatment centers in",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page of results requested",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "An integer indicating the maximum number of results",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Treatment Centers retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TreatmentCentersResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequest"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization information not provided",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "No API key found in request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Invalid authorization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "You cannot consume this service"
+                  }
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "Request size limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "API rate limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalServerError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceUnavailable"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apikeyAuth": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "BadRequest": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "A URI reference that identifies the problem type.",
+            "example": "https://example.net/validation-error"
+          },
+          "title": {
+            "type": "string",
+            "description": "A short, human-readable summary of the problem type.",
+            "example": "Invalid field value"
+          },
+          "status": {
+            "type": "integer",
+            "description": "The HTTP status code generated by the origin server for this occurrence of the problem.",
+            "format": "int32",
+            "example": 400
+          },
+          "detail": {
+            "type": "string",
+            "description": "A human-readable explanation specific to this occurrence of the problem.",
+            "example": "stateCode must match \"^[A-Z]{2}$\""
+          },
+          "instance": {
+            "type": "string",
+            "description": "A URI reference that identifies the specific occurrence of the problem.  It may or may not yield further information if dereferenced.",
+            "example": "e6d1119e-dc91-4b4d-b583-0f309de0807b"
+          }
+        },
+        "example": {
+          "type": "https://api.va.gov/services/benefits-reference-data/v1/api-schema/errors/constraint-violation",
+          "title": "Invalid field value",
+          "status": 400,
+          "detail": "stateCode must match \"^[A-Z]{2}$\"",
+          "instance": "e6d1119e-dc91-4b4d-b583-0f309de0807b"
+        }
+      },
+      "ContentionType": {
+        "required": [
+          "code",
+          "description"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "example": "INC"
+          },
+          "description": {
+            "type": "string",
+            "example": "Increase"
+          }
+        }
+      },
+      "ContentionTypesResponse": {
+        "required": [
+          "items"
+        ],
+        "type": "object",
+        "properties": {
+          "totalItems": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "links": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PageLink"
+            }
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContentionType"
+            }
+          }
+        }
+      },
+      "CountriesResponse": {
+        "required": [
+          "items"
+        ],
+        "type": "object",
+        "properties": {
+          "totalItems": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "links": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PageLink"
+            }
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "maxLength": 50,
+              "minLength": 1,
+              "type": "string",
+              "example": "Canada"
+            }
+          }
+        }
+      },
+      "DisabilitiesResponse": {
+        "required": [
+          "items"
+        ],
+        "type": "object",
+        "properties": {
+          "totalItems": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "links": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PageLink"
+            }
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Disability"
+            }
+          }
+        }
+      },
+      "Disability": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 30
+          },
+          "name": {
+            "type": "string",
+            "example": "abnormal weight loss"
+          },
+          "endDateTime": {
+            "type": "string",
+            "description": "The expiration date for a code that is no longer used for new cases. Codes with expiration dates may still be referenced in older cases. If null, the code has not expired.",
+            "format": "date-time",
+            "example": "2016-02-04T17:51:56Z"
+          }
+        }
+      },
+      "IntakeSite": {
+        "required": [
+          "description"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 5674661
+          },
+          "description": {
+            "type": "string",
+            "example": "AF Academy"
+          }
+        }
+      },
+      "IntakeSitesResponse": {
+        "required": [
+          "items"
+        ],
+        "type": "object",
+        "properties": {
+          "totalItems": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "links": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PageLink"
+            }
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IntakeSite"
+            }
+          }
+        }
+      },
+      "InternalServerError": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "A URI reference that identifies the problem type.",
+            "example": "https://example.net/validation-error"
+          },
+          "title": {
+            "type": "string",
+            "description": "A short, human-readable summary of the problem type.",
+            "example": "Invalid field value"
+          },
+          "status": {
+            "type": "integer",
+            "description": "The HTTP status code generated by the origin server for this occurrence of the problem.",
+            "format": "int32",
+            "example": 400
+          },
+          "detail": {
+            "type": "string",
+            "description": "A human-readable explanation specific to this occurrence of the problem.",
+            "example": "stateCode must match \"^[A-Z]{2}$\""
+          },
+          "instance": {
+            "type": "string",
+            "description": "A URI reference that identifies the specific occurrence of the problem.  It may or may not yield further information if dereferenced.",
+            "example": "e6d1119e-dc91-4b4d-b583-0f309de0807b"
+          }
+        },
+        "example": {
+          "type": "https://api.va.gov/services/benefits-reference-data/errors/generic/internal-server-error",
+          "title": "Internal Server Error",
+          "status": 500,
+          "detail": "Internal Server Error",
+          "instance": "e6d1119e-dc91-4b4d-b583-0f309de0807b"
+        }
+      },
+      "MilitaryPayType": {
+        "required": [
+          "code",
+          "description"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "example": "RTRMT"
+          },
+          "description": {
+            "type": "string",
+            "example": "Longevity"
+          }
+        }
+      },
+      "MilitaryPayTypesResponse": {
+        "required": [
+          "items"
+        ],
+        "type": "object",
+        "properties": {
+          "totalItems": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "links": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PageLink"
+            }
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MilitaryPayType"
+            }
+          }
+        }
+      },
+      "PageLink": {
+        "type": "object",
+        "properties": {
+          "href": {
+            "type": "string"
+          },
+          "rel": {
+            "type": "string"
+          }
+        }
+      },
+      "ServiceBranch": {
+        "required": [
+          "code",
+          "description"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "example": "USMA"
+          },
+          "description": {
+            "type": "string",
+            "example": "US Military Academy"
+          }
+        }
+      },
+      "ServiceBranchesResponse": {
+        "required": [
+          "items"
+        ],
+        "type": "object",
+        "properties": {
+          "totalItems": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "links": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PageLink"
+            }
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceBranch"
+            }
+          }
+        }
+      },
+      "ServiceUnavailable": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "A URI reference that identifies the problem type.",
+            "example": "https://example.net/validation-error"
+          },
+          "title": {
+            "type": "string",
+            "description": "A short, human-readable summary of the problem type.",
+            "example": "Invalid field value"
+          },
+          "status": {
+            "type": "integer",
+            "description": "The HTTP status code generated by the origin server for this occurrence of the problem.",
+            "format": "int32",
+            "example": 400
+          },
+          "detail": {
+            "type": "string",
+            "description": "A human-readable explanation specific to this occurrence of the problem.",
+            "example": "stateCode must match \"^[A-Z]{2}$\""
+          },
+          "instance": {
+            "type": "string",
+            "description": "A URI reference that identifies the specific occurrence of the problem.  It may or may not yield further information if dereferenced.",
+            "example": "e6d1119e-dc91-4b4d-b583-0f309de0807b"
+          }
+        },
+        "example": {
+          "type": "https://api.va.gov/services/benefits-reference-data/v1/api-schema/errors/service-unavailable",
+          "title": "Service Unavailable",
+          "status": 503,
+          "detail": "Cannot access service definition: standardDataService.wsdl",
+          "instance": "e6d1119e-dc91-4b4d-b583-0f309de0807b"
+        }
+      },
+      "SpecialCircumstance": {
+        "required": [
+          "code",
+          "description"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "example": "AA"
+          },
+          "description": {
+            "type": "string",
+            "example": "Automobile Allowance"
+          }
+        }
+      },
+      "SpecialCircumstancesResponse": {
+        "required": [
+          "items"
+        ],
+        "type": "object",
+        "properties": {
+          "totalItems": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "links": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PageLink"
+            }
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SpecialCircumstance"
+            }
+          }
+        }
+      },
+      "StatesResponse": {
+        "required": [
+          "items"
+        ],
+        "type": "object",
+        "properties": {
+          "totalItems": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "links": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PageLink"
+            }
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "maxLength": 2,
+              "minLength": 2,
+              "type": "string",
+              "example": "MN"
+            }
+          }
+        }
+      },
+      "TreatmentCenter": {
+        "required": [
+          "city",
+          "name",
+          "state"
+        ],
+        "type": "object",
+        "properties": {
+          "city": {
+            "type": "string",
+            "example": "MINNEAPOLIS"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 12965800
+          },
+          "name": {
+            "type": "string",
+            "example": "MINNEAPOLIS VA MEDICAL CENTER"
+          },
+          "state": {
+            "type": "string",
+            "example": "MN"
+          }
+        }
+      },
+      "TreatmentCentersResponse": {
+        "required": [
+          "items"
+        ],
+        "type": "object",
+        "properties": {
+          "totalItems": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "links": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PageLink"
+            }
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TreatmentCenter"
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "apikeyAuth": {
+        "type": "apiKey",
+        "name": "apikey",
+        "in": "header"
+      }
+    }
+  }
+}

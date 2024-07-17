@@ -1,46 +1,45 @@
-<h1>{{svc.chatMessage()}}</h1>
-<div   class="chat chat-start container {{svc.chatMessage()===''?'hidden':''}}"  
-style="z-index:10; vertical-align:middle; text-align: left; position:absolute; top:{{svc.cursorY()}};  left:300px !important;">
-    <div class="chat-bubble chat-bubble-primary w-fit max-w-[350px] h-fit" >
-        <span class="text-2xl p-0 w-full" id="chatterMessage" [innerHTML]="svc.chatMessage()"></span>
-        <hr class="mt-1 py-0">
-        <div class="w-full addendum()==''?'hidden':''" [innerHTML]="svc.addendum()"></div>
-        <code>You may adjust the <u>date-range</u>,<br>then click on <u>Submit</u> below</code>
+
+<div *ngFor="let x of [0,1,2,3,4,5]">
+  <button class="hidden btn" id="moonBit{{x}}" onclick="flyer.showModal()">open modal</button>
+  <dialog id="flyer{{x}}"  class="bg-transparent border-none rounded-md outline-none w-fit z-48 drop-shadow-xl modal h-fit">
+    <div class="max-w-[1200px] w-full bg-slate-50  mix-blend-color-dodge bg-gradient-to-br  ">
+        <div class="p-2 modal-box bg-stone-200 drop-shadow-xl min-w-fit w-full max-h-[80vh]">
+          <div id="moonShadow{{x}}" class="static px-4 w-fit top-12"></div>
+        </div>
+        <div class="absolute p-0 m-0 top-2 right-2 modal-action">
+          <form method="dialog">
+            <button onclick="utils._modUp()" class="text-2xl text-red-800 bg-slate-300 btn-sm btn-circle">x</button>
+          </form>
+        </div>
     </div>
+  </dialog>
 </div>
 
-
+<div class="federal-container">
 
 <button-nav  *ngFor="let item of AGENCIES" (click)="activatePage(item)"  id="{{item}}agency" class="agencyGroup">{{item}}</button-nav>
 
 <ng-container *ngIf="selectedAgency!=''">
-    <div class="h-1 w-full border-t-1 mt-[6px]  bg-teal-600 rounded-tl-3xl border-teal-600"></div>
+    <div class="h-1 w-full border-t-1 mt-[6px]  bg-slate-500 rounded-tl-3xl border-slate-600 sticky top-0 "></div>
     <div class="flex" id="frontPage-{{selectedAgency}}" >
-        <label class="swap swap-flip text-lg w-10" >
+        <label class="w-10 text-lg swap swap-flip" >
                 <input type="checkbox" (click)="toggleFront()" />
                 <div class="swap-on">△</div>
                 <div class="swap-off">▽</div>
         </label>
-        <h2 [hidden]="isOff">THIS IS THE FRONT PAGE OF <b class="text-red-400 text-4xl drop-shadow-xl font-extrabold" >{{selectedAgency}}</b>
+        <h2 [hidden]="isOff">THIS IS THE FRONT PAGE OF <b class="text-4xl font-extrabold text-red-400 drop-shadow-xl" >{{selectedAgency}}</b>
         </h2>
     </div>
+    <dva-api  [hidden]="selectedAgency!=='DVA'"></dva-api>
+    <opm-api  [hidden]="selectedAgency!=='OPM'"></opm-api>
+    <un-api  [hidden]="selectedAgency!=='UN'"></un-api>
+    <nasa-api [hidden]="selectedAgency!=='NASA'"></nasa-api>
+    <treasury-api [hidden]="selectedAgency!=='TREASURY'"></treasury-api>
 
-    <div *ngFor="let section of AGENCIES">
-       <agency-section id="{{section}}section" class="sectionGroup" [sectionName]="section"  [hidden]="section!==selectedAgency" >
-        </agency-section>
-    </div>
 </ng-container>
 
 
-<section id="utils">
-        <div class="toast toast-top toast-end">
-            <span id="toastNotify" class="w-fit h-fit text-white btn-secondary items-center drop-shadow-2xl btn">{{svc.toastMessage()}}</span>
-        </div>
-        <div class="toast toast-top toast-center">
-        <span id="toastNotify2" class="w-fit h-fit text-white btn-warning items-center drop-shadow-2xl btn"  ></span>
-        </div>
-        <p class="hidden" id="playGround"></p>
-        <p class="hidden" id="scratchPad"></p>
+</div>
 
-</section>
+
 

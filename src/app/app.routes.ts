@@ -1,12 +1,18 @@
 
 import { Routes } from '@angular/router';
 import { OpenApiComponent } from './open-api/open-api.component';
-import {StaticComponent} from "./static.component";
+import { XlsToJsonComponent } from './TOOLS/xls-to-json/xls-to-json.component';
+
+
+
+
+
+
 
 
 export const routes: Routes = [
 
+// { path: "",           component: AppComponent },
 { path: "",           component: OpenApiComponent },
-{ path: "open-api",           component: OpenApiComponent },
-{ path: "static", component: StaticComponent },
+{ path: "xls-json" , component: XlsToJsonComponent},
 ];

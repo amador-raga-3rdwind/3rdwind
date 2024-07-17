@@ -1,0 +1,95 @@
+<!-- Open the modal using ID.showModal() method -->
+<button class="hidden btn" id="moonBit" onclick="flyer.showModal()">open modal</button>
+<dialog id="flyer" class="bg-transparent border-none outline-none drop-shadow-xl modal w-fit h-fit top-20 left-32">
+  <div class="modal-box p-1 bg-stone-200 outline-none drop-shadow-xl overflow-auto  w-fit max-w-[90vw] max-h-[90vh]">
+    <div id="moonShadow" class="p-2 m-0 w-fit"></div>
+    <div class="modal-action">
+      <button class="m-2 btn btn-circle btn-xs fetchButton" onclick="_smartRotate()">↻</button>
+      <form method="dialog">
+        <button class="btn btn-circle btn-xs fetchButton">❎</button>
+      </form>
+    </div>
+  </div>
+</dialog>
+
+
+
+
+<table class="federal-container" >
+          <tr>
+                    <td  class="launcher">
+                              <div class="blaster "
+                              *ngFor="let port of portal; let i=index;"
+                              [innerHTML]="port.key"
+                              (click)="scanPayload(port.vault,port.scribe)"
+                              (doubleclick)="orbitFreely(i)"
+                               >
+                              </div>
+                    </td>
+                    <td class="orbiter" *ngIf="isSystemReady">
+                          <div id="capsule-0" class="upper-container" >
+                                <div class="w-full min-w-full h1">{{info()["title"]}} {{ info()["version"]}}
+                                  <!-- TAGS -->
+                                </div>
+                                <button (click)="infoToggle = !infoToggle;" class="text-xl mx-2 {{infoToggle?'-top-20 left-1/2 rotate-180 text-slate-400':''}} btn-sm bg-transparent btn-circle  float-start text-orange-200">⤴️</button>
+                                <div *ngFor="let tag of tags()" class="text-stone-100 dropdown dropdown-hover">
+                                      <button  tabindex="0" role="button"
+                                      class="mx-1 btn-xs btn btn-primary"   >
+                                      {{tag["name"]}}</button>
+                                      <div tabindex="0" class="text-sm mt-1 p-4 min-w-[300px] rounded-md w-fit bg-indigo-500 text-slate-50 drop-shadow-md dropdown-content">{{tag['description']}}
+                                      </div>
+                                  </div>
+                                  <!-- TAGS -->
+                                  <div class="text-sm" [hidden]="!infoToggle" id="infoDiv"> {{ info()["description"]}}</div>
+                          </div>
+
+                          <div id="apiResult"></div>
+                          <!-- ==================================================== -->
+                          <div class="bottom-container">
+
+                                          <div id="capsule-1" [innerHTML]="sanitizer.bypassSecurityTrustHtml(utils._SECTION(tempo()))">
+                                          </div>
+                          </div>
+
+                    </td>
+          </tr>
+</table>
+
+<button class="hidden" id="proxy" data-attach="" data-action="0" (click)="commandControl()"></button>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

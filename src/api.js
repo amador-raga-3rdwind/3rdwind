@@ -11,6 +11,8 @@ const app = express();
 app.use( compression());
 app.use(cors({
   origin: ['http://localhost:4200' ],
+
+  // origin: ['https://nasa.trium-veritas.com', 'https://nasa.3rdwind.net' ],
   methods: ['GET', 'POST'], // Adjust as needed
   headers: ['Content-Type', 'Authorization', 'X-Custom-Header', 'Accept', 'Accept-Encoding' ], // Adjust as needed
   credentials: true
@@ -22,11 +24,8 @@ app.use(urlencoded( {extended: true}));
 const PORT = 3000;
 let openInfo={};
 let delimiter = "♽";
-
-
-
-
 let sectionID;
+let method = "post";
 
 
 //!FETCH-FIELDS
@@ -36,8 +35,7 @@ app.post('/htmx_fetch_fields', async (req, res) => {
           let suffix ="";
           let URL ="";
           let agency    = req.body.agency;
-          // let endPoint  = req.body.endPoint;
-          let agencyURL = req.body.agencyFields;
+          let agencyURL = req.body.outerSpace;   //.agencyFields;
           let info = extractAPI(agency);
           let html ="";
           prefix= info.ROOT
@@ -46,47 +44,17 @@ app.post('/htmx_fetch_fields', async (req, res) => {
               if(agency==="DVA"){
                     const bearerToken = "Bearer 0oau8p8n6nWLAEv9g2p7";
                     URL =   'https://sandbox-api.va.gov/services/fhir/v0/r4/';
-                    // URL =   'https://sandbox-api.va.gov/services/fhir/v0/r4/Appointment/FOBJ7YQOH3RIQ5UZ6TRM32ZSQA000000';
                     const bearer ={ headers: { 'Authorization': bearerToken,     'accept': 'application/fhir+json' }};
               }
-    
-                        function iterateObject(obj, agencyURL){
-                            let result="";
-                            if(typeof obj!=="object") result = specialTypeParser( obj, agencyURL);   
-                            else {
-                              if(Array.isArray(obj)){
-                                for(let x=0; x<obj.length; x++)
-                                {
-                                    const kv = obj[x].split(":");
-                                    if(typeof obj[x]==="object"){
-                                      result  +=  _DIVISION( _DIVHEAD(kv[0]) +  _SECTION(iterateObject(kv[1], agencyURL)));
-                                    }
-                                    else {
-                                      result += specialTypeParser( obj[x], agencyURL, true); 
-                                    }
-                                }
-                              }
-                              else
-                              {
-                                for (const [key, value] of Object.entries(obj))
-                                {
-                                  if(typeof value==="object"){
-                                      result  += _DIVISION(_DIVHEAD(key) + _SECTION( iterateObject(value, agencyURL)));
-                                  } 
-                                  else {
-                                      result += specialTypeParser( value, agencyURL  );
-                                  }
-                                }
-                              }
-                            }
-                            return result;    
-                          }
-
+                        
+              method = req.body.method;
           const specialType = getSpecialTypeCase(agencyURL.toUpperCase()); 
           if(specialType.length===0)
           {
             suffix="?page[number]=1&page[size]=1";
-            URL = (prefix + agencyURL + suffix).replaceAll("//", "/") + info.KEY;
+            // URL = (prefix + agencyURL + suffix).replaceAll("//", "/") + info.KEY;
+
+            URL = agencyURL ;
             html = await fetchSpecialType(URL,"getDataFields");
           }
           else 
@@ -125,22 +93,27 @@ function classRange(type){
       return result
 }
 
+
 //! FETCH-DATA
 app.post('/htmx_fetch_data', async (req, res) => {
   try {
     let endPoint = req.body.endPoint??""; 
-    if(req.body.agency==="DVA"){
-      const bearerToken = "Bearer 0oau8p8n6nWLAEv9g2p7";
-      endPoint =   'https://sandbox-api.va.gov/services/fhir/v0/r4/' + req.body.attachment;
-      const bearer ={ headers: { 'Authorization': bearerToken,     'accept': 'application/fhir+json' }};      
-}
-    //! If endPoint does not have http then use ...
-    // if( true ||  !(endPoint.includes("https://") || endPoint.includes("http://"))){
+    if(req.body.method!="") method=req.body.method;
       const info = extractAPI(req.body.agency);
       // endPoint = info.ROOT + endPoint;
-      if(info.KEY!="") endPoint+= req.body.outerSpace.replaceAll("_METEORITES_", info.KEY) ;
-    // }
-
+      if(info.KEY!="") 
+      {
+        endPoint += req.body.outerSpace.replaceAll("_METEORITES_", "");
+        // endPoint += (endPoint.includes("?") ? "&" : "?") + info.KEY; 
+      }
+      else {
+        endPoint = req.body.outerSpace;
+        if(req.body.agency==="DVA"){
+              html = await fetchSpecialType(endPoint, "" );
+        }
+      }
+   
+      endPoint = endPoint.replace("&&", "&").replace("?&", "?");
     let html = await fetchSpecialType(endPoint, "toHTMLTable" );
     if( html.indexOf("-root></api-root")>=0 || html==="")  
     html="<h1 class='text-4xl bg-red-400 p-6 text-white'>NO RECORD FOUND.</h1>"
@@ -346,7 +319,7 @@ async function readFileAndHandleErrors(jsonFile, URL, status) {
                     console.clear();
                     console.warn("newURL",newURL)
                     const response = await fetch(newURL);
-                    const fetchedData = await response.json();
+                    const fetchedData=  await response.json();
                     if(status=="toHTMLTable"){
                       return toHTMLTable(fetchedData)
                     }
@@ -386,46 +359,11 @@ function throwError(error)
   throw error;
 }
 
-function getDataFields(JSON, specialType){  
-        let filterFields=[];
-        const rnd =  sectionID;
-        let newJSON = [];
-        if(specialType){
-          result = "";
-        }
-
-        let meta = JSON.meta;
-        for(let key in meta.dataTypes) {
-          filterFields.push(key)
-          let fieldName = key;
-          let caption =  meta.labels[fieldName];
-          let dataType = meta.dataTypes[fieldName];
-          let pattern = meta.dataFormats[fieldName];
-          const component = `<api-caption>${caption}</api-caption><api-ctrl id='${fieldName}' title='${pattern}' class='${dataType}'></api-ctrl>`; 
-          newJSON.push(component);
-        }
-
-        return newJSON.map(field => 
-          {
-            const apiCaption = field.match(/<api-caption>(.*?)<\/api-caption>/)[1];
-            const apiCtrlId = field.match(/id='(.*?)'/)[1];
-            const apiTitle = field.match(/title='(.*?)'/)[1];
-            const apiCtrlClass = field.match(/class='(.*?)'/)[1];
-            return  `<div class='fieldComponent text-center mx-5 hover:font-bold grid grid-cols-2'>
-                    <div class='flex min-w-[300px]  max-w-[400px] text-xs'><input type='checkbox' class='checkbox mr-4 cb_${apiCtrlId} ' id='cb_${apiCtrlId}_${rnd}' checked='checked'/>${apiCaption}:</div>
-                    <div class='flex ml-2'>  <div class='w-24 opr_${apiCtrlId}' id='opr_${apiCtrlId}_${rnd}'></div>
-                    <input class='${apiCtrlClass} field${rnd} max-w-fit' title='${apiTitle}' onchange='showOpr(this)' ${classType(apiCtrlClass)} id='${apiCtrlId}_${rnd}' ></div>
-                    </div>`
-          }).join('').replaceAll("\n","") 
-                    +  `<div class='mt-2 text-center'><hr><button-nav class='mt-5 submitBtn' id='field${rnd}' (click)='searchFilter(this)'>Search</button-nav></div>`; 
-  }
-
-
 let _ROOT_KEY; 
 
 function extractAPI(agencyName){
   let API_OBJECT = [];
-  API_OBJECT.push( {"agencyName": "NASA",       "ROOT": "https://api.nasa.gov/", "KEY" : "&api_key=vbLbGfNJGHnixVbFnZ4qthBgHYQfzO2bmaXk9PFR" } );
+  API_OBJECT.push( {"agencyName": "NASA",       "ROOT": "https://api.nasa.gov/", "KEY" : "api_key=vbLbGfNJGHnixVbFnZ4qthBgHYQfzO2bmaXk9PFR" } );
   API_OBJECT.push( {"agencyName": "DVA",        "ROOT": "https://sandbox-api.va.gov/services/", "KEY" : "" } );
   API_OBJECT.push( {"agencyName": "DHS",        "ROOT": "https://api.dhsprogram.com/rest/dhs/", "KEY" : "" } );
   API_OBJECT.push( {"agencyName": "TREASURY",   "ROOT": "https://api.fiscaldata.treasury.gov/services/api/fiscal_service/", "KEY" : "" } );
@@ -545,29 +483,6 @@ function toHTMLTable(JSON, level=0){
   }
     return result; 
 }
-
-
-// function toArrayObjects(JSON){
-//   let result = [];
-//   if(isObject(JSON))
-//   {
-//     if(isArray(JSON))
-//     {
-//       for(let value of JSON){
-//         result.push( toArrayObjects(value) );
-//       }
-//     }
-//     else 
-//     {
-//       for(const [key, value] of Object.entries(JSON) ){
-//         result.push( { "key": key, "value": isObject(value) ? toArrayObjects(value) : value });
-//       }
-//     }
-//   }
-//     result = result;
-// }
-
-
 
 
 app.listen(PORT, () => {

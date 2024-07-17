@@ -1,0 +1,948 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Address Validation",
+    "description": "The Address Validation API accepts and validates an address and standardizes it for mailing. It can also help you process an address by:\n* Inferring missing or incorrect address components\n* Supplementing an address with additional information, such as geocode, latitude and longitude, and postal service metadata (when available)\n## Technical Overview\nThe Address Validation API returns validated addresses as they appear in the USPS database for domestic addresses. It validates by separating the address into individual components and then providing component-level validation checks.\n\nThis API is certified by the United States Postal Service (USPS) Coding Accuracy Support System (CASS) and adheres to [United States Postal Service (USPS) Publication 28 standards](https://pe.usps.com/text/pub28/welcome.htm) for domestic, military, and US territory addresses.\n\nFor international addresses, validation relies on Universal Postal Union (UPU) standards. \n\n## Validation\nIf an address is found, it is considered valid based on metadata returned by the Address Validation service, such as the confidence score and the [Delivery Point Validation (DPV)](https://postalpro.usps.com/address-quality/dpv).\n\nIf an address is found, there are multiple checks performed on the validated address. The address can fail validation for a variety of reasons, such as the inability to deliver (for domestic mailing addresses) or the format. For specific reasons why an address failed, refer to the error messages returned.\n\nIf an address is not found, it automatically fails validation.\n\n## Address override indicator\nSometimes an entered address is accurate for a Veteran but does not pass validation rules. These instances can occur when an address is newer than what is in the CASS software or in regions where address data is less accurate.\n\nSystems can accept these addresses despite the lack of address validation by submitting an \"accepted address\" (usually confirmed by the Veteran) to the Contact Information API (see Requirements below). An address is considered accepted after the address has been sent to the validation API and has failed validation, but the Veteran has confirmed the address is correct as entered. The accepted address can then be passed to the Contact Information API using an address override indicator set to show that the validation was overridden. To set an override indicator, the original address and the `overrideValidationKey` returned in the validation API response must be provided to the Contact Information API, in order to prove that a validation attempt has been made before overriding.\n\n## Version Interoperability\n\nTo ensure interoperability between APIs and eliminate the need for transforming data as one API feeds into the other, we strongly recommend using versions of the following APIs that are compatible.\n\n|     <h3>If Using</h3>           | <h3>Then Use...</h3>                           |\n| :------------------------------:|:----------------------------------------------:|\n| Address Validation API v1/v2    | Contact Information API v1<br><br>Profile Service API v1/v2 |\n| Address Validation API v3       | Contact Information API v2<br><br>Profile Service API v3    |\n\n## Authorization\nAPI requests are authorized through a symmetric API token provided in an HTTP header with name apikey.\n\n**Important**: To get production access, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](https://developer.va.gov/support/contact-us).",
+    "license": {
+      "name": "Creative Commons",
+      "url": "https://developer.va.gov/terms-of-service"
+    },
+    "version": "3"
+  },
+  "servers": [
+    {
+      "url": "https://sandbox-api.va.gov/services/address-validation/{version}",
+      "description": "Sandbox",
+      "variables": {
+        "version": {
+          "default": "v3"
+        }
+      }
+    },
+    {
+      "url": "https://api.va.gov/services/address-validation/{version}",
+      "description": "Production",
+      "variables": {
+        "version": {
+          "default": "v3"
+        }
+      }
+    }
+  ],
+  "security": [
+    {},
+    {
+      "apikey": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "AddressValidation-v3",
+      "description": "Address Standardization and Validation endpoints"
+    }
+  ],
+  "paths": {
+    "/validate": {
+      "post": {
+        "tags": [
+          "AddressValidation-v3"
+        ],
+        "summary": "Validates and standardizes an address.",
+        "description": "This service will accept an address, standardize it based on country, validate that the address is deliverable, and return the address with any inferred or corrected data. If an address is not found, or if the confidence score is low, it may be useful to try the POST /candidate endpoint that can return multiple possible matches. <table><thead><tr><th>Message Key</th><th>Message Code</th><th>Description</th></tr></thead><tbody><tr><td>zipCode4.Size</td><td></td><td>size must be between 0 and 4</td></tr><tr><td>addressLine2.Size</td><td></td><td>size must be between 0 and 100</td></tr><tr><td>addressLine3.Size</td><td></td><td>size must be between 0 and 100</td></tr><tr><td>zipCode5.Size</td><td></td><td>size must be between 0 and 5</td></tr><tr><td>country.countryCodeISO2.Size</td><td></td><td>size must be between 0 and 2</td></tr><tr><td>country.countryCodeFIPS.Size</td><td></td><td>size must be between 0 and 2</td></tr><tr><td>cityName.Size</td><td></td><td>size must be between 0 and 100</td></tr><tr><td>intPostalCode.Size</td><td></td><td>size must be between 0 and 100</td></tr><tr><td>addressLine1.Size</td><td></td><td>size must be between 0 and 100</td></tr><tr><td>country.countryCodeISO3.Size</td><td></td><td>size must be between 0 and 3</td></tr><tr><td>province.provinceName.Size</td><td></td><td>size must be between 0 and 255</td></tr><tr><td>deliveryPointNotConfirmed</td><td>ADDR305</td><td>VA Profile Validation Failed: Delivery Point is Not Confirmed for Domestic Correspondence Addresses</td></tr><tr><td>lowConfidenceScore</td><td>ADDR306</td><td>VaProfile Validation Failed: Confidence Score less than {0}</td></tr><tr><td>additionalInput</td><td>ADDR307</td><td>VaProfile Validation Failed: Additional Input found please review</td></tr><tr><td>SpectrumServiceError</td><td>ADDRVAL101</td><td>The Spectrum Service returned an error</td></tr><tr><td>SpectrumServiceAddressError</td><td>ADDRVAL102</td><td>The Spectrum Service returned an address error</td></tr><tr><td>CountryLookupServiceError</td><td>ADDRVAL103</td><td>The Country Lookup Service returned an error</td></tr><tr><td>InvalidRequestError</td><td>ADDRVAL105</td><td>The request was invalid</td></tr><tr><td>country.countryName.Size</td><td>ADDRVAL106</td><td>size must be between 0 and 35</td></tr><tr><td>state.stateName.Size</td><td>ADDRVAL107</td><td>size must be between 0 and 50</td></tr><tr><td>AddressCouldNotBeCorrected</td><td>ADDRVAL109</td><td>The Address could not be corrected</td></tr><tr><td>CountryNotSupported</td><td>ADDRVAL110</td><td>The Address Country is not supported at this time</td></tr><tr><td>DualAddressError</td><td>ADDRVAL111</td><td>This dual address is not in the proper format, please make sure the street address and PO box are valid for the 5 digit zip code entered</td></tr><tr><td>AddressCouldNotBeFound</td><td>ADDRVAL112</td><td>The Address could not be found</td></tr><tr><td>CountryLookupUnavailable</td><td>ADDRVAL114</td><td>The Country lookup service could not be reached</td></tr><tr><td>UniqueZipCode</td><td>ADDRVAL115</td><td>The address that was validated is in a unique zip code. The address is deliverable, but the street address was not verified and the geolocation may not be accurate.</td></tr><tr><td>DomesticProvinceCheck</td><td>ADDRVAL115</td><td>Province Name or Province Code should not be sent with a state code or state name on a domestic address.</td></tr><tr><td>PostalCodeInput</td><td>ADDRVAL116</td><td>Please send only the ZipCode5 or intPostalCode.</td></tr><tr><td>InvalidRequestCountry</td><td>ADDRVAL201</td><td>Only one of either country name or country code is required</td></tr><tr><td>InvalidRequestState</td><td>ADDRVAL202</td><td>Only one of either state name or state code is required</td></tr><tr><td>InvalidRequestStreetAddress</td><td>ADDRVAL203</td><td>One of addressLine1, addressLine2 or addressLine3 must be provided</td></tr><tr><td>InvalidRequestNonStreetAddress</td><td>ADDRVAL204</td><td>The request needs at least one address line and one non-address line field populated in order to process the request</td></tr><tr><td>InvalidRequestPostalCode</td><td>ADDRVAL205</td><td>Only one of either zipCode5 or international postal code is required</td></tr><tr><td>MultipleAddressError</td><td>ADDRVAL206</td><td>Multiple matches found for this address</td></tr><tr><td>MissingReferenceData</td><td>ADDRVAL207</td><td>The Address Validation API does not have the databases necessary to validate this address completely</td></tr><tr><td>InsufficientInputData</td><td>ADDRVAL208</td><td>Insufficient data provided for validation process</td></tr></tbody></table>",
+        "operationId": "POST:/validate",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddressValidationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "A Response which indicates a successful Request.  The Response may contain \"messages\" that could describe warnings or further information.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AddressValidationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "There was an error encountered processing the Request.  Response will contain a  \\\"messages\\\" element that will provide further information on the error.  This request shouldn't be retried until corrected.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization information not provided",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "No API key found in request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Invalid authorization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "You cannot consume this service"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The record you requested to retrieve or update could not be found.  Response may contain a  \"messages\" element that will provide further information on the error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "Request size limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "API rate limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "There was an error encountered processing the Request.  Response will contain a  \"messages\" element that will provide further information on the error.  Please retry.  If problem persists, please contact support with a copy of the Response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/candidate": {
+      "post": {
+        "tags": [
+          "AddressValidation-v3"
+        ],
+        "summary": "Discovers possible addresses when a request could match multiple records.",
+        "description": "This endpoint will return all possible matches for the given address request input. You may use this endpoint if an address was not found using POST /validate, or if the confidence score was low.<table><thead><tr><th>Message Key</th><th>Message Code</th><th>Description</th></tr></thead><tbody><tr><td>zipCode4.Size</td><td></td><td>size must be between 0 and 4</td></tr><tr><td>addressLine2.Size</td><td></td><td>size must be between 0 and 100</td></tr><tr><td>addressLine3.Size</td><td></td><td>size must be between 0 and 100</td></tr><tr><td>zipCode5.Size</td><td></td><td>size must be between 0 and 5</td></tr><tr><td>country.countryCodeISO2.Size</td><td></td><td>size must be between 0 and 2</td></tr><tr><td>country.countryCodeFIPS.Size</td><td></td><td>size must be between 0 and 2</td></tr><tr><td>cityName.Size</td><td></td><td>size must be between 0 and 100</td></tr><tr><td>intPostalCode.Size</td><td></td><td>size must be between 0 and 100</td></tr><tr><td>addressLine1.Size</td><td></td><td>size must be between 0 and 100</td></tr><tr><td>country.countryCodeISO3.Size</td><td></td><td>size must be between 0 and 3</td></tr><tr><td>province.provinceName.Size</td><td></td><td>size must be between 0 and 255</td></tr><tr><td>SpectrumServiceError</td><td>ADDRVAL101</td><td>The Spectrum Service returned an error</td></tr><tr><td>CountryLookupServiceError</td><td>ADDRVAL103</td><td>The Country Lookup Service returned an error</td></tr><tr><td>InvalidRequestError</td><td>ADDRVAL105</td><td>The request was invalid</td></tr><tr><td>country.countryName.Size</td><td>ADDRVAL106</td><td>size must be between 0 and 35</td></tr><tr><td>state.stateName.Size</td><td>ADDRVAL107</td><td>size must be between 0 and 50</td></tr><tr><td>CandidateAddressNotFound</td><td>ADDRVAL108</td><td>No Candidate Address Found</td></tr><tr><td>CountryNotSupported</td><td>ADDRVAL110</td><td>The Address Country is not supported at this time</td></tr><tr><td>CountryLookupUnavailable</td><td>ADDRVAL114</td><td>The Country lookup service could not be reached</td></tr><tr><td>UniqueZipCode</td><td>ADDRVAL115</td><td>The address that was validated is in a unique zip code. The address is deliverable, but the street address was not verified and the geolocation may not be accurate.</td></tr><tr><td>InvalidRequestCountry</td><td>ADDRVAL201</td><td>Only one of either country name or country code is required</td></tr><tr><td>InvalidRequestState</td><td>ADDRVAL202</td><td>Only one of either state name or state code is required</td></tr><tr><td>InvalidRequestStreetAddress</td><td>ADDRVAL203</td><td>One of addressLine1, addressLine2 or addressLine3 must be provided</td></tr><tr><td>InvalidRequestNonStreetAddress</td><td>ADDRVAL204</td><td>The request needs at least one address line and one non-address line field populated in order to process the request</td></tr><tr><td>InvalidRequestPostalCode</td><td>ADDRVAL205</td><td>Only one of either zipCode5 or international postal code is required</td></tr></tbody></table>",
+        "operationId": "POST:/candidate",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CandidateAddressRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "A Response which indicates a successful Request.  The Response may contain \"messages\" that could describe warnings or further information.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CandidateAddressResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "There was an error encountered processing the Request.  Response will contain a  \\\"messages\\\" element that will provide further information on the error.  This request shouldn't be retried until corrected.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization information not provided",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "No API key found in request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Invalid authorization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "You cannot consume this service"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The record you requested to retrieve or update could not be found.  Response may contain a  \"messages\" element that will provide further information on the error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "Request size limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "API rate limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "There was an error encountered processing the Request.  Response will contain a  \"messages\" element that will provide further information on the error.  Please retry.  If problem persists, please contact support with a copy of the Response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/locality": {
+      "get": {
+        "tags": [
+          "AddressValidation-v3"
+        ],
+        "summary": "Returns the city and state or province associated with a zip code or international postal code.  For International addresses, locality lookup is only available for Canadian postal codes",
+        "operationId": "GET:/locality",
+        "parameters": [
+          {
+            "name": "zipCode5",
+            "in": "query",
+            "description": "Five-digit postal code assigned by United States Post Office to postal address.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": 22911
+          },
+          {
+            "name": "intPostalCode",
+            "in": "query",
+            "description": "Alphanumeric code used by country other than United States for postal addresses.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "M5J 2L2"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A Response which indicates a successful Request.  The Response may contain \"messages\" that could describe warnings or further information.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CityStateAddressV3Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "There was an error encountered processing the Request.  Response will contain a  \\\"messages\\\" element that will provide further information on the error.  This request shouldn't be retried until corrected.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization information not provided",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "No API key found in request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Invalid authorization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "You cannot consume this service"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The record you requested to retrieve or update could not be found.  Response may contain a  \"messages\" element that will provide further information on the error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "Request size limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "API rate limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "There was an error encountered processing the Request.  Response will contain a  \"messages\" element that will provide further information on the error.  Please retry.  If problem persists, please contact support with a copy of the Response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Message": {
+        "required": [
+          "code",
+          "key",
+          "severity"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "INFO",
+              "WARN",
+              "ERROR",
+              "FATAL"
+            ]
+          },
+          "potentiallySelfCorrectingOnRetry": {
+            "type": "boolean"
+          }
+        }
+      },
+      "AddressValidationRequest": {
+        "required": [
+          "address"
+        ],
+        "type": "object",
+        "properties": {
+          "address": {
+            "$ref": "#/components/schemas/RequestAddress"
+          }
+        },
+        "description": "Request format to describe the address to correct and validate."
+      },
+      "Country": {
+        "type": "object",
+        "properties": {
+          "countryName": {
+            "maxLength": 35,
+            "minLength": 0,
+            "type": "string",
+            "description": "Name of country address.",
+            "example": "United States"
+          },
+          "countryCodeFIPS": {
+            "maxLength": 2,
+            "minLength": 0,
+            "pattern": "^[a-zA-Z]+$",
+            "type": "string",
+            "description": "Two-letter country codes using FIPS. Assigned via lookup table.",
+            "example": "US"
+          },
+          "countryCodeISO2": {
+            "maxLength": 2,
+            "minLength": 0,
+            "pattern": "^[a-zA-Z]+$",
+            "type": "string",
+            "description": "Two-letter country codes defined in ISO 3166-1, part of ISO 3166 standard.",
+            "example": "US"
+          },
+          "countryCodeISO3": {
+            "maxLength": 3,
+            "minLength": 0,
+            "pattern": "^[a-zA-Z]+$",
+            "type": "string",
+            "description": "Three-letter country codes defined in ISO 3166-1, part of ISO 3166 standard.",
+            "example": "USA"
+          }
+        },
+        "description": "Provide either country name or code, but not both"
+      },
+      "Province": {
+        "type": "object",
+        "properties": {
+          "provinceName": {
+            "maxLength": 255,
+            "minLength": 0,
+            "type": "string",
+            "description": "The name for the province of the requested address",
+            "example": "Ontario"
+          },
+          "provinceCode": {
+            "type": "string",
+            "description": "The 2-digit code for the province of an address",
+            "example": "ON"
+          }
+        },
+        "description": "Name of political subdivision used by country other than United States in its postal addresses, such as name of province, territory, state, county, etc."
+      },
+      "RequestAddress": {
+        "type": "object",
+        "properties": {
+          "addressLine1": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string",
+            "description": "First line of postal address, typically house or apartment number and street, including unit or apartment number if applicable, or Post Office Box address.<br><br>                            Business Rule: Optional field, however, at least one of the 3 address lines must have an valid address.",
+            "example": "590 Peter Jefferson Pkwy"
+          },
+          "addressLine2": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string",
+            "description": "Second line of postal address, typically whatever address elements do not fit or are not assigned to first address line. In Dual Address format the Post Office Box value goes on this line.                                    <br><br>                                    Business Rule: Optional field, however, at least one of the 3 address lines must have an valid address.",
+            "example": "2nd Floor"
+          },
+          "addressLine3": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string",
+            "description": "Third line of postal address, typically whatever address elements do not fit or are not assigned to first two address lines.                                    <br><br>                                    Business Rule: Optional field, however, at least one of the 3 address lines must have an valid address.",
+            "example": "Suite 250"
+          },
+          "cityName": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string",
+            "description": "Name of city or town of postal address.",
+            "example": "Charlottesville"
+          },
+          "zipCode5": {
+            "maxLength": 5,
+            "minLength": 0,
+            "type": "string",
+            "description": "Five-digit postal code assigned by United States Post Office to postal address.",
+            "example": "22911"
+          },
+          "zipCode4": {
+            "maxLength": 4,
+            "minLength": 0,
+            "pattern": "[0-9]+",
+            "type": "string",
+            "description": "Four-digit postal code assigned by United States Post Office to postal address.",
+            "example": "1111"
+          },
+          "intPostalCode": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string",
+            "description": "Alphanumeric code used by country other than United States for postal addresses.",
+            "example": "N0A0C0"
+          },
+          "state": {
+            "$ref": "#/components/schemas/State"
+          },
+          "province": {
+            "$ref": "#/components/schemas/Province"
+          },
+          "country": {
+            "$ref": "#/components/schemas/Country"
+          },
+          "addressPOU": {
+            "type": "string",
+            "description": "Purpose for which postal address has been specified by address owner or authorized third party to be used. A Residence address is understood to also be used for all purposes, unless distinct address is specified for one or more other uses.",
+            "enum": [
+              "RESIDENCE",
+              "CORRESPONDENCE"
+            ]
+          }
+        }
+      },
+      "State": {
+        "type": "object",
+        "properties": {
+          "stateName": {
+            "maxLength": 50,
+            "minLength": 0,
+            "type": "string",
+            "description": "The name for the state of the requested address",
+            "example": "Virginia"
+          },
+          "stateCode": {
+            "type": "string",
+            "description": "The 2-digit code for the state of an address",
+            "example": "VA"
+          }
+        },
+        "description": "Provide either state name or code, but not both"
+      },
+      "AddressValidationResponse": {
+        "type": "object",
+        "properties": {
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Message"
+            }
+          },
+          "address": {
+            "$ref": "#/components/schemas/ResponseAddress"
+          },
+          "overrideValidationKey": {
+            "type": "integer",
+            "description": "Hash code for current request to be validated during overrides",
+            "format": "int32"
+          }
+        }
+      },
+      "County": {
+        "type": "object",
+        "properties": {
+          "countyName": {
+            "maxLength": 35,
+            "minLength": 0,
+            "type": "string",
+            "example": "Albemarle Count"
+          },
+          "countyCode": {
+            "maxLength": 5,
+            "minLength": 0,
+            "pattern": "[0-9]+",
+            "type": "string",
+            "example": "51003"
+          }
+        },
+        "description": "US addresses only. The name of the county in the address"
+      },
+      "Geocode": {
+        "type": "object",
+        "properties": {
+          "calcDate": {
+            "type": "string",
+            "description": "Date when geocode precision calculation value occurred. Can be used to determine if more accurate mapping functionality is now available and therefore geocode precision could be recalculated.<br><br>Date/Time format; yyyy-mm-ddThh:mm:ss.fffZ",
+            "format": "date-time"
+          },
+          "locationPrecision": {
+            "type": "number",
+            "description": "Indicates how precisely an address can be placed from a geocoding perspective.",
+            "format": "double",
+            "example": 10
+          },
+          "latitude": {
+            "type": "number",
+            "description": "Calculated value of Latitude coordinates for address",
+            "format": "double",
+            "example": 38.0293
+          },
+          "longitude": {
+            "type": "number",
+            "description": "Calculated value of Longitude coordinates for address.",
+            "format": "double",
+            "example": -78.4767
+          }
+        }
+      },
+      "ResponseAddress": {
+        "required": [
+          "county"
+        ],
+        "type": "object",
+        "properties": {
+          "addressLine1": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string",
+            "description": "First line of postal address, typically house or apartment number and street, including unit or apartment number if applicable, or Post Office Box address.<br><br>                            Business Rule: Optional field, however, at least one of the 3 address lines must have an valid address.",
+            "example": "590 Peter Jefferson Pkwy"
+          },
+          "addressLine2": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string",
+            "description": "Second line of postal address, typically whatever address elements do not fit or are not assigned to first address line. In Dual Address format the Post Office Box value goes on this line.                                    <br><br>                                    Business Rule: Optional field, however, at least one of the 3 address lines must have an valid address.",
+            "example": "2nd Floor"
+          },
+          "addressLine3": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string",
+            "description": "Third line of postal address, typically whatever address elements do not fit or are not assigned to first two address lines.                                    <br><br>                                    Business Rule: Optional field, however, at least one of the 3 address lines must have an valid address.",
+            "example": "Suite 250"
+          },
+          "cityName": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string",
+            "description": "Name of city or town of postal address.",
+            "example": "Charlottesville"
+          },
+          "zipCode5": {
+            "maxLength": 5,
+            "minLength": 0,
+            "type": "string",
+            "description": "Five-digit postal code assigned by United States Post Office to postal address.",
+            "example": "22911"
+          },
+          "zipCode4": {
+            "maxLength": 4,
+            "minLength": 0,
+            "pattern": "[0-9]+",
+            "type": "string",
+            "description": "Four-digit postal code assigned by United States Post Office to postal address.",
+            "example": "1111"
+          },
+          "intPostalCode": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string",
+            "description": "Alphanumeric code used by country other than United States for postal addresses.",
+            "example": "N0A0C0"
+          },
+          "state": {
+            "$ref": "#/components/schemas/State"
+          },
+          "province": {
+            "$ref": "#/components/schemas/Province"
+          },
+          "country": {
+            "$ref": "#/components/schemas/Country"
+          },
+          "addressPOU": {
+            "type": "string",
+            "description": "Purpose for which postal address has been specified by address owner or authorized third party to be used. A Residence address is understood to also be used for all purposes, unless distinct address is specified for one or more other uses.",
+            "enum": [
+              "RESIDENCE",
+              "CORRESPONDENCE"
+            ]
+          },
+          "county": {
+            "$ref": "#/components/schemas/County"
+          },
+          "geocode": {
+            "$ref": "#/components/schemas/Geocode"
+          },
+          "deliveryPointValidation": {
+            "type": "string",
+            "description": "For domestic and CORRESPONDENCE addresses only. Without DPV, the address validation process only verifies that an individual address is within a range of valid addresses for the given street. For example, the USPS data indicates that the range of addresses on Maple Lane is 500 to 1000. You attempt to validate an address of 610 Maple Ln. Without DPV, this address would appear to be valid because it is in the range of 500 to 1000. However, the address 610 Maple Ln does not exist: the house numbers in this section of the street are 608, 609, 613, and 616. With DPV processing, you would be alerted to the fact that 610 Maple Ln does not exist.",
+            "enum": [
+              "CONFIRMED",
+              "STREET_NUMBER_VALIDATED_BUT_MISSING_UNIT_NUMBER",
+              "STREET_NUMBER_VALIDATED_BUT_BAD_UNIT_NUMBER",
+              "MULTIPLE_MATCHES_FOUND",
+              "UNDELIVERABLE",
+              "MISSING_ZIP",
+              "FALSE_POSITIVE"
+            ]
+          },
+          "addressType": {
+            "maxLength": 35,
+            "minLength": 0,
+            "type": "string",
+            "description": "Indicates whether address is Domestic, International or Overseas Military. Based on the Address Type different fields and business rules apply. Automatically determined during address validation service processing.",
+            "example": "Domestic"
+          },
+          "confidence": {
+            "type": "number",
+            "description": "A value from 0 to 100. A calculation of how closely the given address matches the address found in the databases. The closer the match the higher the score. No match is 0, a perfect match is 100. For addresses to pass, a threshold of 80 for domestic addresses and 70 for international addresses is required.",
+            "format": "double",
+            "example": 90
+          }
+        }
+      },
+      "CandidateAddressRequest": {
+        "required": [
+          "address"
+        ],
+        "type": "object",
+        "properties": {
+          "address": {
+            "$ref": "#/components/schemas/RequestAddress"
+          }
+        },
+        "description": "Request format to describe the address to correct and validate."
+      },
+      "CandidateAddressResponse": {
+        "type": "object",
+        "properties": {
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Message"
+            }
+          },
+          "candidateAddresses": {
+            "maxItems": 100,
+            "minItems": 0,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResponseAddress"
+            }
+          },
+          "overrideValidationKey": {
+            "type": "integer",
+            "description": "Hash code for current request to be validated during overrides",
+            "format": "int32"
+          }
+        }
+      },
+      "CityStateAddressV3Response": {
+        "required": [
+          "intPostalCode",
+          "zipCode5"
+        ],
+        "type": "object",
+        "properties": {
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Message"
+            }
+          },
+          "zipCode5": {
+            "maxLength": 5,
+            "minLength": 0,
+            "type": "string",
+            "description": "Five-digit postal code assigned by United States Post Office to postal address.",
+            "example": "22911"
+          },
+          "intPostalCode": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string",
+            "description": "Alphanumeric code used by country other than United States for postal addresses.",
+            "example": "N0A0C0"
+          },
+          "locality": {
+            "maxItems": 999,
+            "minItems": 0,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Locality"
+            }
+          }
+        }
+      },
+      "Locality": {
+        "required": [
+          "cityName",
+          "cityType",
+          "country",
+          "province",
+          "state"
+        ],
+        "type": "object",
+        "properties": {
+          "country": {
+            "$ref": "#/components/schemas/Country"
+          },
+          "state": {
+            "$ref": "#/components/schemas/State"
+          },
+          "province": {
+            "$ref": "#/components/schemas/Province"
+          },
+          "cityName": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string",
+            "description": "Name of city or town of postal address.",
+            "example": "Charlottesville"
+          },
+          "cityType": {
+            "type": "string",
+            "description": "The USPS standardized city name type (United States localities only).<br><br><br>V - Vanity (non-mailing) city name. <br>P - Primary. The city name is the primary mailing city name. <br>S - Secondary. The city name is an alternate city name but is acceptable. A city can have multiple secondary city names.",
+            "example": "P"
+          }
+        }
+      },
+      "ServiceResponse": {
+        "type": "object",
+        "properties": {
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Message"
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "apikey": {
+        "type": "apiKey",
+        "name": "apikey",
+        "in": "header"
+      }
+    }
+  }
+}

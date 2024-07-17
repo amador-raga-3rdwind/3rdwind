@@ -1,0 +1,687 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Education Benefits API",
+    "description": "Version 1\n\nThe Education Benefits API returns information about a Veteran's education\nbenefits, including:\n* Whether a Veteran is eligible for the Post-9/11 GI Bill's education\nbenefits.\n* The total education benefits earned by the Veteran.\n* The amount of a Veteran's education benefits that has been used.\n* A Veteran's remaining education benefit.\n* Details of educational enrollments for which benefits were used, including\nstart and end dates, schools, and credits received.\n\n[Learn more about VA education and training benefits.](https://www.va.gov/education/)\n\n## Background\n[Chapter 33](https://www.knowva.ebenefits.va.gov/system/templates/selfservice/va_ssnew/help/customer/locale/en-US/portal/554400000001018/content/554400000073952/Chapter-33-Sub-Chapter-41-Overview)\nof the Post-9/11 GI Bill states that VA will provide financial support for\neducation to individuals with at least 90 days on active duty after\nSeptember 10, 2001, or at least 30 days if discharged for a service-connected\ndisability. This API returns whether a Veteran is eligible for these\neducational benefits and the details of those benefits.\n[Learn more about VA education and training benefits.](https://www.va.gov/education/)\n\n**Note**: Veterans can choose to apply some or all of their educational benefits\nto their dependents, but this API does not return information regarding\nbenefits transfers.\n\n## Technical overview\nThe Education Benefits API relies on the ICN to find a specific matching\nVeteran. The backend source of data provided by this API is down Sunday\nthrough Friday from 10 p.m to 6 a.m ET and Saturday from 7 p.m. to 6 a.m ET.\nData will not be available and an error message will be returned if calls\nare made during these times.\n\nData related to benefit amount is returned in months and days. Months and\ndays reflect the amount of time financial assistance for educational pursuits\ncan be, or has been, provided by VA.\n\n### Authentication and Authorization\nThe authentication model for the Benefits Education\nAPI is based on OAuth 2.0 / OpenID Connect and supports the [client credentials grant](https://developer.va.gov/explore/authorization/docs/client-credentials?api=claims).\n\n**Important:** To get production access using client credentials\ngrant, you must either work for VA or have specific VA agreements\nin place. If you have questions, [contact us](https://developer.va.gov/support/contact-us).\n\n### Test the API using Sandbox\nWe use [mock education benefits test data](https://github.com/department-of-veterans-affairs/vets-api-clients/blob/master/test_accounts/education_benefits_test_accounts.md)\nin the sandbox environment. APIs accessed via the sandbox environment are\nusing the same underlying logic as VA's production APIs; only the underlying\ndata store is different.\n",
+    "contact": {
+      "name": "VA.gov"
+    },
+    "version": "0.0.1"
+  },
+  "servers": [
+    {
+      "url": "https://sandbox-api.va.gov/services/benefits-education/{version}",
+      "description": "Sandbox",
+      "variables": {
+        "version": {
+          "default": "v1"
+        }
+      }
+    },
+    {
+      "url": "https://api.va.gov/services/benefits-education/{version}",
+      "description": "Production",
+      "variables": {
+        "version": {
+          "default": "v1"
+        }
+      }
+    }
+  ],
+  "tags": [
+    {
+      "name": "Education",
+      "description": "Retrieves Education Benefits"
+    }
+  ],
+  "paths": {
+    "/education/chapter33": {
+      "get": {
+        "tags": [
+          "Education"
+        ],
+        "summary": "Returns Veteran eligibility for education benefits.",
+        "description": "This method gets a Veteran's eligibility for education benefits and information\nregarding their previously used benefits.\n",
+        "operationId": "GET:/education/chapter33",
+        "parameters": [
+          {
+            "name": "icn",
+            "in": "query",
+            "description": "MPI ICN",
+            "required": true,
+            "schema": {
+              "maxLength": 17,
+              "minLength": 17,
+              "pattern": "^\\d{10}V\\d{6}$",
+              "type": "string",
+              "example": "1000000000V100000"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Chapter 33 Education Information retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Chapter33EducationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequest"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotAuthorizedServerApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenServerApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MissingIcnApiError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "Request size limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EducationResponseBuildError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "API rate limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalServerApiError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InaccessibleServiceDefintionErrorApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BackendServiceApiError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth": [
+              "education.read"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Amendment": {
+        "required": [
+          "amendmentType",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "residenceHours": {
+            "type": "number",
+            "description": "Number of hours used for learning that has at least one session that meets in person (including hybrid classes).",
+            "format": "double",
+            "example": 0
+          },
+          "distanceHours": {
+            "type": "number",
+            "description": "Number of hours used for remote learning.",
+            "format": "double",
+            "example": 0
+          },
+          "yellowRibbonAmount": {
+            "type": "number",
+            "description": "The Yellow Ribbon Program can help a Veteran pay for higher out-of-state, private school, foreign school, or graduate school tuition and fees that the Post-9/11 GI Bill does not cover.",
+            "format": "double",
+            "example": 0
+          },
+          "amendmentType": {
+            "type": "string",
+            "example": "type_example"
+          },
+          "amendmentStatus": {
+            "type": "string",
+            "example": "status_example"
+          },
+          "amendmentEffectiveDate": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2012-11-01T04:00:00Z"
+          }
+        }
+      },
+      "Chapter33EducationInfo": {
+        "required": [
+          "activeDuty",
+          "firstName",
+          "lastName",
+          "veteranIsEligible"
+        ],
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "example": "Srikanth"
+          },
+          "lastName": {
+            "type": "string",
+            "example": "Vanapalli"
+          },
+          "nameSuffix": {
+            "type": "string",
+            "example": "Jr"
+          },
+          "dateTimeOfBirth": {
+            "type": "string",
+            "format": "date-time",
+            "example": "1975-02-04T17:51:56Z"
+          },
+          "vaFileNumber": {
+            "type": "string",
+            "example": "1234567890V123456"
+          },
+          "activeDuty": {
+            "type": "boolean",
+            "example": false
+          },
+          "veteranIsEligible": {
+            "type": "boolean",
+            "example": false
+          },
+          "regionalProcessingOffice": {
+            "type": "string",
+            "example": "Central Office Washington, DC"
+          },
+          "eligibilityDateTime": {
+            "type": "string",
+            "description": "Date for when an individual's eligibility to benefits under the program begins.",
+            "format": "date-time",
+            "example": "2004-10-01T04:00:00Z"
+          },
+          "delimitingDateTime": {
+            "type": "string",
+            "description": "Date for when an individual's eligibility to benefits under the program ends.",
+            "format": "date-time",
+            "example": "2015-10-01T04:00:00Z"
+          },
+          "percentageBenefit": {
+            "type": "integer",
+            "description": "Eligibility percentage of full benefit.",
+            "format": "int32",
+            "example": 100
+          },
+          "originalEntitlement": {
+            "$ref": "#/components/schemas/EntitlementType"
+          },
+          "usedEntitlement": {
+            "$ref": "#/components/schemas/EntitlementType"
+          },
+          "remainingEntitlement": {
+            "$ref": "#/components/schemas/EntitlementType"
+          },
+          "enrollments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Enrollment"
+            }
+          }
+        }
+      },
+      "Chapter33EducationResponse": {
+        "required": [
+          "chapter33EducationInfo"
+        ],
+        "type": "object",
+        "properties": {
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Message"
+            }
+          },
+          "chapter33EducationInfo": {
+            "$ref": "#/components/schemas/Chapter33EducationInfo"
+          }
+        }
+      },
+      "Enrollment": {
+        "required": [
+          "beginDate",
+          "beginDateTime"
+        ],
+        "type": "object",
+        "properties": {
+          "beginDateTime": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2012-11-01T04:00:00Z"
+          },
+          "endDateTime": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2012-12-01T04:00:00Z"
+          },
+          "facilityCode": {
+            "type": "integer",
+            "format": "int32",
+            "example": 11902614
+          },
+          "facilityName": {
+            "type": "string",
+            "example": "Purdue University"
+          },
+          "participantId": {
+            "type": "integer",
+            "format": "int32",
+            "example": 11170323
+          },
+          "trainingType": {
+            "type": "string",
+            "description": "Enrollment Training Types:\n- UNDER_GRAD\n   - Undergraduate School\n- GRAD\n   - Graduate school\n- NON_COLLEGE\n   - Non-college degree schools (specific training programs like HVAC repair, truck driving, EMT, or beautician school)\n- FLIGHT\n   - Flight training programs (a non-degree certificate or rating program)\n- OJT\n   - On-the Job Training\n- APPRENTICESHIP\n   - Apprenticeship programs\n- CORRESPONDENCE\n   - Correspondence courses (usually provided by mail that can be completed at one's own pace)",
+            "example": "UNDER_GRAD",
+            "enum": [
+              "UNDER_GRAD",
+              "GRAD",
+              "NON_COLLEGE",
+              "FLIGHT",
+              "OJT",
+              "APPRENTICESHIP",
+              "CORRESPONDENCE"
+            ]
+          },
+          "termId": {
+            "type": "string",
+            "example": "termId_example"
+          },
+          "hourType": {
+            "type": "string",
+            "example": "hourType_example"
+          },
+          "fullTimeHours": {
+            "type": "integer",
+            "format": "int32",
+            "example": 12
+          },
+          "fullTimeCreditHourUnderGrad": {
+            "type": "integer",
+            "format": "int32",
+            "example": 0
+          },
+          "vacationDayCount": {
+            "type": "integer",
+            "format": "int32",
+            "example": 0
+          },
+          "onCampusHours": {
+            "type": "number",
+            "format": "double",
+            "example": 12
+          },
+          "onlineHours": {
+            "type": "number",
+            "format": "double",
+            "example": 0
+          },
+          "yellowRibbonAmount": {
+            "type": "number",
+            "description": "The Yellow Ribbon Program can help a Veteran pay for higher out-of-state, private school, foreign school, or graduate school tuition and fees that the Post-9/11 GI Bill does not cover.",
+            "format": "double",
+            "example": 0
+          },
+          "status": {
+            "type": "string",
+            "example": "Approved"
+          },
+          "amendments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Amendment"
+            }
+          }
+        }
+      },
+      "EntitlementType": {
+        "required": [
+          "days",
+          "months"
+        ],
+        "type": "object",
+        "properties": {
+          "months": {
+            "type": "integer",
+            "format": "int32",
+            "example": 0
+          },
+          "days": {
+            "type": "integer",
+            "format": "int32",
+            "example": 10
+          }
+        },
+        "description": "Remaining benefit entitlement under Chapter 33, represented in months and days."
+      },
+      "Message": {
+        "required": [
+          "key",
+          "severity",
+          "text"
+        ],
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "example": "key_example"
+          },
+          "text": {
+            "type": "string",
+            "example": "text_example"
+          },
+          "severity": {
+            "type": "string",
+            "example": "WARN",
+            "enum": [
+              "FATAL",
+              "ERROR",
+              "WARN",
+              "INFO"
+            ]
+          }
+        }
+      },
+      "ApiErrorDetails": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "Error title"
+          },
+          "detail": {
+            "type": "string",
+            "example": "Detailed error message"
+          },
+          "code": {
+            "type": "string",
+            "example": "503"
+          },
+          "status": {
+            "type": "string",
+            "example": "503"
+          }
+        }
+      },
+      "BadRequest": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApiErrorDetails"
+            }
+          }
+        },
+        "example": {
+          "errors": [
+            {
+              "title": "Bad Request",
+              "detail": "Invalid ICN",
+              "code": "400",
+              "status": "400"
+            }
+          ]
+        }
+      },
+      "NotAuthorizedServerApiError": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApiErrorDetails"
+            }
+          }
+        },
+        "example": {
+          "status": 401,
+          "error": "Invalid token.",
+          "path": "/benefits-education/v1/education/chapter33"
+        }
+      },
+      "ForbiddenServerApiError": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApiErrorDetails"
+            }
+          }
+        },
+        "example": {
+          "errors": [
+            {
+              "status": "403",
+              "path": "/veteran_verification/v2/disability_rating",
+              "error": "Token not granted requested scope."
+            }
+          ]
+        }
+      },
+      "MissingIcnApiError": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApiErrorDetails"
+            }
+          }
+        },
+        "example": {
+          "errors": [
+            {
+              "title": "Not Found",
+              "detail": "Icn not found.",
+              "code": "404",
+              "status": "404"
+            }
+          ]
+        }
+      },
+      "EducationResponseBuildError": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApiErrorDetails"
+            }
+          }
+        },
+        "example": {
+          "errors": [
+            {
+              "title": "Unprocessable Entity",
+              "detail": "Education Response Build Error.",
+              "code": "422",
+              "status": "422"
+            }
+          ]
+        }
+      },
+      "GatewayError": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "API rate limit exceeded"
+          }
+        },
+        "description": "API Gateway error"
+      },
+      "InternalServerApiError": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApiErrorDetails"
+            }
+          }
+        },
+        "example": {
+          "errors": [
+            {
+              "title": "Internal server error",
+              "detail": "Internal server error",
+              "code": "500",
+              "status": "500"
+            }
+          ]
+        }
+      },
+      "InaccessibleServiceDefintionErrorApiError": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApiErrorDetails"
+            }
+          }
+        },
+        "example": {
+          "errors": [
+            {
+              "title": "Bad Gateway",
+              "detail": "Upstream Request Error.",
+              "code": "502",
+              "status": "502"
+            }
+          ]
+        }
+      },
+      "BackendServiceApiError": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApiErrorDetails"
+            }
+          }
+        },
+        "example": {
+          "errors": [
+            {
+              "title": "Service Unavailable",
+              "detail": "Backend Service Unavailable.",
+              "code": "503",
+              "status": "503"
+            }
+          ]
+        }
+      }
+    },
+    "securitySchemes": {
+      "OAuth": {
+        "type": "oauth2",
+        "flows": {
+          "clientCredentials": {
+            "tokenUrl": "https://api.va.gov/oauth2/benefits-education/system/v1/token",
+            "scopes": {
+              "education.read": "Retrieve Education Benefits"
+            }
+          }
+        }
+      }
+    }
+  }
+}
