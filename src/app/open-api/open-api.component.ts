@@ -3,13 +3,14 @@ import { CUSTOM_ELEMENTS_SCHEMA, Component, SimpleChanges, ViewChild, signal } f
 import { OpenAPIService } from '../services/open-api.service';
 import { AgencySectionsComponent } from './agency-sections.component';
 import { createCssSelectorFromNode } from '@angular/compiler';
+import {StaticComponent} from "../static.component";
 
 @Component({
     selector: 'app-open-api',
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     standalone: true,
     templateUrl: './open-api.component.html',
-    imports: [CommonModule, AgencySectionsComponent]
+    imports: [CommonModule, AgencySectionsComponent, StaticComponent]
 })
 export class OpenApiComponent {
 constructor(  public svc: OpenAPIService){}
