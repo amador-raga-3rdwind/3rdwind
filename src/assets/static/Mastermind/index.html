@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head> 
+
+	<title>Master Mind</title>
+	<!--<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>-->
+
+	<style>
+	
+	html{ padding: 0; margin: 0 }
+	body{ padding: 0; margin: 0; font-family: Arial; background: #e5e5e5; -webkit-transform: translateZ(0); }
+	#header{ text-align: center; font-size: 30pt; padding: 8px 0; margin: 0; color: #2a4770; text-transform: uppercase; text-shadow: 0 1px 2px rgba(0,0,0,0.33), 0 0 32px #f356ea; }
+	#container{ margin: 0 auto; padding: 0 4px; width: 358px;  }
+	#wrap{ height: 100%; width: 100%; }
+	#wrap.blur{ -webkit-filter: blur(5px); filter: blur(5px); -moz-filter: blur(5px); }
+	.row{ position: relative; background: #fadab0; margin: 16px 0; padding: 0 0 0 8px; color: #979797; width: 100%; border-radius: 3px; box-shadow: 0 2px 0px 1px #bbb; }
+	.row:before{ content: attr(data-row); position: absolute; left: -32px; top: 8px; font-size: 28pt; color: #fefefe; text-shadow: 0 1px 2px #222; }
+	.row.active{ background: #fadab0; }
+	.row.active:before{ color: #a5f0e1; text-shadow: 0 0 2px #333, 3px 3px 0 #888; font-weight: bold; left: -38px; font-size: 32pt; }
+	.row button, #answers button{ background: #fefefe; height: 40px; margin: 8px 8px 8px 0; width: 60px; border: none; vertical-align: middle; box-shadow: inset 4px 4px 0 #bbb; border-radius: 4px; cursor: pointer; outline: none; }
+	.row button.active{ box-shadow: 0 1px 2px #777; }
+	.row button:hover{ background: #f0f0f0; }
+	.push{ position: relative; background: #ffc1d3; display: inline-block; float: right; width: 80px; height: 56px; border-left: 3px solid #bbb; text-align: center; }
+	.push.inactive{ background: #ccc;  cursor: pointer; }
+	.push.inactive:before{ content: "PUSH"; position: absolute; left: 50%; top: 50%; margin-left: -34px; margin-top: -16px; font-size: 18pt; font-weight: bold; color: #fefefe; text-shadow: 4px 4px 0 #bbb; }
+	.push.inactive:hover{ background: #bbb;  }
+	.push.inactive:hover:before{ text-shadow: 4px 4px 0 #999;  }
+	.answer{ display: inline-block; margin: 7px 8px 0 8px; height: 16px; width: 16px; background: #fefefe; box-shadow: 0 1px 2px #aaa; }
+	
+	#btn_choices{ position: absolute; margin: 0 auto; padding: 6px 4px 4px 4px; width: 170px; text-align: center; background: #fefefe; box-shadow: 0 2px 0 1px #bbb; border-radius: 3px; }
+	#btn_choices:before{ content: ""; position: absolute;  left: 85px; top: -8px; width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 8px solid #bbb; }
+	#btn_choices button{ height: 30px; width: 50px; border: none; background: #000; cursor: pointer; margin: 0 2px; }
+	
+	#timer{ float: right; padding: 16px; background: #166383; font-size: 20pt; color: rgba(0,0,0,0.6); font-weight: bold; border-bottom-left-radius: 8px; text-shadow: 2px 2px 1px rgba(255,255,255,0.33); }
+	
+	.pane{ position: absolute; width: 100%; height: 100%; text-align: center; left: 0; top: 0; background: #fff; opacity: 0.8; padding: 100px 0 0 0; }
+	.pane h1{ color: #0c5523; text-shadow: 0 1px 2px #777; }
+	</style>
+	
+</head>
+
+<body onload="createCode()">
+	
+	<div id='timer'>0.0</div>
+	
+	<div id='wrap'>
+	
+		<div id='container'>
+			
+			<h2 id='header'>Code Breaker</h2>
+			<div id='answers' style='margin-left: 8px;'></div>
+		
+		</div>
+		
+		<div id='btn_choices' style="display: none">
+		
+		</div>
+		<center>
+	<div id='start'>
+	Have you ever wanted to play Mastermind but there is no available "Code-Maker" to play with?<br>
+	Have you ever wanted to play Mastermind to exercise your mind just whenever you feel like it?<br>
+	Now you can, with a simple point and click... on your PC, Android tablets, iPad, iPhone, or almost any cellphone.<br>
+	No Internet Connection required!<br><br>
+	</div>
+	<div id='note'>
+	The idea of the game is for a player (the Code-Breaker) to guess the Secret Code assigned by the the Code-Maker (the computer).<br>
+	The Secret Code is a sequence of 4 colored pegs chosen from six colors available. <br>
+	The Code-Breaker (you) makes a series of guesses - after each guess the Code-Maker gives feedback in the form of black or white pegs: <br><b>Black</b> to denote those that are of the right color and in the correct position, <br>and <b>White</b> for those of correct color but not in the correct position.<br>
+	<h5><b>Note:</b>The White or Black pegs do not necessarily imply which of the Code-Breaker's pegs are of correct color/position.</h5>
+	<hr>
+	</div>
+		<button onclick="ShowCode()">Show Code</button>
+		</center>
+	
+	</div>
+	
+	<script src="game.js"></script>
+
+</body>
+
+</html>

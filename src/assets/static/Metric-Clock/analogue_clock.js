@@ -1,12 +1,12 @@
 // Global variables
-    var clock_face = null,
+  var clock_face = null,
 	hour_hand = null,
 	minute_hand = null,
 	second_hand = null,
 	ctx = null,
 	metric_ctx = null,
-	degrees = 0,
-	ball=null, ball2=null;
+	degrees = 0;
+//	ball=null, ball2=null;
 
 
     var dimension  = 500;
@@ -163,9 +163,9 @@ function correctDisplay(obj)
             // Load the minute hand image
             second_hand = new Image();
             second_hand.src = 'second_hand2.png';
-
-            ball = new Image();
-            ball.src = 'ball.png';
+//
+//            ball = new Image();
+//            ball.src = 'ball.png';
 
             // Load the clock face image
             clock_face = new Image();
